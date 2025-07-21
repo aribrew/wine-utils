@@ -1,0 +1,52 @@
+#!/bin/bash
+
+
+abort()
+{
+    MESSAGE=$1
+
+    if ! [ "$MESSAGE" == "" ];
+    then
+        echo "$MESSAGE"
+        echo ""
+    fi
+
+    exit 1
+}
+
+
+os_name()
+{
+    echo "$(cat /etc/os-release | grep ^ID= | cut -d '=' -f 2)"
+}
+
+
+os_version()
+{
+    echo "$(cat /etc/os-release | grep ^VERSION_CODENAME= | cut -d '=' -f 2)"
+}
+
+
+export -f abort
+export -f os_name
+export -f os_version
+
+
+if [ "$1" == "install" ];
+then
+    SCRIPT=$(realpath $0)
+    
+    if ! [ -d "/opt/bin" ];
+    then
+        sudo mkdir -p "/opt/bin"
+    fi
+
+    sudo cp $SCRIPT /opt/bin/
+    sudo chmod +x /opt/bin/$(basename "$SCRIPT")
+
+    if [ "$?" == "0" ];
+    then
+        echo "Bash helpers installed to /opt/bin."
+        echo ""
+    fi
+fi

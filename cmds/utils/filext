@@ -1,0 +1,8 @@
+#!/bin/bash
+
+FULL_PATH=$1
+
+FILE_NAME=$(basename "$FULL_PATH")
+FILE_EXTENSION=${FILE_NAME##*.}
+
+echo .$FILE_EXTENSION
