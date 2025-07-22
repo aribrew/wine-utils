@@ -15,6 +15,17 @@ abort()
 }
 
 
+check_sudo()
+{
+    if [ "$EUID" == "0" ];
+    then
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+
 os_name()
 {
     echo "$(cat /etc/os-release | grep ^ID= | cut -d '=' -f 2)"
@@ -27,7 +38,10 @@ os_version()
 }
 
 
+
+
 export -f abort
+export -f check_sudo
 export -f os_name
 export -f os_version
 

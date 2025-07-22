@@ -1,5 +1,11 @@
 #!/bin/bash
 
+################################################################
+# Installs the specified WINE folder in ~/.local/bin/winenv.
+# This is done this way to avoid colliding with existing WINE
+# system-wide installations.
+################################################################
+
 BASH_HELPERS="/opt/bin/bash_helpers"
 SCRIPTS=$(realpath $(dirname $0))
 
@@ -26,7 +32,7 @@ fi
 
 
 WINE_PATH=$1
-INSTALL_PATH="$HOME/.local/bin/wine"
+INSTALL_PATH="$HOME/.local/bin/winenv"
 
 
 if [ -f "${WINE_PATH}/.wine_branch" ];
@@ -38,7 +44,7 @@ then
     WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
 
     echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
-    echo "in ~/.local/bin/wine ..."
+    echo "in '$INSTALL_PATH' ..."
     echo "--------------------------------------------------------------------"
 
     if ! [ -d "$INSTALL_PATH" ];
