@@ -1,0 +1,47 @@
+#!/bin/bash
+
+BASH_HELPERS="/opt/bin/bash_helpers"
+
+if ! [ -f "$BASH_HELPERS" ];
+then
+    echo "Cannot find '$BASH_HELPERS'."
+    echo ""
+
+    exit 1
+    
+else
+    source "$BASH_HELPERS"
+fi
+
+
+
+
+PREFIX=$(realpath $(dirname $0))
+
+
+if [ -d "$PREFIX/dosdevices" ];
+then
+    if [ -d "$PREFIX/drive_c/Program Files (x86)" ];
+    then
+        ln -sf "$PREFIX" "$HOME/.wine64"
+
+        if ! [ "$?" == "0" ];
+        then
+            abort "Failed creating ~/.wine64 symlink. A real dir exists?"
+        fi
+
+        echo "This WINE prefix is now the default for running 64 bit apps."
+        echo ""
+
+    else
+        ln -sf "$PREFIX" "$HOME/.wine"
+
+        if ! [ "$?" == "0" ];
+        then
+            abort "Failed creating ~/.wine symlink. A real dir exists?"
+        fi
+
+        echo "This WINE prefix is now the default for running 32 bit apps."
+        echo ""
+    fi
+fi

@@ -1,19 +1,10 @@
 #!/bin/bash
 
 BASH_HELPERS="/opt/bin/bash_helpers"
-SCRIPTS=$(realpath $(dirname $0))
-
-
-if ! [ -f "$BASH_HELPERS" ] &&
-     [ -f "$SCRIPTS/bash_helpers" ];
-then
-    "$SCRIPTS/helpers/bash_helpers" install
-fi
-
 
 if ! [ -f "$BASH_HELPERS" ];
 then
-    echo "Cannot find /opt/bin/bash_helpers."
+    echo "Cannot find '$BASH_HELPERS'."
     echo ""
 
     exit 1
@@ -21,6 +12,8 @@ then
 else
     source "$BASH_HELPERS"
 fi
+
+
 
 
 WINETRICKS_URL="https://raw.githubusercontent.com/Winetricks/winetricks"
@@ -52,5 +45,16 @@ wget -N $WINETRICKS_URL
 if ! [ "$?" == "0" ];
 then
     abort "Failed. Maybe the Winetricks URL is down..."
+fi
+
+
+chmod +x winetricks
+
+if [ -f "$HOME/.local/bin/winenv/.wine_env" ];
+then
+    mv winetricks $HOME/.local/bin/winenv
+
+    echo "Winetricks installed to '~/.local/bin/winenv'."
+    echo ""
 fi
 

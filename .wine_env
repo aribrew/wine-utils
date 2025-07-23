@@ -1,0 +1,17 @@
+
+if ! [ -v WINE_ENV ];
+then
+    if [ -d "$HOME/.local/bin/winenv" ];
+    then
+        export WINE_ENV=$HOME/.local/bin/winenv
+
+        export PATH=$WINE_ENV:$PATH
+        export PATH=$WINE_ENV/cmds:$PATH
+
+        echo "Wine environment loaded."
+        echo "See $WINE_ENV/cmds for commands."
+        echo ""
+    fi
+fi
+
+

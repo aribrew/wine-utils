@@ -15,6 +15,34 @@ abort()
 }
 
 
+check_exec_arch()
+{
+    EXEC_FILE=$1
+
+    echo "Checking if file '$EXEC_FILE' is a Windows executable..."
+
+    FILE_TYPE=$(exec_type "$EXEC_FILE")
+
+    if [ "$FILE_TYPE" == "windows-i386" ];
+    then
+        export WINE32_NEEDED=1
+
+        echo "Want to launch a Windows 32 bit executable."
+        echo ""
+
+    elif [ "$FILE_TYPE" == "windows-amd64" ];
+    then
+        export WINE64_NEEDED=1
+
+        echo "Want to launch a Windows 64 bit executable."
+        echo ""
+
+    else
+        abort "The given file isn't a Windows 32 or 64 bit executable."
+    fi
+}
+
+
 check_sudo()
 {
     if [ "$EUID" == "0" ];
@@ -23,6 +51,103 @@ check_sudo()
     else
         return 1;
     fi
+}
+
+
+exec_type()
+{
+    EXEC=$1
+    FILE_TYPE=$(file -L "$EXEC")
+
+    echo ${FILE_TYPE} | grep "ELF 32-bit" > /dev/null
+
+    if [ "$?" == "0" ];
+    then
+        echo "linux-i386"
+        echo ""
+    else
+        echo ${FILE_TYPE} | grep "ELF 64-bit" > /dev/null
+
+        if [ "$?" == "0" ];
+        then
+            echo "linux-amd64"
+            echo ""
+        else
+            echo ${FILE_TYPE} | grep "PE32 executable" > /dev/null
+
+            if [ "$?" == "0" ];
+            then
+                echo "windows-i386"
+                echo ""
+            else
+                echo ${FILE_TYPE} | grep "PE32+ executable" > /dev/null
+
+                if [ "$?" == "0" ];
+                then
+                    echo "windows-amd64"
+                    echo ""
+                fi
+            fi
+        fi
+    fi
+}
+
+
+filext()
+{
+    FULL_PATH=$1
+
+    FILE_NAME=$(basename "$FULL_PATH")
+    FILE_EXTENSION=${FILE_NAME##*.}
+
+    echo .$FILE_EXTENSION
+}
+
+
+isolabel()
+{
+    if ! [ -f "/usr/bin/cd-info" ];
+    then
+        abort "Install libcdio-utils package."
+    fi
+
+    ISO="$1"
+    ISO=$(realpath "$ISO")
+    ISO_FILENAME=$(basename "$ISO")
+    FILE_EXT=$(filext "$ISO_FILENAME")
+
+    if [ "$FILE_EXT" == ".bin" ];
+    then
+        ISO=${ISO/.bin/.cue}
+
+    elif [ "$FILE_EXT" == ".BIN" ];
+    then
+        ISO=${ISO/.BIN/.CUE}
+    fi
+
+    if [[ $ISO == *.cue ]] || [[ $ISO == *.CUE ]];
+    then
+        cd-info "$ISO" | grep -m1 "Volume" | cut -d ':' -f 2 | xargs
+
+    elif [[ $ISO == *.iso ]] || [[ $ISO == *.ISO ]];
+    then
+        LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume id:" | cut -d ':' -f 2 | xargs)
+
+        if [ "$LABEL" == "" ];
+        then
+            LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume" | cut -d ':' -f 2 | xargs)
+        fi
+
+        if [ "$LABEL" == "" ];
+        then
+            echo "UNNAMED"
+        else
+            echo "$LABEL"
+        fi
+
+    else
+        echo "UNKNOWN"
+    fi    
 }
 
 
@@ -41,7 +166,11 @@ os_version()
 
 
 export -f abort
+export -f check_exec_arch
 export -f check_sudo
+export -f exec_type
+export -f isolabel
+export -f filext
 export -f os_name
 export -f os_version
 

@@ -19,7 +19,7 @@ fi
 
 if ! [ -f "$BASH_HELPERS" ];
 then
-    echo "Cannot find /opt/bin/bash_helpers."
+    echo "Cannot find '$BASH_HELPERS'."
     echo ""
 
     exit 1
@@ -42,6 +42,11 @@ then
     WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
     WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
     WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
+
+    if [ -d "$INSTALL_PATH/$WINE_FOLDER" ];
+    then
+        abort "This WINE version is already installed."
+    fi
 
     echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
     echo "in '$INSTALL_PATH' ..."

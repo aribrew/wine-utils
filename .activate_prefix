@@ -1,0 +1,15 @@
+#!/bin/bash
+
+export WINEPREFIX=$WINEPREFIX
+export WINEARCH=$WINEARCH
+export WIN_C=$WINEPREFIX/drive_c
+export WIN_D=$WINEPREFIX/drive_d
+
+export WINEDEBUG=-all
+
+echo ""
+echo "WINE prefix '$WINEPREFIX' activated."
+echo ""
+echo "By default, all WINE debug info is silenced."
+echo "To enable it, run 'unset WINEDEBUG'."
+echo ""

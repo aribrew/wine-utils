@@ -19,7 +19,7 @@ fi
 
 if ! [ -f "$BASH_HELPERS" ];
 then
-    echo "Cannot find /opt/bin/bash_helpers."
+    echo "Cannot find '$BASH_HELPERS'."
     echo ""
 
     exit 1
