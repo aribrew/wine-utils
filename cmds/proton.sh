@@ -131,6 +131,12 @@ then
 fi
 
 
+if ! [ -d "$STEAM_COMPAT_DATA_PATH" ];
+then
+    mkdir -p "$STEAM_COMPAT_DATA_PATH"
+fi
+
+
 if [ -v EXEC ];
 then
     echo "DEBUG: $PROTON run \"$EXEC\""
