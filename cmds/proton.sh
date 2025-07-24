@@ -83,6 +83,8 @@ fi
 if [ -v WINEPREFIX ];
 then
     export STEAM_COMPAT_DATA_PATH="$WINEPREFIX"
+else
+    export STEAM_COMPAT_DATA_PATH="$STEAM_DIR/prefixes"
 fi
 
 if [ -v WINEARCH ];
@@ -113,6 +115,19 @@ then
 elif [ "$1" == "winecfg" ];
 then
     EXEC="$WINE_UTILS/winecfg.exe"
+fi
+
+
+if ! [ -v WINEPREFIX ];
+then
+    EXEC_ARCH=$(exec_type "$EXEC")
+
+    if [[ $EXEC_ARCH == *-i386 ]];
+    then
+        export STEAM_COMPAT_DATA_PATH="$STEAM_COMPAT_DATA_PATH/win32"
+    else
+        export STEAM_COMPAT_DATA_PATH="$STEAM_COMPAT_DATA_PATH/win64"
+    fi
 fi
 
 

@@ -15,34 +15,6 @@ abort()
 }
 
 
-check_exec_arch()
-{
-    EXEC_FILE=$1
-
-    echo "Checking if file '$EXEC_FILE' is a Windows executable..."
-
-    FILE_TYPE=$(exec_type "$EXEC_FILE")
-
-    if [ "$FILE_TYPE" == "windows-i386" ];
-    then
-        export WINE32_NEEDED=1
-
-        echo "Want to launch a Windows 32 bit executable."
-        echo ""
-
-    elif [ "$FILE_TYPE" == "windows-amd64" ];
-    then
-        export WINE64_NEEDED=1
-
-        echo "Want to launch a Windows 64 bit executable."
-        echo ""
-
-    else
-        abort "The given file isn't a Windows 32 or 64 bit executable."
-    fi
-}
-
-
 check_sudo()
 {
     if [ "$EUID" == "0" ];
@@ -166,7 +138,6 @@ os_version()
 
 
 export -f abort
-export -f check_exec_arch
 export -f check_sudo
 export -f exec_type
 export -f isolabel
