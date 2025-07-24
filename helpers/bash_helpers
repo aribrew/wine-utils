@@ -137,13 +137,16 @@ os_version()
 
 
 
-export -f abort
-export -f check_sudo
-export -f exec_type
-export -f isolabel
-export -f filext
-export -f os_name
-export -f os_version
+if ! [ -v ZSH_VERSION ];
+then
+    export -f abort
+    export -f check_sudo
+    export -f exec_type
+    export -f isolabel
+    export -f filext
+    export -f os_name
+    export -f os_version
+fi
 
 
 if [ "$1" == "install" ];
@@ -156,7 +159,7 @@ then
     fi
 
     sudo cp $SCRIPT /opt/bin/
-    sudo chmod +x /opt/bin/$(basename "$SCRIPT")
+    sudo chmod 775 /opt/bin/$(basename "$SCRIPT")
 
     if [ "$?" == "0" ];
     then
