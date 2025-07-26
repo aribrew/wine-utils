@@ -48,13 +48,19 @@ then
 fi
 
 
-chmod +x winetricks
-
 if [[ -f "$HOME/.local/bin/winenv/.wine_env" ]]; 
 then
-    mv winetricks $HOME/.local/bin/winenv
+    INSTALL_PATH="$HOME/.local/bin/winenv"
+else
+    INSTALL_PATH="$HOME/.local/bin"    
+fi
 
-    echo "Winetricks installed to '~/.local/bin/winenv'."
-    echo ""
+
+if [[ -d "$INSTALL_PATH" ]];
+then
+    mkdir -p "$INSTALL_PATH"
+    
+    mv winetricks "$INSTALL_PATH/winetricks"
+    chmod 770 "$INSTALL_PATH/winetricks"
 fi
 
