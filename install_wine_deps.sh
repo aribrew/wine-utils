@@ -8,14 +8,14 @@ BASH_HELPERS="/opt/bin/bash_helpers"
 SCRIPTS=$(realpath $(dirname $0))
 
 
-if ! [ -f "$BASH_HELPERS" ] &&
-     [ -f "$SCRIPTS/bash_helpers" ];
+if ! [[ -f "$BASH_HELPERS" ]] &&
+     [[ -f "$SCRIPTS/bash_helpers" ]]; 
 then
     "$SCRIPTS/helpers/bash_helpers" install
 fi
 
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]]; 
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -35,28 +35,28 @@ install_packages_for_arch()
     TO_INSTALL=""
 
     for package in $PACKAGES; do
-        if [ "$OS_NAME" == "fedora" ];
+        if [[ "$OS_NAME" == "fedora" ]]; 
         then
             TO_INSTALL+="${package} "
 
-        elif [ "$OS_NAME" == "debian" ];
+        elif [[ "$OS_NAME" == "debian" ]]; 
         then
             TO_INSTALL+="${package}:${ARCH} "
         fi
     done
 
-    if [ "$OS_NAME" == "fedora" ];
+    if [[ "$OS_NAME" == "fedora" ]]; 
     then
         sudo yum
         sudo yum
 
-    elif [ "$OS_NAME" == "debian" ];
+    elif [[ "$OS_NAME" == "debian" ]]; 
     then
         sudo apt update
         sudo apt install $TO_INSTALL -y
     fi
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         echo ""
         abort "One or more packages failed failed installing."
@@ -72,10 +72,10 @@ OS_VERSION=$(os_version)
 THIS_ARCH=$(uname -m)
 
 
-if [ "$OS_NAME" == "arch" ];
+if [[ "$OS_NAME" == "arch" ]]; 
 then
-    if ! [ -f "/etc/.wine32_deps_installed" ] &&
-       ! [ -f "/etc/.wine64_deps_installed" ];
+    if ! [[ -f "/etc/.wine32_deps_installed" ]] &&
+       ! [[ -f "/etc/.wine64_deps_installed" ]]; 
     then
         echo ""
         echo "Installing WINE dependencies for ArchLinux ..."
@@ -85,7 +85,7 @@ then
         DEPS+="libpng libunwind libxcursor libxfixes libxi libxkbcommon "
         DEPS+="libxrandr libxrender xkeyboard-config"
 
-        if [ "$THIS_ARCH" == "arm64" ];
+        if [[ "$THIS_ARCH" == "arm64" ]]; 
         then            
             install_packages_for_arch "$DEPS" "armhf"
             sudo touch /etc/.wine32_deps_installed
@@ -93,7 +93,7 @@ then
             install_packages_for_arch "$DEPS" "arm64"
             sudo touch /etc/.wine64_deps_installed
 
-        elif [ "$THIS_ARCH" == "amd64" ];
+        elif [[ "$THIS_ARCH" == "amd64" ]]; 
         then
             install_packages_for_arch "$DEPS" "i386"
             sudo touch /etc/.wine32_deps_installed
@@ -111,28 +111,28 @@ fi
 THIS_ARCH=$(uname -m)
 
 
-if [ "$THIS_ARCH" == "x86" ];
+if [[ "$THIS_ARCH" == "x86" ]]; 
 then
     THIS_ARCH="i386"
 
-elif [ "$THIS_ARCH" == "x86_64" ];
+elif [[ "$THIS_ARCH" == "x86_64" ]]; 
 then
     THIS_ARCH="amd64"
 
-elif [ "$THIS_ARCH" == "aarch64" ];
+elif [[ "$THIS_ARCH" == "aarch64" ]]; 
 then
     THIS_ARCH="arm64"
 fi
 
 
-if ! [ -f "/etc/.wine32_deps_installed" ] &&
-   ! [ -f "/etc/.wine64_deps_installed" ];
+if ! [[ -f "/etc/.wine32_deps_installed" ]] &&
+   ! [[ -f "/etc/.wine64_deps_installed" ]]; 
 then
     echo ""
     echo "Installing WINE dependencies for ${OS_VERSION} ..."
     echo "--------------------------------------------------"
 
-    if [ "$OS_VERSION" == "bullseye" ] || [ "$OS_VERSION" == "bookworm" ];
+    if [[ "$OS_VERSION" == "bullseye" ]] || [[ "$OS_VERSION" == "bookworm" ]]; 
     then
         DEPS="libasound2 libc6 libglib2.0-0 libgphoto2-6 libgphoto2-port12 "
         DEPS+="libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libpcap0.8 "
@@ -141,7 +141,7 @@ then
         DEPS+="libxkbcommon0 libxkbregistry0 ocl-icd-libopencl1 "
         DEPS+="libasound2-plugins libncurses6 libncurses5"
 
-    elif [ "$OS_VERSION" == "trixie" ];
+    elif [[ "$OS_VERSION" == "trixie" ]]; 
     then
         DEPS="libasound2t64 libc6 libglib2.0-0t64 libgphoto2-6t64 "
         DEPS+="libgphoto2-port12t64 libgstreamer-plugins-base1.0-0 "
@@ -151,12 +151,12 @@ then
         DEPS+="ocl-icd-libopencl1 libasound2-plugins libncurses6"
     fi
 
-    if ! [ -v DEPS ];
+    if ! [[ -v DEPS ]]; 
     then
         abort "I do not know what dependencies '$OS_VERSION' requires."
     fi
 
-    if [ "$THIS_ARCH" == "arm64" ];
+    if [[ "$THIS_ARCH" == "arm64" ]]; 
     then
         sudo dpkg --add-architecture armhf
         sudo apt update
@@ -167,7 +167,7 @@ then
         install_packages_for_arch "$DEPS" "arm64"
         sudo touch /etc/.wine64_deps_installed
 
-    elif [ "$THIS_ARCH" == "amd64" ];
+    elif [[ "$THIS_ARCH" == "amd64" ]]; 
     then
         sudo dpkg --add-architecture i386
 

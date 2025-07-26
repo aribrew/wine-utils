@@ -1,7 +1,7 @@
 
-if ! [ -v WINE_ENV ];
+if ! [[ -v WINE_ENV ]];
 then
-    if [ -d "$HOME/.local/bin/winenv" ];
+    if [[ -d "$HOME/.local/bin/winenv" ]];
     then
         export WINE_ENV=$HOME/.local/bin/winenv
 

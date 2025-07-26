@@ -5,7 +5,7 @@ abort()
 {
     MESSAGE=$1
 
-    if ! [ "$MESSAGE" == "" ];
+    if ! [[ "$MESSAGE" == "" ]];
     then
         echo "$MESSAGE"
         echo ""
@@ -17,7 +17,7 @@ abort()
 
 check_sudo()
 {
-    if [ "$EUID" == "0" ];
+    if [[ "$EUID" == "0" ]];
     then
         return 0;
     else
@@ -33,28 +33,28 @@ exec_type()
 
     echo ${FILE_TYPE} | grep "ELF 32-bit" > /dev/null
 
-    if [ "$?" == "0" ];
+    if [[ "$?" == "0" ]];
     then
         echo "linux-i386"
         echo ""
     else
         echo ${FILE_TYPE} | grep "ELF 64-bit" > /dev/null
 
-        if [ "$?" == "0" ];
+        if [[ "$?" == "0" ]];
         then
             echo "linux-amd64"
             echo ""
         else
             echo ${FILE_TYPE} | grep "PE32 executable" > /dev/null
 
-            if [ "$?" == "0" ];
+            if [[ "$?" == "0" ]];
             then
                 echo "windows-i386"
                 echo ""
             else
                 echo ${FILE_TYPE} | grep "PE32+ executable" > /dev/null
 
-                if [ "$?" == "0" ];
+                if [[ "$?" == "0" ]];
                 then
                     echo "windows-amd64"
                     echo ""
@@ -78,7 +78,7 @@ filext()
 
 isolabel()
 {
-    if ! [ -f "/usr/bin/cd-info" ];
+    if ! [[ -f "/usr/bin/cd-info" ]];
     then
         abort "Install libcdio-utils package."
     fi
@@ -88,11 +88,11 @@ isolabel()
     ISO_FILENAME=$(basename "$ISO")
     FILE_EXT=$(filext "$ISO_FILENAME")
 
-    if [ "$FILE_EXT" == ".bin" ];
+    if [[ "$FILE_EXT" == ".bin" ]];
     then
         ISO=${ISO/.bin/.cue}
 
-    elif [ "$FILE_EXT" == ".BIN" ];
+    elif [[ "$FILE_EXT" == ".BIN" ]];
     then
         ISO=${ISO/.BIN/.CUE}
     fi
@@ -105,12 +105,12 @@ isolabel()
     then
         LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume id:" | cut -d ':' -f 2 | xargs)
 
-        if [ "$LABEL" == "" ];
+        if [[ "$LABEL" == "" ]];
         then
             LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume" | cut -d ':' -f 2 | xargs)
         fi
 
-        if [ "$LABEL" == "" ];
+        if [[ "$LABEL" == "" ]];
         then
             echo "UNNAMED"
         else
@@ -137,7 +137,7 @@ os_version()
 
 
 
-if ! [ -v ZSH_VERSION ];
+if ! [[ -v ZSH_VERSION ]];
 then
     export -f abort
     export -f check_sudo
@@ -149,11 +149,11 @@ then
 fi
 
 
-if [ "$1" == "install" ];
+if [[ "$1" == "install" ]];
 then
     SCRIPT=$(realpath $0)
     
-    if ! [ -d "/opt/bin" ];
+    if ! [[ -d "/opt/bin" ]];
     then
         sudo mkdir -p "/opt/bin"
     fi
@@ -161,7 +161,7 @@ then
     sudo cp $SCRIPT /opt/bin/
     sudo chmod 775 /opt/bin/$(basename "$SCRIPT")
 
-    if [ "$?" == "0" ];
+    if [[ "$?" == "0" ]];
     then
         echo "Bash helpers installed to /opt/bin."
         echo ""

@@ -2,7 +2,7 @@
 
 BASH_HELPERS="/opt/bin/bash_helpers"
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]];
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -23,27 +23,27 @@ usage()
 
 
 
-if [ "$1" == "" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ];
+if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
 fi
 
 
-#if ! [ -f "$HOME/.wine-env_path" ] || ! [ -f "$HOME/.wine_env" ];
+#if ! [[ -f "$HOME/.wine-env_path" ]] || ! [[ -f "$HOME/.wine_env" ]];
 #then
 #    abort "No ~/.wine-env_path or ~/.wine_env files found. Run setup first."
 #fi
 
 
-#if [ "$WINE_ENV_PATH" == "" ];
+#if [[ "$WINE_ENV_PATH" == "" ]];
 #then
 #    source "$HOME/.wine_env"
 #fi
 
 
-#if ! [ -f "$HOME/.default_win32_env" ] &&
-#   ! [ -f "$HOME/.default_win64_env" ];
+#if ! [[ -f "$HOME/.default_win32_env" ]] &&
+#   ! [[ -f "$HOME/.default_win64_env" ]];
 #then
 #    echo "Default envs for Win32 and Win64 are missing."
 #    abort "No Wine installation available?"
@@ -57,7 +57,7 @@ EXEC_DIR=$(dirname "$EXEC_PATH")
 EXEC_BASENAME=$(basename "$EXEC_PATH" .exe)
 
 
-if [ "$WINE32_NEEDED" == "0" ] && [ "$WINE64_NEEDED" == "" ];
+if [[ "$WINE32_NEEDED" == "0" ]] && [[ "$WINE64_NEEDED" == "" ]];
 then
     abort "Not a Windows executable."
 fi
@@ -67,7 +67,7 @@ APP_WINENV=$EXEC_DIR/.winenv
 EXEC_WINENV=$EXEC_DIR/$EXEC_BASENAME.winenv
 
 
-if ! [ -f "$EXEC_WINENV" ];
+if ! [[ -f "$EXEC_WINENV" ]];
 then
     echo "No Wine environment associated with the executable was found."
 
@@ -80,7 +80,7 @@ else
 fi
 
 
-if ! [ -f "$APP_WINENV" ];
+if ! [[ -f "$APP_WINENV" ]];
 then
     # If no Wine environment was loaded for the executable, check if
     # the executable folder contains one and load it
@@ -94,25 +94,25 @@ else
 fi
 
 
-if [ "$WINELOADER" == "" ];
+if [[ "$WINELOADER" == "" ]];
 then
     # If no Wine environment has been loaded at this moment,
     # try with the default one for the executable architecture
 
     check_exec_arch "$EXEC_PATH"
 
-    if [ "$WINE32_NEEDED" == "1" ];
+    if [[ "$WINE32_NEEDED" == "1" ]];
     then
-        if ! [ -f "$HOME/.default_win32_env" ];
+        if ! [[ -f "$HOME/.default_win32_env" ]];
         then
             abort "Cannot find ~/.default_win32_env. Install a win32 prefix."
         fi
 
         source wine_load $(cat "$HOME/.default_win32_env")
 
-    elif [ "$WINE64_NEEDED" == "1" ];
+    elif [[ "$WINE64_NEEDED" == "1" ]];
     then
-        if ! [ -f "$HOME/.default_win64_env" ];
+        if ! [[ -f "$HOME/.default_win64_env" ]];
         then
             abort "Cannot find ~/.default_win64_env. Install a win64 prefix."
         fi
@@ -120,7 +120,7 @@ then
         source wine_load $(cat "$HOME/.default_win64_env")
     fi
 
-    if [ "$WINELOADER" == "" ];
+    if [[ "$WINELOADER" == "" ]];
     then
         echo -n "Failed loading the default Wine environment "
         echo "for the needed architecture."
@@ -130,32 +130,32 @@ then
 fi
 
 
-if [ "$WINEPREFIX" == "" ];
+if [[ "$WINEPREFIX" == "" ]];
 then
     # If no Wine prefix has been loaded at this moment, activate
     # the default for the needed architecture
 
-    if [ "$WINE32_NEEDED" == "1" ] && [ -d "$HOME/.wine" ];
+    if [[ "$WINE32_NEEDED" == "1" ]] && [[ -d "$HOME/.wine" ]];
     then
         source ~/.wine/activate
 
-    elif [ "$WINE64_NEEDED" == "1" ] && [ -d "$HOME/wine64" ];
+    elif [[ "$WINE64_NEEDED" == "1" ]] && [[ -d "$HOME/wine64" ]];
     then
         source ~/.wine64/activate
     fi
 
-    if [ "$WINEPREFIX" == "" ];
+    if [[ "$WINEPREFIX" == "" ]];
     then
         abort "Failed to load the needed Wine prefix."
     fi
 fi
 
 
-if ! [ "$WINELOADER" == "" ] && ! [ "$WINEPREFIX" == "" ];
+if ! [[ "$WINELOADER" == "" ]] && ! [[ "$WINEPREFIX" == "" ]];
 then
     echo -n "Launching '$EXEC_PATH'"
 
-    if ! [ "$ARGS" == "" ];
+    if ! [[ "$ARGS" == "" ]];
     then
         echo " with args '$ARGS'..."
     fi

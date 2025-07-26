@@ -10,14 +10,14 @@ BASH_HELPERS="/opt/bin/bash_helpers"
 SCRIPTS=$(realpath $(dirname $0))
 
 
-if ! [ -f "$BASH_HELPERS" ] &&
-     [ -f "$SCRIPTS/helpers/bash_helpers" ];
+if ! [[ -f "$BASH_HELPERS" ]] &&
+     [[ -f "$SCRIPTS/helpers/bash_helpers" ]]; 
 then
     "$SCRIPTS/bash_helpers" install
 fi
 
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]]; 
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -35,7 +35,7 @@ OS_NAME=$(os_name)
 OS_VERSION=$(os_version)
 
 
-if [ "$OS_NAME" == "arch" ];
+if [[ "$OS_NAME" == "arch" ]]; 
 then
     echo "If want to use Wine in ArchLinux (or Manjaro), it is recommended to"
     echo "use Lutris instead, or a podman container with Debian testing."
@@ -55,14 +55,14 @@ WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
 WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
 
 
-if ! [ -d "$APT_KEYRINGS_DIR" ];
+if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
 then
     sudo mkdir -p "$APT_KEYRINGS_DIR"
 fi
 
 
-if ! [ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ] ||
-   ! [ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ];
+if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
+   ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
 then
     echo ""
     echo "Enabling i386 repository if not available yet ..."
@@ -74,17 +74,17 @@ then
     echo ""
     echo "Checking if 'contrib' repository is already enabled ..."
 
-    if [ -f "$SOURCES_LIST" ];
+    if [[ -f "$SOURCES_LIST" ]]; 
     then
         cat "$SOURCES_LIST" | grep -q " contrib"
 
-        if [ "$?" == "0" ];
+        if [[ "$?" == "0" ]]; 
         then
             echo "All OK. Nothing to do here."
             echo ""
 
         else
-            if [ "$(which apt-add-repository)" == "" ];
+            if [[ "$(which apt-add-repository)" == "" ]]; 
             then
                 echo ""
                 echo "Installing software-properties-common first ..."
@@ -93,7 +93,7 @@ then
                 sudo apt update
                 sudo apt install software-properties-common -y
 
-                if ! [ "$?" == "0" ];
+                if ! [[ "$?" == "0" ]]; 
                 then
                     abort "Failed. Maybe there is something wrong with APT."
                 fi
@@ -105,7 +105,7 @@ then
 
             sudo apt-add-repository contrib -y
 
-            if ! [ "$?" == "0" ];
+            if ! [[ "$?" == "0" ]]; 
             then
                 abort "Failed. No 'contrib' repo in this distro?"
             fi
@@ -120,7 +120,7 @@ then
 
     wget -N $WINE_GPG_URL
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         abort "Failed downloading GPG key."
     fi
@@ -128,7 +128,7 @@ then
 
     wget -N $WINE_APT_URL
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         abort "Failed downloading APT sources list."
     fi
@@ -143,7 +143,7 @@ then
 
     sudo apt update
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         abort "Something is wrong :S"
     fi

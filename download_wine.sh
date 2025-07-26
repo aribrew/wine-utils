@@ -4,14 +4,14 @@ BASH_HELPERS="/opt/bin/bash_helpers"
 SCRIPTS=$(realpath $(dirname $0))
 
 
-if ! [ -f "$BASH_HELPERS" ] &&
-     [ -f "$SCRIPTS/bash_helpers" ];
+if ! [[ -f "$BASH_HELPERS" ]] &&
+     [[ -f "$SCRIPTS/bash_helpers" ]]; 
 then
     "$SCRIPTS/helpers/bash_helpers" install
 fi
 
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]]; 
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -31,9 +31,9 @@ mkdir -p "$WINE_TMP"
 cd "$WINE_TMP"
 
 
-if ! [ -v OS_ARCH ];
+if ! [[ -v OS_ARCH ]]; 
 then
-    if [ "$(uname -m)" == "x86_64" ];
+    if [[ "$(uname -m)" == "x86_64" ]]; 
     then
         export OS_ARCH="both"
     else
@@ -45,18 +45,18 @@ fi
 OS_VERSION=$(cat /etc/os-release | grep "^VERSION_CODENAME=" | cut -d '=' -f 2)
 
 
-if ! [ -v WINE_BRANCH ];
+if ! [[ -v WINE_BRANCH ]]; 
 then
     export WINE_BRANCH="stable"
 fi
 
-if ! [ -v WINE_VERSION ];
+if ! [[ -v WINE_VERSION ]]; 
 then
     export WINE_VERSION="10.0.0.0"
 fi
 
 
-if [ "$OS_ARCH" == "i386" ] || [ "$OS_ARCH" == "both" ];
+if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     echo ""
     echo "Enabling i386 repository if not available yet ..."
@@ -71,13 +71,13 @@ echo "---------------------------"
 
 sudo apt update
 
-if ! [ "$?" == "0" ];
+if ! [[ "$?" == "0" ]]; 
 then
     abort "Something is wrong with APT. Fix it first."
 fi
 
 
-if [ "$OS_ARCH" == "i386" ] || [ "$OS_ARCH" == "both" ];
+if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     echo ""
     echo "Downloading WINE (32 bit) ($WINE_BRANCH) $WINE_VERSION) ..."
@@ -96,7 +96,7 @@ then
 fi
 
 
-if [ "$OS_ARCH" == "amd64" ] || [ "$OS_ARCH" == "both" ];
+if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     echo ""
     echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
@@ -123,11 +123,11 @@ WINE32_DIR="wine-${WINE_VERSION}_i386"
 WINE64_DIR="wine-${WINE_VERSION}_amd64"
 
 
-if [ "$OS_ARCH" == "i386" ] || [ "$OS_ARCH" == "both" ];
+if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     ls *_i386.deb > /dev/null
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         abort "Failed. WINE i386 packages may have failed downloading..."
     fi
@@ -136,7 +136,7 @@ then
     do
         dpkg-deb -x $package $WINE32_DIR
 
-        if ! [ "$?" == "0" ];
+        if ! [[ "$?" == "0" ]]; 
         then
         abort "Failed extracting '$package' in '$WINE32_DIR'."
         fi
@@ -150,11 +150,11 @@ then
 fi
 
 
-if [ "$OS_ARCH" == "amd64" ] || [ "$OS_ARCH" == "both" ];
+if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     ls *_amd64.deb > /dev/null
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]]; 
     then
         abort "Failed. WINE amd64 packages may have failed downloading..."
     fi
@@ -163,7 +163,7 @@ then
     do
         dpkg-deb -x $package $WINE64_DIR
 
-        if ! [ "$?" == "0" ];
+        if ! [[ "$?" == "0" ]]; 
         then
             abort "Failed extracting '$package' in '$WINE64_DIR'."
         fi

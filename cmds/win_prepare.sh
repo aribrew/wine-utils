@@ -3,7 +3,7 @@
 BASH_HELPERS="/opt/bin/bash_helpers"
 
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]];
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -62,7 +62,7 @@ setup_prefix()
     echo "Initializing $WINE_ARCH prefix '$WINE_PREFIX' ..."
     echo ""
 
-    if ! [ -v WINELOADER ];
+    if ! [[ -v WINELOADER ]];
     then
         echo "No WINE environment loaded detected."
         abort "Load one with '. wine_load <WINE path> first."
@@ -70,7 +70,7 @@ setup_prefix()
 
     wineboot
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]];
     then
         abort "Initialization failed. Maybe a permissions problem."
     fi
@@ -108,7 +108,7 @@ wineboot()
 export SCRIPTS=$(realpath $(dirname 0))
 
 
-if [ "$1" == "-h" ] || [ "$1" == "--help" ];
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
@@ -119,43 +119,43 @@ WINE_PREFIX=$1
 WINE_ARCH=$2
 
 
-if [ "$WINE_PREFIX" == "" ];
+if [[ "$WINE_PREFIX" == "" ]];
 then
     WINE_PREFIX=".wine64"
     WINE_ARCH="win64"
 
-elif [ "$1" == "win32" ] || [ "$1" == ".wine" ];
+elif [[ "$1" == "win32" ]] || [[ "$1" == ".wine" ]];
 then
     WINE_PREFIX=".wine"
     WINE_ARCH="win32"
 
-elif [ "$1" == "win64" ] || [ "$1" == ".wine64" ];
+elif [[ "$1" == "win64" ]] || [[ "$1" == ".wine64" ]];
 then
     WINE_PREFIX=".wine64"
     WINE_ARCH="win64"
 fi
 
 
-if [ "$WINE_ARCH" == "" ];
+if [[ "$WINE_ARCH" == "" ]];
 then
     echo "No architecture specified. Using Win64."
     WINE_ARCH="win64"
 else
-    if ! [ "$WINE_ARCH" == "win32" ] && ! [ "$WINE_ARCH" == "win64" ];
+    if ! [[ "$WINE_ARCH" == "win32" ]] && ! [[ "$WINE_ARCH" == "win64" ]];
     then
         abort "Invalid architecture '$WINE_ARCH'. Must be win32 or win64."
     fi
 fi
 
 
-if [ -v WIN_ROOT ] && [ -d "$WIN_ROOT" ];
+if [[ -v WIN_ROOT ]] && [[ -d "$WIN_ROOT" ]];
 then
     echo "Using '$WIN_ROOT' as prefixes root."
 
     echo "Testing $WIN_ROOT for write permissions ..."
     touch "$WIN_ROOT/touched"
 
-    if ! [ "$?" == "0" ];
+    if ! [[ "$?" == "0" ]];
     then
         abort "ERROR: Cannot write in '$WIN_ROOT'"
     else
@@ -167,7 +167,7 @@ else
 fi
 
 
-if ! [ -d "$WIN_ROOT" ];
+if ! [[ -d "$WIN_ROOT" ]];
 then
     mkdir -p "$WIN_ROOT"
 fi
@@ -175,22 +175,22 @@ fi
 
 echo "Checking if a prefix '$WINE_PREFIX' already exists in '$WIN_ROOT' ..."
 
-if [ -d "$WIN_ROOT/$WINE_PREFIX/dosdevices" ];
+if [[ -d "$WIN_ROOT/$WINE_PREFIX/dosdevices" ]];
 then
-    if [ -d "$WIN_ROOT/$WINE_PREFIX/drive_c/Program Files (x86)" ];
+    if [[ -d "$WIN_ROOT/$WINE_PREFIX/drive_c/Program Files (x86)" ]];
     then
         WINE_ARCH="win64"
     else
         WINE_ARCH="win32"
     fi
 
-    if ! [ -f "$WIN_ROOT/$WINE_PREFIX/activate" ];
+    if ! [[ -f "$WIN_ROOT/$WINE_PREFIX/activate" ]];
     then
         echo "The prefix exists but no activator was found."
         install_activator "$WIN_ROOT/$WINE_PREFIX" $WINE_ARCH
     fi
 
-    if ! [ -f "$WIN_ROOT/$WINE_PREFIX/make_default" ];
+    if ! [[ -f "$WIN_ROOT/$WINE_PREFIX/make_default" ]];
     then
         install_defaulter "$WIN_ROOT/$WINE_PREFIX"
     fi

@@ -3,7 +3,7 @@
 
 BASH_HELPERS="/opt/bin/bash_helpers"
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]];
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -52,7 +52,7 @@ usage()
 }
 
 
-if [ "$1" == "-h" ] || [ "$1" == "--help" ];
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
@@ -66,7 +66,7 @@ DEFAULT_PROTON="Proton 10.0"
 STEAM_DIR="$HOME/.local/share/Steam"
 export STEAM_COMPAT_CLIENT_INSTALL_PATH=$STEAM_DIR
 
-if ! [ -v PROTON_VERSION ];
+if ! [[ -v PROTON_VERSION ]];
 then
     PROTON_DIR="$STEAM_DIR/steamapps/common/$DEFAULT_PROTON"
 else
@@ -75,25 +75,25 @@ fi
 
 PROTON="$PROTON_DIR/proton"
 
-if ! [ -f "$PROTON" ];
+if ! [[ -f "$PROTON" ]];
 then
     abort "Cannot find '$PROTON_VERSION'"
 fi
 
-if [ -v WINEPREFIX ];
+if [[ -v WINEPREFIX ]];
 then
     export STEAM_COMPAT_DATA_PATH="$WINEPREFIX"
 else
     export STEAM_COMPAT_DATA_PATH="$STEAM_DIR/prefixes"
 fi
 
-if [ -v WINEARCH ];
+if [[ -v WINEARCH ]];
 then
-    if [ "$WINEARCH" == "win32" ];
+    if [[ "$WINEARCH" == "win32" ]];
     then
         WINE_UTILS="$PROTON_DIR/files/lib/wine/i386-windows"
 
-    elif [ "$WINEARCH" == "win64" ];
+    elif [[ "$WINEARCH" == "win64" ]];
     then
         WINE_UTILS="$PROTON_DIR/files/lib/wine/x86_64-windows"
     else
@@ -107,18 +107,18 @@ fi
 #################################
 
 
-if [ -f "$1" ];
+if [[ -f "$1" ]];
 then
     EXEC="$1"
     ARGS="${@:2}"
 
-elif [ "$1" == "winecfg" ];
+elif [[ "$1" == "winecfg" ]];
 then
     EXEC="$WINE_UTILS/winecfg.exe"
 fi
 
 
-if ! [ -v WINEPREFIX ];
+if ! [[ -v WINEPREFIX ]];
 then
     EXEC_ARCH=$(exec_type "$EXEC")
 
@@ -131,22 +131,24 @@ then
 fi
 
 
-if ! [ -d "$STEAM_COMPAT_DATA_PATH" ];
+if ! [[ -d "$STEAM_COMPAT_DATA_PATH" ]];
 then
     mkdir -p "$STEAM_COMPAT_DATA_PATH"
 fi
 
 
-if [ -v EXEC ];
+if [[ -v EXEC ]];
 then
-    echo "DEBUG: $PROTON run \"$EXEC\""
+    EXEC_FILENAME=$(basename "$EXEC")
+    
+    #echo "DEBUG: $PROTON run \"$EXEC\""
 
-    if [ "$ARGS" == "" ];
+    if [[ "$ARGS" == "" ]];
     then
-        echo "Launching '$(basename \"$EXEC\")' ..."
+        echo "Launching '$EXEC_FILENAME' ..."
         echo ""
     else
-        echo "Launching '$(basename \"$EXEC\")' with '$ARGS' ..."
+        echo "Launching '$EXEC_FILENAME' with '$ARGS' ..."
         echo ""
     fi
 
@@ -154,7 +156,7 @@ then
     "$PROTON" run "$EXEC" $ARGS
 
 else
-    if [ "$1" == "--phelp" ];
+    if [[ "$1" == "--phelp" ]];
     then
         proton_usage
         abort

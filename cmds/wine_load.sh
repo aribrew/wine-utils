@@ -9,7 +9,7 @@
 
 BASH_HELPERS="/opt/bin/bash_helpers"
 
-if ! [ -f "$BASH_HELPERS" ];
+if ! [[ -f "$BASH_HELPERS" ]];
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""
@@ -35,7 +35,7 @@ usage()
 
 
 
-if [ "$1" == "" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ];
+if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
@@ -45,11 +45,11 @@ fi
 WINE_PATH=$1
 
 
-if ! [ "$WINE_PATH" == "" ];
+if ! [[ "$WINE_PATH" == "" ]];
 then
 	WINE_PATH=$(realpath "$WINE_PATH")
 	
-    if ! [ -f "$WINE_PATH/.wine_version" ];
+    if ! [[ -f "$WINE_PATH/.wine_version" ]];
     then
         abort "No Wine installation detected at '$WINE_PATH'."
     fi
@@ -60,7 +60,7 @@ then
 
     export WINE_BINARIES=$WINE_PATH/opt/wine-${WINE_BRANCH}/bin
 
-    if [ "$WINE_ARCH" == "i386" ];
+    if [[ "$WINE_ARCH" == "i386" ]];
     then
         export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
         export WINE_UTILS+="/lib/wine/i386-windows"
@@ -72,9 +72,9 @@ then
 
         #echo "$LD_LIBRARY_PATH" | grep -q "wine/i386-unix"
         #
-        #if ! [ "$?" == "0" ];
+        #if ! [[ "$?" == "0" ]];
         #then
-        #    if ! [ -v LD_LIBRARY_PATH ];
+        #    if ! [[ -v LD_LIBRARY_PATH ]];
         #    then
         #        export LD_LIBRARY_PATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
         #    else
@@ -95,9 +95,9 @@ then
 
         #echo "$LD_LIBRARY_PATH" | grep -q "wine/x86_64-unix"
         #
-        #if ! [ "$?" == "0" ];
+        #if ! [[ "$?" == "0" ]];
         #then
-        #    if ! [ -v LD_LIBRARY_PATH ];
+        #    if ! [[ -v LD_LIBRARY_PATH ]];
         #    then
         #        export LD_LIBRARY_PATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
         #    else
