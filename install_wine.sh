@@ -2,9 +2,28 @@
 
 ################################################################
 # Installs the specified WINE folder in ~/.local/bin/winenv.
+#
 # This is done this way to avoid colliding with existing WINE
 # system-wide installations.
+#
+# If a second paramenter, --system, is passed, the path
+# /opt/winenv will be used instead.
+#
+# If both installation types are present, local one is used.
 ################################################################
+
+
+cp()
+{
+    $SUDO cp $*
+}
+
+
+mkdir()
+{
+    $SUDO mkdir $*
+}
+
 
 BASH_HELPERS="/opt/bin/bash_helpers"
 SCRIPTS=$(realpath $(dirname $0))
@@ -32,7 +51,14 @@ fi
 
 
 WINE_PATH=$1
-INSTALL_PATH="$HOME/.local/bin/winenv"
+
+if [[ "$2" == "--system" ]];
+then
+    INSTALL_PATH="/opt/winenv"
+    SUDO="sudo"
+else
+    INSTALL_PATH="$HOME/.local/bin/winenv"
+fi
 
 
 if [[ -f "${WINE_PATH}/.wine_branch" ]]; 
@@ -58,9 +84,12 @@ then
     fi
 
     cp -r "$WINE_PATH" "$INSTALL_PATH"
-    cp -r "$SCRIPTS/cmds" "$INSTALL_PATH/"
 
-    cp "$SCRIPTS/.wine_env" "$INSTALL_PATH/"
+    if ! [[ -d "$SCRIPTS/cmds" ]];
+    then
+        cp -r "$SCRIPTS/cmds" "$INSTALL_PATH/"
+        cp "$SCRIPTS/.wine_env" "$INSTALL_PATH/"
+    fi
 
     if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$INSTALL_PATH/.default_wine32" ]]; 
     then

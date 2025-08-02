@@ -48,19 +48,29 @@ then
 fi
 
 
-if [[ -f "$HOME/.local/bin/winenv/.wine_env" ]]; 
+if [[ -d "$HOME/.local/bin/winenv" ]];
 then
     INSTALL_PATH="$HOME/.local/bin/winenv"
+    PERMS="770"
+    
+elif [[ -d "/opt/winenv" ]];
+then
+    INSTALL_PATH="/opt/winenv"
+
+    SUDO="sudo"
+    PERMS="755"
 else
-    INSTALL_PATH="$HOME/.local/bin"    
+    INSTALL_PATH="/usr/local/bin"
+
+    SUDO="sudo"
+    PERMS="755"
 fi
 
 
-if [[ -d "$INSTALL_PATH" ]];
+if ! [[ -d "$INSTALL_PATH" ]];
 then
     mkdir -p "$INSTALL_PATH"
-    
-    mv winetricks "$INSTALL_PATH/winetricks"
-    chmod 770 "$INSTALL_PATH/winetricks"
 fi
 
+$SUDO mv winetricks "$INSTALL_PATH/winetricks"
+$SUDO chmod $PERMS "$INSTALL_PATH/winetricks"
