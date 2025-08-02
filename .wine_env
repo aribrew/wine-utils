@@ -5,6 +5,13 @@ then
     then
         export WINE_ENV=$HOME/.local/bin/winenv
 
+    elif [[ -d "/opt/winenv" ]];
+    then
+        export WINE_ENV=$HOME/.local/bin/winenv
+    fi
+
+    if [[ -v WINE_ENV ]];
+    then
         export PATH=$WINE_ENV:$PATH
         export PATH=$WINE_ENV/cmds:$PATH
 
