@@ -125,13 +125,18 @@ isolabel()
 
 os_name()
 {
-    echo "$(cat /etc/os-release | grep ^ID= | cut -d '=' -f 2)"
+    echo "$(cat /etc/os-release | grep '^ID=' | cut -d '=' -f 2)"
 }
 
 
 os_version()
 {
-    echo "$(cat /etc/os-release | grep ^VERSION_CODENAME= | cut -d '=' -f 2)"
+    if [[ "$(os_name)" == "manjaro" ]];
+    then
+        echo "rolling"
+    else
+        echo "$(cat /etc/os-release | grep '^VERSION_CODENAME=' | cut -d '=' -f 2)"
+    fi
 }
 
 
