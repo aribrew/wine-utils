@@ -19,9 +19,9 @@ check_sudo()
 {
     if [[ "$EUID" == "0" ]];
     then
-        return 0;
+        return 0
     else
-        return 1;
+        return 1
     fi
 }
 
@@ -140,6 +140,27 @@ os_version()
 }
 
 
+usage()
+{
+    echo "source bash_helpers.sh"
+    echo ": Loads the functions in the current shell."
+    echo ""
+    echo "bash_helpers.sh --install [--user|path]"
+    echo ": Install the helper."
+    echo "- If --user, installs in ~/.local/bin"
+    echo "- If a path is given, installs in that path."
+    echo "- Otherwise installs in /opt/bin"
+    echo ""
+}
+
+
+
+
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+then
+    usage
+    abort
+fi
 
 
 if ! [[ -v ZSH_VERSION ]];
@@ -154,21 +175,69 @@ then
 fi
 
 
-if [[ "$1" == "install" ]];
+if [[ "$1" == "--install" ]];
 then
     SCRIPT=$(realpath $0)
-    
-    if ! [[ -d "/opt/bin" ]];
+    FILENAME=$(basename "$SCRIPT")
+
+    if ! [[ "$TERMUX_VERSION" == "" ]];
     then
-        sudo mkdir -p "/opt/bin"
+        INSTALL_PATH="$PREFIX/opt/bin"
+        PERMS="770"
+        
+    else
+        if [[ "$2" == "--user" ]];
+        then
+            INSTALL_PATH="$HOME/.local/bin"
+            PERMS="770"
+            
+        elif [[ -d "$2" ]];
+        then
+            INSTALL_PATH="$2"
+            PERMS="775"
+            
+        else
+            INSTALL_PATH="/opt/bin"
+            SUDO="sudo"
+            PERMS="755"
+        fi
+    fi
+    
+    if ! [[ -d "$INSTALL_PATH" ]];
+    then
+        $SUDO mkdir -p "$INSTALL_PATH"
     fi
 
-    sudo cp $SCRIPT /opt/bin/
-    sudo chmod 775 /opt/bin/$(basename "$SCRIPT")
+    $SUDO cp $SCRIPT $INSTALL_PATH/
+    $SUDO chmod $PERMS "$INSTALL_PATH/${FILENAME}"
 
     if [[ "$?" == "0" ]];
     then
-        echo "Bash helpers installed to /opt/bin."
+        if ! [[ -f "$HOME/.bashrc" ]] && [[ -v TERMUX_VERSION ]];
+        then
+            cp "$PREFIX/etc/bash.bashrc" "$HOME/.bashrc"
+        fi
+
+        if ! [[ -f "$HOME/.environment" ]];
+        then
+            touch "$HOME/.environment"
+        fi
+        
+        grep -q "$INSTALL_PATH" "$HOME/.environment"
+
+        if ! [[ "$?" == "0" ]];
+        then
+            echo "export PATH=$INSTALL_PATH:\$PATH" >> "$HOME/.environment"
+
+            grep -q "\$HOME/.environment" "$HOME/.bashrc"
+
+            if [[ "$?" == "1" ]];
+            then
+                echo "source \$HOME/.environment" >> "$HOME/.bashrc"
+            fi
+        fi
+        
+        echo "Bash helpers installed to $INSTALL_PATH."
         echo ""
     fi
 fi

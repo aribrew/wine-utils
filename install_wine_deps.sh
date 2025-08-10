@@ -4,14 +4,14 @@
 # Helper for installing WINE and Winetricks dependencies
 #########################################################
 
-BASH_HELPERS="/opt/bin/bash_helpers"
+BASH_HELPERS="/opt/bin/bash_helpers.sh"
 SCRIPTS=$(realpath $(dirname $0))
 
 
 if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/bash_helpers" ]]; 
+     [[ -f "$SCRIPTS/bash_helpers.sh" ]]; 
 then
-    "$SCRIPTS/helpers/bash_helpers" install
+    "$SCRIPTS/helpers/bash_helpers.sh" --install
 fi
 
 

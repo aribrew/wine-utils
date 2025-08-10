@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASH_HELPERS="/opt/bin/bash_helpers"
+BASH_HELPERS="/opt/bin/bash_helpers.sh"
 
 if ! [[ -f "$BASH_HELPERS" ]]; 
 then

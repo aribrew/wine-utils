@@ -7,7 +7,7 @@
 # Also creates some aliases for running WINE commands.
 #################################################################
 
-BASH_HELPERS="/opt/bin/bash_helpers"
+BASH_HELPERS="/opt/bin/bash_helpers.sh"
 
 if ! [[ -f "$BASH_HELPERS" ]];
 then

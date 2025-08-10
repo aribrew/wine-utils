@@ -6,14 +6,14 @@
 #############################################################################
 
 
-BASH_HELPERS="/opt/bin/bash_helpers"
+BASH_HELPERS="/opt/bin/bash_helpers.sh"
 SCRIPTS=$(realpath $(dirname $0))
 
 
 if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/helpers/bash_helpers" ]]; 
+     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
 then
-    "$SCRIPTS/bash_helpers" install
+    "$SCRIPTS/bash_helpers.sh" --install
 fi
 
 
