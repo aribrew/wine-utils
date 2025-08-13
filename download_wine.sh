@@ -111,20 +111,24 @@ then
     echo "Downloading WINE (32 bit) ($WINE_BRANCH) $WINE_VERSION) ..."
     echo "-----------------------------------------------------------"
 
-    WINE_i386_1="wine-${WINE_BRANCH}:i386"
-    WINE_i386_1+="=${WINE_VERSION}"
-    WINE_i386_1+="~${OS_VERSION}-1"
-
-    WINE_i386_2="wine-${WINE_BRANCH}-i386"
-    WINE_i386_2+="=${WINE_VERSION}"
-    WINE_i386_2+="~${OS_VERSION}-1"
-
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
+        WINE_i386_1="wine-${WINE_BRANCH}:i386"
+        WINE_i386_1+="=${WINE_VERSION}"
+        WINE_i386_1+="~${OS_VERSION}-1"
+
+        WINE_i386_2="wine-${WINE_BRANCH}-i386"
+        WINE_i386_2+="=${WINE_VERSION}"
+        WINE_i386_2+="~${OS_VERSION}-1"
+
         apt download $WINE_i386_1
         apt download $WINE_i386_2
     else
+        WINE_i386_1="wine-${WINE_BRANCH}-i386_${WINE_VERSION}"
+        WINE_i386_1+="~${LATEST_DEBIAN}-1_i386"
 
+        WINE_i386_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
+        WINE_i386_2+="~${LATEST_DEBIAN}-1_i386"
     fi
 fi
 
@@ -135,20 +139,24 @@ then
     echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "------------------------------------------------------------"
 
-    WINE_amd64_1="wine-${WINE_BRANCH}:amd64"
-    WINE_amd64_1+="=${WINE_VERSION}"
-    WINE_amd64_1+="~${OS_VERSION}-1"
-
-    WINE_amd64_2="wine-${WINE_BRANCH}-amd64"
-    WINE_amd64_2+="=${WINE_VERSION}"
-    WINE_amd64_2+="~${OS_VERSION}-1"
-
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
+        WINE_amd64_1="wine-${WINE_BRANCH}:amd64"
+        WINE_amd64_1+="=${WINE_VERSION}"
+        WINE_amd64_1+="~${OS_VERSION}-1"
+
+        WINE_amd64_2="wine-${WINE_BRANCH}-amd64"
+        WINE_amd64_2+="=${WINE_VERSION}"
+        WINE_amd64_2+="~${OS_VERSION}-1"
+
         apt download $WINE_amd64_1
         apt download $WINE_amd64_2
     else
-        
+        WINE_amd64_1="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}"
+        WINE_amd64_1+="~${LATEST_DEBIAN}-1_amd64"
+
+        WINE_amd64_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
+        WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
     fi
 fi
 
@@ -176,7 +184,22 @@ then
         then
             dpkg-deb -x $package $WINE32_DIR
         else
+            mkdir /tmp/debtmp/wine
+                        
+            ar x $package --output /tmp/debtmp
+            
+            if [[ "$?" == "0" ]];
+            then
+                tar xvf /tmp/debtmp/data.tar.xz -C /tmp/debtmp/wine
+            
+                if [[ "$?" == "0" ]];
+                then
+                    mv /tmp/debtmp/wine/opt $WINE64_DIR/
+                    mv /tmp/debtmp/wine/usr $WINE64_DIR/
 
+                    rm -r /tmp/debtmp
+                fi
+            fi
         fi
         
         if ! [[ "$?" == "0" ]]; 
@@ -208,7 +231,22 @@ then
         then
             dpkg-deb -x $package $WINE64_DIR
         else
+            mkdir /tmp/debtmp/wine
+            
+            ar x $package --output /tmp/debtmp
 
+            if [[ "$?" == "0" ]];
+            then
+                tar xvf /tmp/debtmp/data.tar.xz -C /tmp/debtmp/wine
+
+                if [[ "$?" == "0" ]];
+                then
+                    mv /tmp/debtmp/wine/opt $WINE64_DIR/
+                    mv /tmp/debtmp/wine/usr $WINE64_DIR/
+
+                    rm -r /tmp/debtmp
+                fi
+            fi
         fi
         
         if ! [[ "$?" == "0" ]]; 
