@@ -23,7 +23,33 @@ else
 fi
 
 
+usage()
+{
+    echo "Usage: download_wine.sh [--web-download]"
+    echo ""
+    echo ""
+    echo ""
+}
 
+
+
+
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+then
+    usage
+    abort
+fi
+
+
+OS_VERSION=$(os_version)
+
+if [[ "$1" == "--web-download" ]] || [[ "$OS_VERSION" == "rolling"] ];
+then
+    USE_WEB_DOWNLOAD=1
+fi
+
+
+WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
 
 WINE_TMP="/tmp/wine-tmp"
 
@@ -41,10 +67,6 @@ then
     fi
 fi
 
-
-OS_VERSION=$(cat /etc/os-release | grep "^VERSION_CODENAME=" | cut -d '=' -f 2)
-
-
 if ! [[ -v WINE_BRANCH ]]; 
 then
     export WINE_BRANCH="stable"
@@ -56,24 +78,30 @@ then
 fi
 
 
-if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
+if ! [[ -v USE_WEB_DOWNLOAD ]];
 then
-    echo ""
-    echo "Enabling i386 repository if not available yet ..."
+    if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
+    then
+        echo ""
+        echo "Enabling i386 repository if not available yet ..."
 
-    sudo dpkg --add-architecture i386
+        sudo dpkg --add-architecture i386
+    fi
 fi
 
 
-echo ""
-echo "Refreshing APT database ..."
-echo "---------------------------"
-
-sudo apt update
-
-if ! [[ "$?" == "0" ]]; 
+if ! [[ -v USE_WEB_DOWNLOAD ]];
 then
-    abort "Something is wrong with APT. Fix it first."
+    echo ""
+    echo "Refreshing APT database ..."
+    echo "---------------------------"
+
+    sudo apt update
+
+    if ! [[ "$?" == "0" ]]; 
+    then
+        abort "Something is wrong with APT. Fix it first."
+    fi
 fi
 
 
@@ -91,8 +119,13 @@ then
     WINE_i386_2+="=${WINE_VERSION}"
     WINE_i386_2+="~${OS_VERSION}-1"
 
-    apt download $WINE_i386_1
-    apt download $WINE_i386_2
+    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    then
+        apt download $WINE_i386_1
+        apt download $WINE_i386_2
+    else
+
+    fi
 fi
 
 
@@ -110,8 +143,13 @@ then
     WINE_amd64_2+="=${WINE_VERSION}"
     WINE_amd64_2+="~${OS_VERSION}-1"
 
-    apt download $WINE_amd64_1
-    apt download $WINE_amd64_2
+    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    then
+        apt download $WINE_amd64_1
+        apt download $WINE_amd64_2
+    else
+        
+    fi
 fi
 
 
@@ -134,11 +172,16 @@ then
 
     for package in $(ls *_i386.deb);
     do
-        dpkg-deb -x $package $WINE32_DIR
+        if ! [[ -v USE_WEB_DOWNLOAD ]];
+        then
+            dpkg-deb -x $package $WINE32_DIR
+        else
 
+        fi
+        
         if ! [[ "$?" == "0" ]]; 
         then
-        abort "Failed extracting '$package' in '$WINE32_DIR'."
+            abort "Failed extracting '$package' in '$WINE32_DIR'."
         fi
     done
 
@@ -161,8 +204,13 @@ then
 
     for package in $(ls *_amd64.deb);
     do
-        dpkg-deb -x $package $WINE64_DIR
+        if ! [[ -v USE_WEB_DOWNLOAD ]];
+        then
+            dpkg-deb -x $package $WINE64_DIR
+        else
 
+        fi
+        
         if ! [[ "$?" == "0" ]]; 
         then
             abort "Failed extracting '$package' in '$WINE64_DIR'."
