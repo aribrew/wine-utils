@@ -15,6 +15,11 @@ then
         export PATH=$WINE_ENV:$PATH
         export PATH=$WINE_ENV/cmds:$PATH
 
+        if [[ -f "$WINE_ENV/.auto_load" ]];
+        then
+	    source load_wine.sh $(cat "$WINE_ENV/.auto_load")
+        fi
+
         echo "Wine environment loaded."
         echo "See $WINE_ENV/cmds for commands."
         echo ""

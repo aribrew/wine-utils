@@ -13,15 +13,15 @@
 ################################################################
 
 
-cp()
+copy()
 {
     $SUDO cp $*
 }
 
 
-mkdir()
+mktree()
 {
-    $SUDO mkdir $*
+    $SUDO mkdir -p $*
 }
 
 
@@ -80,15 +80,15 @@ then
 
     if ! [[ -d "$INSTALL_PATH" ]]; 
     then
-        mkdir -p "$INSTALL_PATH"
+        mktree "$INSTALL_PATH"
     fi
 
-    cp -r "$WINE_PATH" "$INSTALL_PATH"
+    copy -r "$WINE_PATH" "$INSTALL_PATH"
 
-    if ! [[ -d "$SCRIPTS/cmds" ]];
+    if [[ -d "$INSTALL_PATH/cmds" ]];
     then
-        cp -r "$SCRIPTS/cmds" "$INSTALL_PATH/"
-        cp "$SCRIPTS/.wine_env" "$INSTALL_PATH/"
+        copy -r "$SCRIPTS/cmds" "$INSTALL_PATH/"
+        copy "$SCRIPTS/.wine_env" "$INSTALL_PATH/"
     fi
 
     if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$INSTALL_PATH/.default_wine32" ]]; 
