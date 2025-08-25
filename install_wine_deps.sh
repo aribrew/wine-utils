@@ -9,7 +9,7 @@ SCRIPTS=$(realpath $(dirname $0))
 
 
 if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/bash_helpers.sh" ]]; 
+     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
 then
     "$SCRIPTS/helpers/bash_helpers.sh" --install
 fi
@@ -27,6 +27,7 @@ else
 fi
 
 
+# Install a list of packages for the given architecture
 install_packages_for_arch()
 {
     PACKAGES=$1
@@ -72,43 +73,15 @@ OS_VERSION=$(os_version)
 THIS_ARCH=$(uname -m)
 
 
-if [[ "$OS_NAME" == "arch" ]]; 
+if [[ "$OS_NAME" == "arch" ]];
 then
-    if ! [[ -f "/etc/.wine32_deps_installed" ]] &&
-       ! [[ -f "/etc/.wine64_deps_installed" ]]; 
-    then
-        echo ""
-        echo "Installing WINE dependencies for ArchLinux ..."
-        echo "----------------------------------------------"
+    echo "ArchLinux detected. It is more recommeded to use Lutris or Steam, "
+    echo "or, if you want to use WINE manually, use a Debian 13 container "
+    echo "instead."
+    echo ""
 
-        DEPS="desktop-file-utils fontconfig freetype2 graphite harfbuzz "
-        DEPS+="libpng libunwind libxcursor libxfixes libxi libxkbcommon "
-        DEPS+="libxrandr libxrender xkeyboard-config"
-
-        if [[ "$THIS_ARCH" == "arm64" ]]; 
-        then            
-            install_packages_for_arch "$DEPS" "armhf"
-            sudo touch /etc/.wine32_deps_installed
-
-            install_packages_for_arch "$DEPS" "arm64"
-            sudo touch /etc/.wine64_deps_installed
-
-        elif [[ "$THIS_ARCH" == "amd64" ]]; 
-        then
-            install_packages_for_arch "$DEPS" "i386"
-            sudo touch /etc/.wine32_deps_installed
-
-            install_packages_for_arch "$DEPS" "amd64"
-            sudo touch /etc/.wine64_deps_installed
-        fi
-
-        echo "Done."
-        exit 0
-    fi
+    abort "Aborted."
 fi
-
-
-THIS_ARCH=$(uname -m)
 
 
 if [[ "$THIS_ARCH" == "x86" ]]; 
@@ -153,9 +126,10 @@ then
 
     if ! [[ -v DEPS ]]; 
     then
-        abort "I do not know what dependencies '$OS_VERSION' requires."
+        abort "I do not know what dependencies $OS_NAME ($OS_VERSION) requires"
     fi
 
+    
     if [[ "$THIS_ARCH" == "arm64" ]]; 
     then
         sudo dpkg --add-architecture armhf

@@ -5,7 +5,7 @@ SCRIPTS=$(realpath $(dirname $0))
 
 
 if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/bash_helpers.sh" ]]; 
+     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
 then
     "$SCRIPTS/helpers/bash_helpers.sh" --install
 fi
@@ -41,16 +41,26 @@ then
 fi
 
 
+OS_NAME=$(os_name)
 OS_VERSION=$(os_version)
 
-if [[ "$1" == "--web-download" ]] || [[ "$OS_VERSION" == "rolling"] ];
+
+if [[ "$OS_NAME" == "arch" ]];
+then
+    echo "ArchLinux detected. You can download WINE BUT ArchLinux does not "
+    echo "support 32 bit software, so, you cannot run WINE for i386, and so, "
+    echo "32 bit Windows applications will be run unsig WOW64."
+    echo ""
+fi
+
+
+if [[ "$1" == "--web-download" ]] || [[ "$OS_VERSION" == "rolling" ]];
 then
     USE_WEB_DOWNLOAD=1
 fi
 
 
 WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
-
 WINE_TMP="/tmp/wine-tmp"
 
 mkdir -p "$WINE_TMP"

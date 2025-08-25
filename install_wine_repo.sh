@@ -13,7 +13,7 @@ SCRIPTS=$(realpath $(dirname $0))
 if ! [[ -f "$BASH_HELPERS" ]] &&
      [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
 then
-    "$SCRIPTS/bash_helpers.sh" --install
+    "$SCRIPTS/helpers/bash_helpers.sh" --install
 fi
 
 
