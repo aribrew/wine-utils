@@ -79,6 +79,11 @@ then
     echo "or, if you want to use WINE manually, use a Debian 13 container "
     echo "instead."
     echo ""
+    echo "If you want to download WINE manually and run it in ArchLinux,"
+    echo "install it through pacman. This will also install its dependencies"
+    echo "and now you can download and use yours, but remember: ArchLinux"
+    echo "does not support running WINE for i386."
+    echo ""
 
     abort "Aborted."
 fi
