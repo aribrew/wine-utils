@@ -22,7 +22,7 @@ install_activator()
 
     ACTIVATOR=$WINE_PREFIX/activate
 
-    cp "$SCRIPTS/.activate_prefix" "$ACTIVATOR"
+    cp "$WINE_ENV/for_prefixes/.activate_prefix" "$ACTIVATOR"
 
     sed -i 's/\$WINE_PREFIX/$WINE_PREFIX/g' "$ACTIVATOR"
     sed -i 's/\$WINE_ARCH/$WINE_ARCH/g' "$ACTIVATOR"
@@ -44,7 +44,7 @@ install_defaulter()
 
     DEFAULTER="$WINE_PREFIX/make_default"
 
-    cp "$SCRIPTS/.make_prefix_default" "$DEFAULTER"
+    cp "$WINE_ENV/for_prefixes/.make_prefix_default" "$DEFAULTER"
     chmod +x "$DEFAULTER"
 
     echo ""
@@ -105,7 +105,10 @@ wineboot()
 
 
 
-export SCRIPTS=$(realpath $(dirname 0))
+if ! [[ -v WINE_ENV ]] && ! [[ -f "$WINE_ENV/.wine_env" ]];
+then
+    abort "WINE environment not loaded yet. Source .wine_env."
+fi
 
 
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
@@ -163,7 +166,12 @@ then
         echo "All seems OK."
     fi
 else
-    export WIN_ROOT="$HOME/.local/share/wineprefixes"
+    if [[ "$WINE_PREFIX" == ".wine" ]] || [[ "$WINE_PREFIX" == ".wine64" ]];
+    then
+        export WIN_ROOT="$HOME"
+    else
+        export WIN_ROOT="$HOME/.local/share/wineprefixes"
+    fi
 fi
 
 

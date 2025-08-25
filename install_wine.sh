@@ -54,10 +54,10 @@ WINE_PATH=$1
 
 if [[ "$2" == "--system" ]];
 then
-    INSTALL_PATH="/opt/winenv"
+    WINE_ENV_PATH="/opt/winenv"
     SUDO="sudo"
 else
-    INSTALL_PATH="$HOME/.local/bin/winenv"
+    WINE_ENV_PATH="$HOME/.local/bin/winenv"
 fi
 
 
@@ -69,40 +69,41 @@ then
     WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
     WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
 
-    if [[ -d "$INSTALL_PATH/$WINE_FOLDER" ]]; 
+    if [[ -d "$WINE_ENV_PATH/$WINE_FOLDER" ]]; 
     then
         abort "This WINE version is already installed."
     fi
 
     echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
-    echo "in '$INSTALL_PATH' ..."
+    echo "in '$WINE_ENV_PATH' ..."
     echo "--------------------------------------------------------------------"
 
-    if ! [[ -d "$INSTALL_PATH" ]]; 
+    if ! [[ -d "$WINE_ENV_PATH" ]]; 
     then
-        mktree "$INSTALL_PATH"
+        mktree "$WINE_ENV_PATH"
     fi
 
-    copy -r "$WINE_PATH" "$INSTALL_PATH"
+    copy -r "$WINE_PATH" "$WINE_ENV_PATH"
 
-    if [[ -d "$INSTALL_PATH/cmds" ]];
+    if [[ -d "$WINE_ENV_PATH/cmds" ]];
     then
-        copy -r "$SCRIPTS/cmds" "$INSTALL_PATH/"
-        copy "$SCRIPTS/.wine_env" "$INSTALL_PATH/"
+        copy -r "$SCRIPTS/cmds" "$WINE_ENV_PATH/"
+        copy -r "$SCRIPTS/for_prefixes" "$WINE_ENV_PATH/"
+        copy "$SCRIPTS/.wine_env" "$WINE_ENV_PATH/"
     fi
 
-    if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$INSTALL_PATH/.default_wine32" ]]; 
+    if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine32" ]]; 
     then
-        echo "$INSTALL_PATH/$WINE_FOLDER" > "$INSTALL_PATH/.default_wine32"
+        echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine32"
 
-        echo "'$INSTALL_PATH/$WINE_FOLDER' is now the default for 32 bits."
+        echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 32 bits."
         echo ""
 
-    elif [[ "$WINE_ARCH" == "amd64" ]] && ! [[ -f "$INSTALL_PATH/.default_wine64" ]]; 
+    elif [[ "$WINE_ARCH" == "amd64" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine64" ]]; 
     then
-        echo "$INSTALL_PATH/$WINE_FOLDER" > "$INSTALL_PATH/.default_wine64"
+        echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine64"
 
-        echo "'$INSTALL_PATH/$WINE_FOLDER' is now the default for 64 bits."
+        echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 64 bits."
         echo ""
     fi
     
@@ -110,7 +111,7 @@ then
 
     if ! [[ "$?" == "0" ]]; 
     then
-        echo "source $INSTALL_PATH/.wine_env" >> "$HOME/.environment"
+        echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
     fi
 
     echo "Done."
