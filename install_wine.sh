@@ -87,9 +87,7 @@ then
 
     if [[ -d "$WINE_ENV_PATH/cmds" ]];
     then
-        copy -r "$SCRIPTS/cmds" "$WINE_ENV_PATH/"
-        copy -r "$SCRIPTS/for_prefixes" "$WINE_ENV_PATH/"
-        copy "$SCRIPTS/.wine_env" "$WINE_ENV_PATH/"
+        "$SCRIPTS/update_env.sh"
     fi
 
     if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine32" ]]; 

@@ -51,10 +51,13 @@ fi
 
 
 copy -ru "$SCRIPTS/cmds" "$WINE_ENV/"
+copy -ru "$SCRIPTS/for_prefixes" "$WINE_ENV/"
 
 copy -u "$SCRIPTS/download_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPTS/install_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPTS/install_winetricks.sh" "$WINE_ENV/"
+copy -u "$SCRIPTS/make_prefix_autoload.sh" "$WINE_ENV/"
+copy -u "$SCRIPTS/make_wine_autoload.sh" "$WINE_ENV/"
 
 copy -u "$SCRIPTS/.wine_env" "$WINE_ENV/"
 

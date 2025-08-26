@@ -18,7 +18,7 @@ then
 else
     WINE_INSTALL="$1"
     
-    echo "$WINE_INSTALL" > "$WINE_ENV/.auto_load"
+    echo "$WINE_INSTALL" > "$WINE_ENV/.autoload_wine"
 
     echo "WINE installation at '$WINE_INSTALL' will now auto-load."
     echo ""
