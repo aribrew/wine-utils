@@ -19,6 +19,7 @@ then
     then
         export PATH=$WINE_ENV:$PATH
         export PATH=$WINE_ENV/cmds:$PATH
+        export PATH=$WINE_ENV/cmds/aux:$PATH
 
         if [[ -f "$WINE_ENV/.autoload_wine" ]];
         then

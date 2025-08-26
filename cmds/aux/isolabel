@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    FILE_PATH="$1"
+    FILE_EXT=$(filext "$FILE_PATH")
+
+    if ! [[ "$FILE_EXT" == "" ]];
+    then
+        FILE_NAME_WEXT=$(basename "$FILE_PATH" $FILE_EXT)
+
+        if ! [[ "$FILE_NAME_WEXT" == "" ]];
+        then
+            ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
+            ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
+
+            echo "$ISO_LABEL"
+        fi
+    fi
+fi
