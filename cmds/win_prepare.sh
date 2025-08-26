@@ -24,8 +24,8 @@ install_activator()
 
     cp "$WINE_ENV/for_prefixes/.activate_prefix" "$ACTIVATOR"
 
-    sed -i 's/\$WINE_PREFIX/$WINE_PREFIX/g' "$ACTIVATOR"
-    sed -i 's/\$WINE_ARCH/$WINE_ARCH/g' "$ACTIVATOR"
+    sed -i "s|WINEPREFIX_PLACEHOLDER|$WINE_PREFIX|g" "$ACTIVATOR"
+    sed -i "s|WINEARCH_PLACEHOLDER|$WINE_ARCH|g" "$ACTIVATOR"
 
     chmod +x "$ACTIVATOR"
 

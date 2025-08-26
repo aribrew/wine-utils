@@ -20,9 +20,14 @@ then
         export PATH=$WINE_ENV:$PATH
         export PATH=$WINE_ENV/cmds:$PATH
 
-        if [[ -f "$WINE_ENV/.auto_load" ]];
+        if [[ -f "$WINE_ENV/.auto-load_wine" ]];
         then
-            source wine_load.sh $(cat "$WINE_ENV/.auto_load")
+            source wine_load.sh $(cat "$WINE_ENV/.auto-load_wine")
+        fi
+
+        if [[ -f "$WINE_ENV/.auto-load_prefix" ]];
+        then
+            source $(cat "$WINE_ENV/.auto-load_prefix")/activate
         fi
 
         echo "Wine environment loaded."
@@ -30,5 +35,4 @@ then
         echo ""
     fi
 fi
-
 
