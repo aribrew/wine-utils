@@ -121,12 +121,20 @@ then
 
     elif [[ "$OS_VERSION" == "trixie" ]]; 
     then
+        # Required packages
         DEPS="libasound2t64 libc6 libglib2.0-0t64 libgphoto2-6t64 "
         DEPS+="libgphoto2-port12t64 libgstreamer-plugins-base1.0-0 "
         DEPS+="libgstreamer1.0-0 libpcap0.8t64 libpulse0 libsane1 libudev1 "
         DEPS+="libunwind8 libusb-1.0-0 libwayland-client0 libwayland-egl1 "
         DEPS+="libx11-6 libxext6 libxkbcommon0 libxkbregistry0 "
         DEPS+="ocl-icd-libopencl1 libasound2-plugins libncurses6"
+
+        # Recommended packages
+        DEPS+="libdbus-1-3 libfontconfig1 libfreetype6 libglu1-mesa "
+        DEPS+="libgnutls30 libgsm1 libgssapi-krb5-2 libjpeg62-turbo " 
+        DEPS+="libkrb5-3 libodbc2 libosmesa6 libpng16-16 libsdl2-2.0-0 "
+        DEPS+="libv4l-0 libxcomposite1 libxcursor1 libxfixes3 libxi6 "
+        DEPS+="libxinerama1 libxrandr2 libxrender1 libxslt1.1 libxxf86vm1"
     fi
 
     if ! [[ -v DEPS ]]; 
