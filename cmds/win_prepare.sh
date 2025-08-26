@@ -65,7 +65,7 @@ setup_prefix()
     if ! [[ -v WINELOADER ]];
     then
         echo "No WINE environment loaded detected."
-        abort "Load one with '. wine_load <WINE path> first."
+        abort "Load one with '. wine_load <WINE path>' first."
     fi
 
     wineboot
@@ -75,7 +75,8 @@ setup_prefix()
         abort "Initialization failed. Maybe a permissions problem."
     fi
 
-    install_activator $WINE_PREFIX $WINE_ARCH
+    install_activator "$WINE_PREFIX" $WINE_ARCH
+    install_defaulter "$WINE_PREFIX"
 }
 
 

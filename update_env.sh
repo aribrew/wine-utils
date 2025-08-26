@@ -50,13 +50,14 @@ else
 fi
 
 
-copy -r "$SCRIPTS/cmds" "$WINE_ENV/cmds"
+copy -ru "$SCRIPTS/cmds" "$WINE_ENV/"
 
-copy "$SCRIPTS/download_wine.sh" "$WINE_ENV/"
-copy "$SCRIPTS/install_wine.sh" "$WINE_ENV/"
-copy "$SCRIPTS/install_winetricks.sh" "$WINE_ENV/"
+copy -u "$SCRIPTS/download_wine.sh" "$WINE_ENV/"
+copy -u "$SCRIPTS/install_wine.sh" "$WINE_ENV/"
+copy -u "$SCRIPTS/install_winetricks.sh" "$WINE_ENV/"
 
-copỳ "$SCRIPTS/.wine_env" "$WINE_ENV/"
+copy -u "$SCRIPTS/.wine_env" "$WINE_ENV/"
+
 
 echo "WINE Utils scripts updated."
 echo ""

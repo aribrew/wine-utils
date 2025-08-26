@@ -5,9 +5,14 @@ then
     then
         export WINE_ENV=$HOME/.local/bin/winenv
 
+        echo "Found a local WINE environment. Using this over global."
+        
     elif [[ -d "/opt/winenv" ]];
     then
         export WINE_ENV=$HOME/.local/bin/winenv
+        
+        echo "Found a system-wide WINE environment."
+        echo "Using it in absense of a local one."
     fi
 
     if [[ -v WINE_ENV ]];
@@ -17,7 +22,7 @@ then
 
         if [[ -f "$WINE_ENV/.auto_load" ]];
         then
-	    source load_wine.sh $(cat "$WINE_ENV/.auto_load")
+            source wine_load.sh $(cat "$WINE_ENV/.auto_load")
         fi
 
         echo "Wine environment loaded."
