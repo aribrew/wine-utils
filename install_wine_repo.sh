@@ -71,47 +71,51 @@ then
 
     SOURCES_LIST="/etc/apt/sources.list"
 
-    echo ""
-    echo "Checking if 'contrib' repository is already enabled ..."
 
-    if [[ -f "$SOURCES_LIST" ]]; 
+    if [[ "$OS_NAME" == "debian" ]];
     then
-        cat "$SOURCES_LIST" | grep -q " contrib"
+        echo ""
+        echo "Checking if 'contrib' repository is already enabled ..."
 
-        if [[ "$?" == "0" ]]; 
+        if [[ -f "$SOURCES_LIST" ]]; 
         then
-            echo "All OK. Nothing to do here."
-            echo ""
+            cat "$SOURCES_LIST" | grep -q " contrib"
 
-        else
-            if [[ "$(which apt-add-repository)" == "" ]]; 
+            if [[ "$?" == "0" ]]; 
             then
+                echo "All OK. Nothing to do here."
                 echo ""
-                echo "Installing software-properties-common first ..."
-                echo "----------------------------------------------"
 
-                sudo apt update
-                sudo apt install software-properties-common -y
+            else
+                if [[ "$(which apt-add-repository)" == "" ]]; 
+                then
+                    echo ""
+                    echo "Installing software-properties-common first ..."
+                    echo "----------------------------------------------"
+
+                    sudo apt update
+                    sudo apt install software-properties-common -y
+
+                    if ! [[ "$?" == "0" ]]; 
+                    then
+                        abort "Failed. Maybe there is something wrong with APT."
+                    fi
+                fi
+
+                echo ""
+                echo "Enabling 'contrib' repository ..."
+                echo "---------------------------------"
+
+                sudo apt-add-repository contrib -y
 
                 if ! [[ "$?" == "0" ]]; 
                 then
-                    abort "Failed. Maybe there is something wrong with APT."
+                    abort "Failed. No 'contrib' repo in this distro?"
                 fi
-            fi
-
-            echo ""
-            echo "Enabling 'contrib' repository ..."
-            echo "---------------------------------"
-
-            sudo apt-add-repository contrib -y
-
-            if ! [[ "$?" == "0" ]]; 
-            then
-                abort "Failed. No 'contrib' repo in this distro?"
             fi
         fi
     fi
-
+    
 
     echo ""
     echo "Downloading WINE GPG key and sources.list for APT..."
