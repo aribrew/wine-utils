@@ -110,6 +110,7 @@ then
     echo "Installing WINE dependencies for ${OS_VERSION} ..."
     echo "--------------------------------------------------"
 
+    # Dependencies for Debian
     if [[ "$OS_VERSION" == "bullseye" ]] || [[ "$OS_VERSION" == "bookworm" ]]; 
     then
         DEPS="libasound2 libc6 libglib2.0-0 libgphoto2-6 libgphoto2-port12 "
@@ -135,6 +136,25 @@ then
         DEPS+="libkrb5-3 libodbc2 libosmesa6 libpng16-16 libsdl2-2.0-0 "
         DEPS+="libv4l-0 libxcomposite1 libxcursor1 libxfixes3 libxi6 "
         DEPS+="libxinerama1 libxrandr2 libxrender1 libxslt1.1 libxxf86vm1"
+
+    # Dependencies for Ubuntu
+    elif [[ "$OS_VERSION" == "noble" ]];
+    then
+        # Required
+        DEPS="libasound2t64 libc6 libglib2.0-0t64 libgphoto2-6t64 "
+        DEPS+="libgphoto2-port12t64 libgstreamer-plugins-base1.0-0 "
+        DEPS+="libgstreamer1.0-0 libpcap0.8t64 libpulse0 libsane1 libudev1 "
+        DEPS+="libusb-1.0-0 libwayland-client0 libwayland-egl1 libx11-6 "
+        DEPS+="libxext6 libxkbcommon0 libxkbregistry0 ocl-icd-libopencl1 "
+        DEPS+="libasound2-plugins libncurses6"
+
+        # Recommended
+        DEPS+="libcapi20-3 libcups2 libdbus-1-3 libfontconfig1 libfreetype6 "
+        DEPS+="libglu1-mesa libgnutls30 libgsm1 libgssapi-krb5-2 "
+        DEPS+="libjpeg62-turbo libkrb5-3 libodbc2 libosmesa6 libpng16-16 "
+        DEPS+="libsdl2-2.0-0 libv4l-0 libxcomposite1 libxcursor1 libxfixes3 "
+        DEPS+="libxi6 libxinerama1 libxrandr2 libxrender1 libxslt1.1 "
+        DEPS+="libxxf86vm1"
     fi
 
     if ! [[ -v DEPS ]]; 
