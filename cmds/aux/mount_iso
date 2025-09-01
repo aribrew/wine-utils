@@ -36,28 +36,36 @@ isolabel()
             if [[ "$LABEL" == "" ]];
             then
                 LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume")
-
-                if [[ "$LABEL" == "" ]];
-                then
-                    echo "UNKNOWN"
-                fi
-            fi
-            
-            LABEL=$(echo "$LABEL" | cut -d ':' -f 2 | xargs)
-
-            echo "$LABEL"
-            
-        else
-            FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
-
-            if ! [[ "$FILE_NAME_WEXT" == "" ]];
-            then
-                ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
-                ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
-
-                echo "$ISO_LABEL"
             fi
         fi
+    fi
+
+    if ! [[ "$LABEL" == "" ]];
+    then
+        LABEL=$(echo "$LABEL" | cut -d ':' -f 2 | xargs)
+        echo "$LABEL"
+    else
+        isoname "$ISO"
+    fi
+}
+
+
+isoname()
+{
+    ISO=$1
+    EXTENSION=$(filext "$ISO")
+    LC_EXT=$(lowercase "$EXTENSION")
+
+    FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
+
+    if [[ "$FILE_NAME_WEXT" == "" ]];
+    then
+        echo "UNKNOWN"
+    else
+        ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
+        ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
+
+        echo "$ISO_LABEL"
     fi
 }
 
@@ -94,9 +102,9 @@ uppercase()
 if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
 then
     ISO="$1"
-    ISO_TYPE=$(filext "$ISO")
+    ISO_TYPE=lowercase $(filext "$ISO")
 
-    if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".ISO" ]];
+    if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".bin" ]];
     then
         mount "$ISO"
     fi
