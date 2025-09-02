@@ -148,6 +148,12 @@ else
             # Remove package default architecture from name
             package=$(echo "$package" | sed 's/:amd64//g')
 
+            # Some overrides for problematic packages
+            if [[ "$package" == "libncurses" ]];
+            then
+                package="libncurses6"
+            fi
+
             echo -n "${package}:${THIS_ARCH} " >> /tmp/packages_to_install
 
             if [[ "$THIS_ARCH" == "arm64" ]];
