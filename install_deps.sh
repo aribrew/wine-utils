@@ -136,26 +136,22 @@ else
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/<//g')
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/>//g')
 
-        echo "[DEBUG] Required packages:"
-        echo "$REQUIRED_DEPS"
-
-        REQUIRED_PACKAGES=()
+        touch /tmp/packages_to_install
 
         for package in $REQUIRED_DEPS;
         do
             # Remove package default architecture from name
             package=$(echo "$package" | sed 's/:amd64//g')
 
-            echo "[DEBUG] Package to install: ${package}:${THIS_ARCH}"
-            REQUIRED_PACKAGES+=(${package}:${THIS_ARCH})
+            echo -n "${package}:${THIS_ARCH} " >> /tmp/packages_to_install
 
             if [[ "$THIS_ARCH" == "arm64" ]];
             then
-                REQUIRED_PACKAGES+=(${package}:armhf)
+                echo -n "${package}:armhf" >> /tmp/packages_to_install
             fi
         done
 
-        sudo apt install $REQUIRED_PACKAGES
+        sudo apt install $(cat /tmp/packages_to_install)
     fi
 fi
 
