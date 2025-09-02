@@ -140,6 +140,9 @@ else
 
         for package in $REQUIRED_DEPS;
         do
+            # Remove package default architecture from name
+            package=$(echo "$package" | sed 's/:amd64//g')
+            
             REQUIRED_PACKAGES+=(${package}:${THIS_ARCH})
 
             if [[ "$THIS_ARCH" == "arm64" ]];
