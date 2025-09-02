@@ -118,27 +118,41 @@ fi
 if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     echo ""
-    echo "Downloading WINE (32 bit) ($WINE_BRANCH) $WINE_VERSION) ..."
-    echo "-----------------------------------------------------------"
+    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ()$WINE_VERSION) ..."
+    echo "-------------------------------------------------------------"
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        WINE_i386_1="wine-${WINE_BRANCH}:i386"
+        WINE_i386_1="wine-${WINE_BRANCH}-i386"
         WINE_i386_1+="=${WINE_VERSION}"
         WINE_i386_1+="~${OS_VERSION}-1"
 
-        WINE_i386_2="wine-${WINE_BRANCH}-i386"
+        WINE_i386_2="wine-${WINE_BRANCH}"
         WINE_i386_2+="=${WINE_VERSION}"
         WINE_i386_2+="~${OS_VERSION}-1"
+        #WINE_i386_1="wine-${WINE_BRANCH}:i386"
+        #WINE_i386_1+="=${WINE_VERSION}"
+        #WINE_i386_1+="~${OS_VERSION}-1"
+
+        #WINE_i386_2="wine-${WINE_BRANCH}-i386"
+        #WINE_i386_2+="=${WINE_VERSION}"
+        #WINE_i386_2+="~${OS_VERSION}-1"
 
         apt download $WINE_i386_1
         apt download $WINE_i386_2
     else
-        WINE_i386_1="wine-${WINE_BRANCH}-i386_${WINE_VERSION}"
-        WINE_i386_1+="~${LATEST_DEBIAN}-1_i386"
+        WINE_i386_1="wine-${WINE_BRANCH}-i386"
+        WINE_i386_1+="_${WINE_VERSION}"
+        WINE_i286_1+="~${LATEST_DEBIAN}-1_i386"
 
-        WINE_i386_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
-        WINE_i386_2+="~${LATEST_DEBIAN}-1_i386"
+        WINE_i386_2+="wine-${WINE_BRANCH}"
+        WINE_i386_2+="_${WINE_VERSION}"
+        WINE_i386_2+="~${LATEST_DEBIAN}-1_386"
+#        WINE_i386_1="wine-${WINE_BRANCH}-i386_${WINE_VERSION}"
+#        WINE_i386_1+="~${LATEST_DEBIAN}-1_i386"
+
+#        WINE_i386_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
+#        WINE_i386_2+="~${LATEST_DEBIAN}-1_i386"
     fi
 fi
 
@@ -151,22 +165,36 @@ then
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        WINE_amd64_1="wine-${WINE_BRANCH}:amd64"
+        WINE_amd64_1="wine-${WINE_BRANCH}-amd64"
         WINE_amd64_1+="=${WINE_VERSION}"
         WINE_amd64_1+="~${OS_VERSION}-1"
-
-        WINE_amd64_2="wine-${WINE_BRANCH}-amd64"
+        
+        WINE_amd64_2="wine-${WINE_BRANCH}"
         WINE_amd64_2+="=${WINE_VERSION}"
         WINE_amd64_2+="~${OS_VERSION}-1"
+        #WINE_amd64_1="wine-${WINE_BRANCH}:amd64"
+        #WINE_amd64_1+="=${WINE_VERSION}"
+        #WINE_amd64_1+="~${OS_VERSION}-1"
+
+        #WINE_amd64_2="wine-${WINE_BRANCH}-amd64"
+        #WINE_amd64_2+="=${WINE_VERSION}"
+        #WINE_amd64_2+="~${OS_VERSION}-1"
 
         apt download $WINE_amd64_1
         apt download $WINE_amd64_2
     else
-        WINE_amd64_1="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}"
+        WINE_amd64_1="wine-${WINE_BRANCH}-amd64"
+        WINE_amd64_1+="_${WINE_VERSION}"
         WINE_amd64_1+="~${LATEST_DEBIAN}-1_amd64"
-
-        WINE_amd64_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
+    
+        WINE_amd64_2+="wine-${WINE_BRANCH}"
+        WINE_amd64_2+="_${WINE_VERSION}"
         WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
+        #WINE_amd64_1="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}"
+        #WINE_amd64_1+="~${LATEST_DEBIAN}-1_amd64"
+
+        #WINE_amd64_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
+        #WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
     fi
 fi
 
