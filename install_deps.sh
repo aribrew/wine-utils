@@ -122,7 +122,7 @@ else
     then
         REQUIRED_DEPS=$(sudo apt-cache depends wine-stable-amd64)
 
-        echo "$REQUIRED_DEPS" | grep -q "Depends:"
+        echo "$REQUIRED_DEPS" | grep -q "  Depends:"
 
         if [[ "$?" == "0" ]];
         then
