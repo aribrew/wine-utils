@@ -120,21 +120,32 @@ then
 else
     if [[ "$OS_NAME" == "debian" ]];
     then
-        REQUIRED_DEPS=$(sudo apt-cache depends wine-stable-amd64)
+        DEPS=$(sudo apt-cache depends wine-stable-amd64)
+        
+        REQUIRED_DEPS="$DEPS"
+        RECOMMENDED_DEPS="$DEPS"
 
         echo "$REQUIRED_DEPS" | grep -q "  Depends:"
 
         if [[ "$?" == "0" ]];
         then
             DEPENDS_STR="Depends:"
+            RECOMMENDED_STR="Recommends:"
         else
             DEPENDS_STR="Depende:"
+            RECOMMENDED_STR="Recomienda:"
         fi
         
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | grep "  ${DEPENDS_STR}")
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed "s/  ${DEPENDS_STR} //g")
-        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/<//g')
-        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/>//g')
+        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/<//g' | sed 's/>//g')
+
+        RECOMMENDED_DEPS=$(echo "$RECOMMENDED_DEPS" | grep "  ${RECOMMENDED_STR}")
+        RECOMMENDED_DEPS=$(echo "$RECOMMENDED_DEPS" | sed "s/  ${RECOMMENDED_STR} //g")
+        RECOMMENDED_DEPS=$(echo "$RECOMMENDED_DEPS" | sed 's/<//g' | 's/>//g')
+
+        ALL_DEPS="$REQUIRED_DEPS"
+        ALL_DEPS+="$RECOMMENDED_DEPS"
 
         if [[ -f "/tmp/packages_to_install" ]];
         then
@@ -143,7 +154,7 @@ else
         
         touch /tmp/packages_to_install
 
-        for package in $REQUIRED_DEPS;
+        for package in $ALL_DEPS;
         do
             # Remove package default architecture from name
             package=$(echo "$package" | sed 's/:amd64//g')
