@@ -136,6 +136,11 @@ else
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/<//g')
         REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/>//g')
 
+        if [[ -f "/tmp/packages_to_install" ]];
+        then
+            rm /tmp/packages_to_install
+        fi
+        
         touch /tmp/packages_to_install
 
         for package in $REQUIRED_DEPS;
