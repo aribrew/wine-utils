@@ -147,7 +147,7 @@ else
 
             if [[ "$THIS_ARCH" == "arm64" ]];
             then
-                echo -n "${package}:armhf" >> /tmp/packages_to_install
+                echo -n "${package}:armhf " >> /tmp/packages_to_install
             fi
         done
 
