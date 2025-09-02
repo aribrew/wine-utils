@@ -44,6 +44,7 @@ then
     THIS_ARCH="arm64"
 
 elif [[ $THIS_ARCH == arm* ]]
+then
     THIS_ARCH="armhf"
     ARCH_IS_32BIT=1
 else
@@ -70,12 +71,26 @@ fi
 
 
 echo ""
-echo "Preparing to install required dependencies for WINE."
+echo "In a x86 Linux system, this script installs the required dependencies"
+echo "for WINE installing the wine-stable and wine-stable-{arch} packages."
+echo "Once this is done, these packages are removed leaving the dependencies"
+echo "installed. This is the most simple method to achieve this."
 echo ""
-echo "This script does this installing the wine-stable and wine-stable-{arch}"
-echo "packages. After this is done, these packages are removed leaving the"
-echo "dependencies installed. This is the most simple method to achieve this."
-echo "-----------------------------------------------------------------------"
+echo "In ARM we need a different approach: WINE is only for i386/amd64."
+echo "This means that you need Box86 and Box64 packages in order to run it,"
+echo "and this requires installing WINE dependencies, but for ARM."
+echo ""
+echo "Because we cannot install them automatically with the package manager,"
+echo "we need to ask it about the packages required for the x86 version,"
+echo "extract their names and install them for ARM."
+echo ""
+
+read -p "Press ENTER to continue. Ctrl-C to abort."
+
+
+echo ""
+echo "Preparing to install required dependencies for WINE ..."
+echo "-------------------------------------------------------"
 
 
 if [[ -v ARCH_IS_32BIT ]];
@@ -86,21 +101,57 @@ else
 fi
 
 
-if [[ "$OS_NAME" == "debian" ]];
+if ! [[ "$THIS_ARCH" == "armhf" ]] && ! [[ "$THIS_ARCH" == "arm64" ]];
 then
-    sudo apt install --install-recommends -y $PACKAGES
-fi
+    if [[ "$OS_NAME" == "debian" ]];
+    then
+        sudo apt install --install-recommends -y $PACKAGES
+    fi
 
-
-if ! [[ "$?" == "0" ]];
-then
-    abort "Failed."
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed."
+    else
+        if [[ "$OS_NAME" == "debian" ]];
+        then
+            sudo apt install remove -y $PACKAGES
+        fi
+    fi
 else
     if [[ "$OS_NAME" == "debian" ]];
     then
-        sudo apt install remove -y $PACKAGES
+        REQUIRED_DEPS=$(sudo apt-cache depends wine-stable-amd64)
+
+        echo "$REQUIRED_DEPS" | grep -q "Depends:"
+
+        if [[ "$?" == "0" ]];
+        then
+            DEPENDS_STR="Depends:"
+        else
+            DEPENDS_STR="Depende:"
+        fi
+        
+        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | grep "  ${DEPENDS_STR}")
+        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed "s/  ${DEPENDS_STR} //g")
+        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/<//g')
+        REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed 's/>//g')
+
+        REQUIRED_PACKAGES=()
+
+        for package in $REQUIRED_DEPS;
+        do
+            REQUIRED_PACKAGES+=(${package}:${THIS_ARCH})
+
+            if [[ "$THIS_ARCH" == "arm64" ]];
+            then
+                REQUIRED_PACKAGES+=(${package}:armhf)
+            fi
+        done
+
+        sudo apt install $REQUIRED_PACKAGES
     fi
 fi
+
 
 echo ""
 echo "Done."
