@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    ISO=$1
+    EXTENSION=$(filext "$ISO")
+    LC_EXT=$(lowercase "$EXTENSION")
+
+    FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
+
+    if [[ "$FILE_NAME_WEXT" == "" ]];
+    then
+        echo "UNKNOWN"
+    else
+        ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
+        ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
+
+        echo "$ISO_LABEL"
+    fi
+fi

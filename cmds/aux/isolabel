@@ -2,19 +2,28 @@
 
 if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
 then
-    FILE_PATH="$1"
-    FILE_EXT=$(filext "$FILE_PATH")
+    ISO=$1
+    EXTENSION=$(filext "$ISO")
+    LC_EXT=$(lowercase "$EXTENSION")
 
-    if ! [[ "$FILE_EXT" == "" ]];
+    if [[ "$LC_EXT" == ".iso" ]] || [[ "$LC_EXT" == ".bin" ]];
     then
-        FILE_NAME_WEXT=$(basename "$FILE_PATH" $FILE_EXT)
-
-        if ! [[ "$FILE_NAME_WEXT" == "" ]];
+        if [[ -f "$(which /usr/bin/cd-info)" ]];
         then
-            ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
-            ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
+            LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume id:")
 
-            echo "$ISO_LABEL"
+            if [[ "$LABEL" == "" ]];
+            then
+                LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume")
+            fi
         fi
+    fi
+
+    if ! [[ "$LABEL" == "" ]];
+    then
+        LABEL=$(echo "$LABEL" | cut -d ':' -f 2 | xargs)
+        echo "$LABEL"
+    else
+        isoname "$ISO"
     fi
 fi

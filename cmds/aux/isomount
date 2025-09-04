@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    ISO=$1
+    ISO_TYPE=lowercase $(filext "$ISO")
+    LABEL=$(isolabel "$ISO")
+    MOUNT_PATH="/tmp/iso/$LABEL"
+
+    if [[ -d "$MOUNT_PATH" ]];
+    then
+        echo "This ISO is already mounted in '$MOUNT_PATH'.\n" && exit 1
+    fi
+
+    if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".bin" ]];
+    then
+        cd $MOUNT_PATH
+        bsdtar xf "$ISO"
+
+        if ! [[ "$?" == "0" ]];
+        then
+            echo "Failed extracting '$ISO'.\n" && exit 1
+        fi
+
+        echo "ISO 'mounted' in '$MOUNT_PATH'.\n"
+    fi
+fi
