@@ -11,7 +11,7 @@ then
     if [[ -f "/tmp/iso/.${MOUNT}_mounted" ]];
     then
         rm -r "/tmp/iso/${MOUNT}"
-        rm "/tmp/iso/.${MOUNT}.mounted"
+        rm "/tmp/iso/.${MOUNT}_mounted"
 
         echo -e "ISO in '$SCRIPT_DIR' unmounted.\n"
     fi
