@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+if ! [[ "$1" == "" ]] && [[ -d "$1" ]];
 then
     SCRIPT_DIR=$(realpath $(dirname $0))
     
     export PATH=$SCRIPT_DIR:$PATH
 
-    MOUNT=$(basename "$SCRIPT_DIR")
+    MOUNT=$(basename "$1")
 
     if [[ -f "/tmp/iso/.${MOUNT}_mounted" ]];
     then
