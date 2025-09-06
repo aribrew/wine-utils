@@ -2,26 +2,34 @@
 
 if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
 then
+    SCRIPT_DIR=$(realpath $(dirname $0))
+    
+    export PATH=$SCRIPT_DIR:$PATH
+
     ISO=$1
-    ISO_TYPE=lowercase $(filext "$ISO")
+    ISO_TYPE=$(lowercase $(filext "$ISO"))
     LABEL=$(isolabel "$ISO")
     MOUNT_PATH="/tmp/iso/$LABEL"
 
-    if [[ -d "$MOUNT_PATH" ]];
+    if [[ -f "/tmp/iso/.${LABEL}_mounted" ]];
     then
-        echo "This ISO is already mounted in '$MOUNT_PATH'.\n" && exit 1
+        echo -e "This ISO is already mounted in '$MOUNT_PATH'.\n" && exit 1
     fi
 
     if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".bin" ]];
     then
-        cd $MOUNT_PATH
+        mkdir -p "$MOUNT_PATH"
+        cd "$MOUNT_PATH"
+        
         bsdtar xf "$ISO"
 
         if ! [[ "$?" == "0" ]];
         then
-            echo "Failed extracting '$ISO'.\n" && exit 1
+            echo -e "Failed extracting '$ISO'.\n" && exit 1
         fi
 
-        echo "ISO 'mounted' in '$MOUNT_PATH'.\n"
+        echo -e "ISO 'mounted' in '$MOUNT_PATH'.\n"
+
+        touch "/tmp/iso/.${LABEL}_mounted"
     fi
 fi

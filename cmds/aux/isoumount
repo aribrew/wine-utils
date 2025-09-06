@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    SCRIPT_DIR=$(realpath $(dirname $0))
+    
+    export PATH=$SCRIPT_DIR:$PATH
+
+    MOUNT=$(basename "$SCRIPT_DIR")
+
+    if [[ -f "/tmp/iso/.${MOUNT}_mounted" ]];
+    then
+        rm -r "/tmp/iso/${MOUNT}"
+        rm "/tmp/iso/.${MOUNT}.mounted"
+
+        echo -e "ISO in '$SCRIPT_DIR' unmounted.\n"
+    fi
+fi
