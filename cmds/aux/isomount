@@ -6,7 +6,7 @@ then
     
     export PATH=$SCRIPT_DIR:$PATH
 
-    ISO=$1
+    ISO=$(realpath "$1")
     ISO_TYPE=$(lowercase $(filext "$ISO"))
     LABEL=$(isolabel "$ISO")
     MOUNT_PATH="/tmp/iso/$LABEL"
