@@ -1,0 +1,29 @@
+#!/bin/bash
+
+THIS_ARCH=$(uname -m)
+BCHUNK="bchunk"
+
+
+if [[ -v TERMUX_VERSION ]];
+then
+    BCHUNK+="-termux"
+else
+    if [[ "$THIS_ARCH" == "x86" ]];
+    then
+        BCHUNK+="-i386"
+        
+    elif [[ "$THIS_ARCH" == "x86_64" ]];
+    then
+        BCHUNK+="-amd64"
+        
+    elif [[ "$THIS_ARCH" == "aarch64" ]];
+    then
+        BCHUNK+="-arm64"
+    else
+        BCHUNK+="-armhf"
+    fi
+fi
+
+
+$BCHUNK $*
+
