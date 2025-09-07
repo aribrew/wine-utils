@@ -76,52 +76,6 @@ filext()
 }
 
 
-isolabel()
-{
-    if ! [[ -f "/usr/bin/cd-info" ]];
-    then
-        abort "Install libcdio-utils package."
-    fi
-
-    ISO="$1"
-    ISO=$(realpath "$ISO")
-    ISO_FILENAME=$(basename "$ISO")
-    FILE_EXT=$(filext "$ISO_FILENAME")
-
-    if [[ "$FILE_EXT" == ".bin" ]];
-    then
-        ISO=${ISO/.bin/.cue}
-
-    elif [[ "$FILE_EXT" == ".BIN" ]];
-    then
-        ISO=${ISO/.BIN/.CUE}
-    fi
-
-    if [[ $ISO == *.cue ]] || [[ $ISO == *.CUE ]];
-    then
-        cd-info "$ISO" | grep -m1 "Volume" | cut -d ':' -f 2 | xargs
-
-    elif [[ $ISO == *.iso ]] || [[ $ISO == *.ISO ]];
-    then
-        LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume id:" | cut -d ':' -f 2 | xargs)
-
-        if [[ "$LABEL" == "" ]];
-        then
-            LABEL=$(iso-info -d -i "$ISO" | grep -m1 "Volume" | cut -d ':' -f 2 | xargs)
-        fi
-
-        if [[ "$LABEL" == "" ]];
-        then
-            echo "UNNAMED"
-        else
-            echo "$LABEL"
-        fi
-
-    else
-        echo "UNKNOWN"
-    fi    
-}
-
 
 os_name()
 {
@@ -168,7 +122,6 @@ then
     export -f abort
     export -f check_sudo
     export -f exec_type
-    export -f isolabel
     export -f filext
     export -f os_name
     export -f os_version
