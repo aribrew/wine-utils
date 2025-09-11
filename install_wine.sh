@@ -85,7 +85,8 @@ then
 
     copy -r "$WINE_PATH" "$WINE_ENV_PATH"
 
-    if [[ -d "$WINE_ENV_PATH/cmds" ]];
+    if ! [[ -d "$WINE_ENV_PATH/cmds" ]] || 
+       ! [[ -d "$WINE_ENV_PATH/for_prefixes" ]];
     then
         "$SCRIPTS/update_env.sh"
     fi
