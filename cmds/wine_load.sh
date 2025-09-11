@@ -59,16 +59,16 @@ then
     WINE_VERSION=$(cat $WINE_PATH/.wine_version)
 
     export WINE_BINARIES=$WINE_PATH/opt/wine-${WINE_BRANCH}/bin
+    export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
+
+    export WINEDLLPATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
 
     if [[ "$WINE_ARCH" == "i386" ]];
     then
-        export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        export WINE_UTILS+="/lib/wine/i386-windows"
-
         export WINELOADER="$WINE_BINARIES/wine"
-
-        export WINEDLLPATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
         export WINEDLLPATH+="/lib/wine/i386-unix"
+        
+        export WINE_UTILS+="/lib/wine/i386-windows"
 
         #echo "$LD_LIBRARY_PATH" | grep -q "wine/i386-unix"
         #
@@ -85,13 +85,10 @@ then
         #fi
 
     else
-        export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        export WINE_UTILS+="/lib64/wine/x86_64-windows"
-
         export WINELOADER="$WINE_BINARIES/wine64"
-
-        export WINEDLLPATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
         export WINEDLLPATH+="/lib/wine/i386-unix"
+        
+        export WINE_UTILS+="/lib64/wine/x86_64-windows"
 
         #echo "$LD_LIBRARY_PATH" | grep -q "wine/x86_64-unix"
         #
@@ -108,11 +105,11 @@ then
         #fi
     fi
 
-    export WINESERVER="$WINE_BINARIES/wineserver"
-
     # Needed by winetricks
     export WINE="$WINELOADER"
 
+    export WINESERVER="$WINE_BINARIES/wineserver"
+    
     # The aliases will be available for the current shell session
     # but not for the other scripts. They will include wine_cmds
     # instead.
@@ -130,14 +127,3 @@ then
     echo "Activated Wine $WINE_BRANCH ($WINE_VERSION): $WINE_PATH"
     echo ""
 fi
-
-
-
-
-
-
-
-
-
-
-

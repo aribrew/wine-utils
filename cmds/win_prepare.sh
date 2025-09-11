@@ -20,6 +20,17 @@ install_activator()
     WINE_PREFIX=$1
     WINE_ARCH=$2
 
+    if ! [[ -d "$WINE_PREFIX/dosdevices" ]];
+    then
+        echo -e "Invalid WINE prefix '$WINE_PREFIX'\n" && exit 1
+    fi
+    
+    if ! [[ -f "$WINE_ENV/for_prefixes/.activate_prefix" ]];
+    then
+        echo "Cannot create activator for prefix '$WINE_PREFIX'."
+        echo -e "Template not found.\n" && exit 1
+    fi
+        
     ACTIVATOR=$WINE_PREFIX/activate
 
     cp "$WINE_ENV/for_prefixes/.activate_prefix" "$ACTIVATOR"
@@ -42,6 +53,17 @@ install_defaulter()
 {
     WINE_PREFIX=$1
 
+    if ! [[ -d "$WINE_PREFIX/dosdevices" ]];
+    then
+        echo -e "Invalid WINE prefix '$WINE_PREFIX'\n" && exit 1
+    fi
+    
+    if ! [[ -f "$WINE_ENV/for_prefixes/.make_prefix_default" ]];
+    then
+        echo "Cannot create defaulter for prefix '$WINE_PREFIX'."
+        echo -e "Template not found.\n" && exit 1
+    fi
+        
     DEFAULTER="$WINE_PREFIX/make_default"
 
     cp "$WINE_ENV/for_prefixes/.make_prefix_default" "$DEFAULTER"
@@ -68,7 +90,7 @@ setup_prefix()
         abort "Load one with '. wine_load <WINE path>' first."
     fi
 
-    wineboot
+    "$WINELOADER" "$WINE_UTILS/wineboot.exe"
 
     if ! [[ "$?" == "0" ]];
     then
@@ -97,11 +119,6 @@ usage()
     echo ""
 }
 
-
-wineboot()
-{
-    "$WINELOADER" "$WINE_UTILS/wineboot.exe"
-}
 
 
 
