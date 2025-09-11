@@ -15,62 +15,58 @@ else
 fi
 
 
+check_valid_prefix()
+{
+    if ! [[ -v WINEPREFIX ]] || ! [[ -d "$WINEPREFIX/dosdevices" ]];
+    then
+        abort "Invalid WINE prefix '$WINEPREFIX'"
+    fi
+}
+
+
 install_activator()
 {
-    WINE_PREFIX=$1
-    WINE_ARCH=$2
-
-    if ! [[ -d "$WINE_PREFIX/dosdevices" ]];
-    then
-        echo -e "Invalid WINE prefix '$WINE_PREFIX'\n" && exit 1
-    fi
+    check_valid_prefix
     
     if ! [[ -f "$WINE_ENV/for_prefixes/.activate_prefix" ]];
     then
-        echo "Cannot create activator for prefix '$WINE_PREFIX'."
-        echo -e "Template not found.\n" && exit 1
+        echo "Cannot create activator for prefix '$WINEPREFIX'."
+        abort "Template not found."
     fi
         
-    ACTIVATOR=$WINE_PREFIX/activate
+    ACTIVATOR=$WINEPREFIX/activate
 
     cp "$WINE_ENV/for_prefixes/.activate_prefix" "$ACTIVATOR"
 
-    sed -i "s|WINEPREFIX_PLACEHOLDER|$WINE_PREFIX|g" "$ACTIVATOR"
-    sed -i "s|WINEARCH_PLACEHOLDER|$WINE_ARCH|g" "$ACTIVATOR"
+    sed -i "s|WINEPREFIX_PLACEHOLDER|$WINEPREFIX|g" "$ACTIVATOR"
+    sed -i "s|WINEARCH_PLACEHOLDER|$WINEARCH|g" "$ACTIVATOR"
 
     chmod +x "$ACTIVATOR"
 
-    echo "$WINE_PREFIX" > /tmp/.last_active_wine_prefix
-
-    echo ""
-    echo "Activator installed for prefix '$WINE_PREFIX'."
-    echo "Execute '. $WINE_PREFIX/activate' for activate this prefix."
+    echo "$WINEPREFIX" > /tmp/.last_active_wine_prefix
+    
+    echo "Activator installed for prefix '$WINEPREFIX'."
+    echo "Execute '. $WINEPREFIX/activate' for activate this prefix."
     echo ""
 }
 
 
 install_defaulter()
 {
-    WINE_PREFIX=$1
-
-    if ! [[ -d "$WINE_PREFIX/dosdevices" ]];
-    then
-        echo -e "Invalid WINE prefix '$WINE_PREFIX'\n" && exit 1
-    fi
+    check_valid_prefix
     
     if ! [[ -f "$WINE_ENV/for_prefixes/.make_prefix_default" ]];
     then
-        echo "Cannot create defaulter for prefix '$WINE_PREFIX'."
-        echo -e "Template not found.\n" && exit 1
+        echo "Cannot create defaulter for prefix '$WINEPREFIX'."
+        abort "Template not found."
     fi
         
-    DEFAULTER="$WINE_PREFIX/make_default"
+    DEFAULTER="$WINEPREFIX/make_default"
 
     cp "$WINE_ENV/for_prefixes/.make_prefix_default" "$DEFAULTER"
     chmod +x "$DEFAULTER"
 
-    echo ""
-    echo "Execute '$WINE_PREFIX/make_default' for set this prefix as the"
+    echo "Execute '$WINEPREFIX/make_default' for set this prefix as the"
     echo "default one for 32 or 64 bits apps (depending of its architecture)."
     echo ""
 }
@@ -78,10 +74,15 @@ install_defaulter()
 
 setup_prefix()
 {
-    WINE_PREFIX=$1
-    WINE_ARCH=$2
+    if ! [[ -v WINEPREFIX ]] || ! [[ -v WINEARCH ]];
+    then
+        echo -n "Both environment variables, WINEPREFIX and WINEARCH,"
+        echo "must be set for setup a new prefix."
 
-    echo "Initializing $WINE_ARCH prefix '$WINE_PREFIX' ..."
+        abort
+    fi
+
+    echo "Initializing $WINEARCH prefix '$WINEPREFIX' ..."
     echo ""
 
     if ! [[ -v WINELOADER ]];
@@ -94,11 +95,15 @@ setup_prefix()
 
     if ! [[ "$?" == "0" ]];
     then
-        abort "Initialization failed. Maybe a permissions problem."
+        echo -e "Initialization failed. Maybe a permissions problem.\n"
+        exit 1
     fi
 
-    install_activator "$WINE_PREFIX" $WINE_ARCH
-    install_defaulter "$WINE_PREFIX"
+    echo "Prefix created. The helper scripts will be added now."
+    echo ""
+
+    install_activator
+    install_defaulter
 }
 
 
@@ -120,9 +125,6 @@ usage()
 }
 
 
-
-
-
 if ! [[ -v WINE_ENV ]] && ! [[ -f "$WINE_ENV/.wine_env" ]];
 then
     abort "WINE environment not loaded yet. Source .wine_env."
@@ -136,35 +138,35 @@ then
 fi
 
 
-WINE_PREFIX=$1
-WINE_ARCH=$2
+PREFIX_NAME="$1"
+PREFIX_ARCH="$2"
 
 
-if [[ "$WINE_PREFIX" == "" ]];
+if [[ "$PREFIX_NAME" == "" ]];
 then
-    WINE_PREFIX=".wine64"
-    WINE_ARCH="win64"
+    PREFIX_NAME=".wine64"
+    PREFIX_ARCH="win64"
 
 elif [[ "$1" == "win32" ]] || [[ "$1" == ".wine" ]];
 then
-    WINE_PREFIX=".wine"
-    WINE_ARCH="win32"
+    PREFIX_NAME=".wine"
+    PREFIX_ARCH="win32"
 
 elif [[ "$1" == "win64" ]] || [[ "$1" == ".wine64" ]];
 then
-    WINE_PREFIX=".wine64"
-    WINE_ARCH="win64"
+    PREFIX_NAME=".wine64"
+    PREFIX_ARCH="win64"
 fi
 
 
-if [[ "$WINE_ARCH" == "" ]];
+if [[ "$PREFIX_ARCH" == "" ]];
 then
     echo "No architecture specified. Using Win64."
-    WINE_ARCH="win64"
+    PREFIX_ARCH="win64"
 else
-    if ! [[ "$WINE_ARCH" == "win32" ]] && ! [[ "$WINE_ARCH" == "win64" ]];
+    if ! [[ "$PREFIX_ARCH" == "win32" ]] && ! [[ "$PREFIX_ARCH" == "win64" ]];
     then
-        abort "Invalid architecture '$WINE_ARCH'. Must be win32 or win64."
+        abort "Invalid architecture '$PREFIX_ARCH'. Must be win32 or win64."
     fi
 fi
 
@@ -172,55 +174,64 @@ fi
 if [[ -v WIN_ROOT ]] && [[ -d "$WIN_ROOT" ]];
 then
     echo "Using '$WIN_ROOT' as prefixes root."
-
     echo "Testing $WIN_ROOT for write permissions ..."
+
     touch "$WIN_ROOT/touched"
 
     if ! [[ "$?" == "0" ]];
     then
-        abort "ERROR: Cannot write in '$WIN_ROOT'"
+        echo -n "ERROR: Cannot write in '$WIN_ROOT'\n" && exit 1
     else
         rm "$WIN_ROOT/touched"
         echo "All seems OK."
+
+        export WINEPREFIX="$WIN_ROOT/$PREFIX_NAME"
     fi
 else
-    if [[ "$WINE_PREFIX" == ".wine" ]] || [[ "$WINE_PREFIX" == ".wine64" ]];
+    if [[ "$PREFIX_NAME" == ".wine" ]] || [[ "$PREFIX_NAME" == ".wine64" ]];
     then
-        export WIN_ROOT="$HOME"
+        export WINEPREFIX="$HOME/$PREFIX_NAME"
     else
-        export WIN_ROOT="$HOME/.local/share/wineprefixes"
+        export WINEPREFIX="$HOME/.local/share/wineprefixes/$PREFIX_NAME"
     fi
 fi
 
 
-if ! [[ -d "$WIN_ROOT" ]];
+PREFIX_PATH=$(dirname "$WINEPREFIX")
+
+if ! [[ -d "$PREFIX_PATH" ]];
 then
-    mkdir -p "$WIN_ROOT"
+    mkdir -p "$PREFIX_PATH"
 fi
 
 
-echo "Checking if a prefix '$WINE_PREFIX' already exists in '$WIN_ROOT' ..."
+echo -n "Checking if a prefix named '$PREFIX_NAME'"
+echo "already exists in '$PREFIX_PATH ..."
 
-if [[ -d "$WIN_ROOT/$WINE_PREFIX/dosdevices" ]];
+
+if [[ -d "$WINEPREFIX/dosdevices" ]];
 then
-    if [[ -d "$WIN_ROOT/$WINE_PREFIX/drive_c/Program Files (x86)" ]];
+    if [[ -d "$WINE_PREFIX/drive_c/Program Files (x86)" ]];
     then
-        WINE_ARCH="win64"
+        export WINEARCH="win64"
     else
-        WINE_ARCH="win32"
+        export WINEARCH="win32"
     fi
 
-    if ! [[ -f "$WIN_ROOT/$WINE_PREFIX/activate" ]];
+    if ! [[ -f "$WINEPREFIX/activate" ]];
     then
         echo "The prefix exists but no activator was found."
-        install_activator "$WIN_ROOT/$WINE_PREFIX" $WINE_ARCH
-    fi
+        echo "Both the activator and the defaulter will be created now."
+        echo ""
 
-    if ! [[ -f "$WIN_ROOT/$WINE_PREFIX/make_default" ]];
-    then
-        install_defaulter "$WIN_ROOT/$WINE_PREFIX"
+        install_activator
+        install_defaulter
+    else
+        echo "Both the prefix and the needed scripts are already present."
+        echo "Nothing to do then."
+        echo ""
     fi
 
 else
-    setup_prefix "$WIN_ROOT/$WINE_PREFIX" $WINE_ARCH
+    setup_prefix
 fi
