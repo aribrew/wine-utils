@@ -20,8 +20,18 @@ then
     then
         mkdir -p "$MOUNT_PATH"
         cd "$MOUNT_PATH"
-        
-        bsdtar xf "$ISO"
+
+        if [[ -f "$(which bsdtar)" ]];
+        then        
+            bsdtar xf "$ISO"
+            
+        elif [[ -f "$(which 7z)" ]];
+        then
+            7z x "$ISO"
+        else
+            echo -e "Can't find bsdtar or 7z. Unable to extract ISO.\n"
+            exit 1
+        fi
 
         if ! [[ "$?" == "0" ]];
         then
