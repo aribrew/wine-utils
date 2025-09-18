@@ -118,7 +118,7 @@ fi
 if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
     echo ""
-    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ()$WINE_VERSION) ..."
+    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "-------------------------------------------------------------"
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
