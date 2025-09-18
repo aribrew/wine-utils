@@ -88,17 +88,30 @@ echo ""
 read -p "Press ENTER to continue. Ctrl-C to abort."
 
 
+if [[ -v ARCH_IS_32BIT ]];
+then
+    if [ -f "/usr/local/share/.wine32_deps_installed" ];
+    then
+        echo -e "Dependencies for WINE (32 bits) already installed.\n"
+        exit 0
+    fi
+    
+    PACKAGES="wine-stable"
+else
+    if [ -f "/usr/local/share/.wine32_deps_installed" ] &&
+       [ -f "/usr/local/share/.wine64_deps_installed" ];
+    then
+        echo -e "Dependencies for WINE (32 and 64 bits) already installed.\n"
+        exit 0
+    fi
+    
+    PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
+fi
+
+
 echo ""
 echo "Preparing to install required dependencies for WINE ..."
 echo "-------------------------------------------------------"
-
-
-if [[ -v ARCH_IS_32BIT ]];
-then
-    PACKAGES="wine-stable"
-else
-    PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
-fi
 
 
 if ! [[ "$THIS_ARCH" == "armhf" ]] && ! [[ "$THIS_ARCH" == "arm64" ]];
@@ -112,9 +125,12 @@ then
     then
         abort "Failed."
     else
+        sudo touch "/usr/local/share/.wine32_deps_installed"
+        sudo touch "/usr/local/share/.wine64_deps_installed"
+        
         if [[ "$OS_NAME" == "debian" ]];
         then
-            sudo apt install remove -y $PACKAGES
+            sudo apt remove -y $PACKAGES
         fi
     fi
 else
@@ -174,6 +190,14 @@ else
         done
 
         sudo apt install $(cat /tmp/packages_to_install)
+
+        if ! [[ "$?" == "0" ]];
+        then
+            abort "Failed!"
+        else
+            sudo touch "/usr/local/share/.wine32_deps_installed"
+            sudo touch "/usr/local/share/.wine64_deps_installed"
+        fi
     fi
 fi
 
