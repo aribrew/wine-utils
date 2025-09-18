@@ -92,7 +92,7 @@ if [[ -v ARCH_IS_32BIT ]];
 then
     if [ -f "/usr/local/share/.wine32_deps_installed" ];
     then
-        echo -e "Dependencies for WINE (32 bits) already installed.\n"
+        echo -e "\nDependencies for WINE (32 bits) already installed.\n"
         exit 0
     fi
     
@@ -101,7 +101,7 @@ else
     if [ -f "/usr/local/share/.wine32_deps_installed" ] &&
        [ -f "/usr/local/share/.wine64_deps_installed" ];
     then
-        echo -e "Dependencies for WINE (32 and 64 bits) already installed.\n"
+        echo -e "\nDependencies for WINE (32 and 64 bits) already installed.\n"
         exit 0
     fi
     
