@@ -11,13 +11,13 @@ SCRIPTS=$(realpath $(dirname $0))
 
 
 if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
+     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]];
 then
     "$SCRIPTS/helpers/bash_helpers.sh" --install
 fi
 
 
-if ! [[ -f "$BASH_HELPERS" ]]; 
+if ! [[ -f "$BASH_HELPERS" ]];
 then
     echo "Cannot find '$BASH_HELPERS'."
     echo ""

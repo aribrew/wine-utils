@@ -76,6 +76,27 @@ filext()
 }
 
 
+installed()
+{
+    HELPERS_PATH=$(path)
+
+    if [[ -f "$HELPERS_PATH" ]];
+    then
+        echo "Helpers installed"
+    else
+        echo "Helpers not found"
+    fi
+}
+
+
+is_admin()
+{
+    if [[ "$HOME" == "/root" ]];
+    then
+        export SUPER_USER=1
+    fi
+}
+
 
 os_name()
 {
@@ -94,16 +115,36 @@ os_version()
 }
 
 
+path()
+{
+    if ! [[ "$TERMUX_VERSION" == "" ]];
+    then
+        echo "$PREFIX/opt/bin"
+        
+    else
+        if [[ "$HOME" == "/root" ]];
+        then
+            echo "/opt/bin"
+            
+        else
+            echo "$HOME/.local/bin"
+        fi
+    fi
+}
+
+
 usage()
 {
     echo "source bash_helpers.sh"
     echo ": Loads the functions in the current shell."
     echo ""
-    echo "bash_helpers.sh --install [--user|path]"
-    echo ": Install the helper."
-    echo "- If --user, installs in ~/.local/bin"
-    echo "- If a path is given, installs in that path."
-    echo "- Otherwise installs in /opt/bin"
+    echo "bash_helpers.sh --install"
+    echo ": Installs the helpers."
+    echo "  - If NOT using sudo, installs in ~/.local/bin"
+    echo "  - Otherwise installs in /opt/bin"
+    echo ""
+    echo "bash_helpers.sh --path"
+    echo ": Tells where the helpers are/would be installed."
     echo ""
 }
 
@@ -123,59 +164,54 @@ then
     export -f check_sudo
     export -f exec_type
     export -f filext
+    export -f is_admin
     export -f os_name
     export -f os_version
 fi
 
 
-if [[ "$1" == "--install" ]];
+export BASH_HELPERS_LOADED=1
+
+
+if [[ "$1" == "--path" ]];
 then
+    path
+
+elif [[ "$1" == "--installed" ]];
+then
+    installed
+    
+elif [[ "$1" == "--install" ]];
+then
+    if ! [[ -f "$HOME/.bashrc" ]] && [[ -v TERMUX_VERSION ]];
+    then
+        cp "$PREFIX/etc/bash.bashrc" "$HOME/.bashrc"
+    fi
+
+    if ! [[ -f "$HOME/.environment" ]];
+    then
+        touch "$HOME/.environment"
+    fi
+        
     SCRIPT=$(realpath $0)
     FILENAME=$(basename "$SCRIPT")
 
-    if ! [[ "$TERMUX_VERSION" == "" ]];
+    INSTALL_PATH=$(path)
+
+    if [[ -v SUPER_USER ]];
     then
-        INSTALL_PATH="$PREFIX/opt/bin"
-        PERMS="770"
-        
+        PERMS="755"
+        SUDO="sudo"
     else
-        if [[ "$2" == "--user" ]];
-        then
-            INSTALL_PATH="$HOME/.local/bin"
-            PERMS="770"
-            
-        elif [[ -d "$2" ]];
-        then
-            INSTALL_PATH="$2"
-            PERMS="775"
-            
-        else
-            INSTALL_PATH="/opt/bin"
-            SUDO="sudo"
-            PERMS="755"
-        fi
+        PERMS="770"
     fi
-    
-    if ! [[ -d "$INSTALL_PATH" ]];
-    then
-        $SUDO mkdir -p "$INSTALL_PATH"
-    fi
+
 
     $SUDO cp $SCRIPT $INSTALL_PATH/
     $SUDO chmod $PERMS "$INSTALL_PATH/${FILENAME}"
 
     if [[ "$?" == "0" ]];
     then
-        if ! [[ -f "$HOME/.bashrc" ]] && [[ -v TERMUX_VERSION ]];
-        then
-            cp "$PREFIX/etc/bash.bashrc" "$HOME/.bashrc"
-        fi
-
-        if ! [[ -f "$HOME/.environment" ]];
-        then
-            touch "$HOME/.environment"
-        fi
-        
         grep -q "$INSTALL_PATH" "$HOME/.environment"
 
         if ! [[ "$?" == "0" ]];
