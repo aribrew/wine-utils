@@ -197,6 +197,9 @@ else
 fi
 
 
+export WINEARCH=$PREFIX_ARCH
+
+
 PREFIX_PATH=$(dirname "$WINEPREFIX")
 
 if ! [[ -d "$PREFIX_PATH" ]];
