@@ -110,7 +110,10 @@ os_version()
     then
         echo "rolling"
     else
-        echo "$(cat /etc/os-release | grep '^VERSION_CODENAME=' | cut -d '=' -f 2)"
+        OS_INFO=$(cat /etc/os-release)
+        OS_VERSION=$(echo $OS_INFO | grep '^VERSION_CODENAME=')
+        
+        echo "$OS_VERSION" | cut -d '=' -f 2 
     fi
 }
 
