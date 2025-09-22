@@ -5,9 +5,12 @@ copy()
     $SUDO cp $*
 }
 
+
 mktree()
 {
-    $SUDO mkdir -p $*
+    TREE="$1"
+    
+    $SUDO mkdir -p "$TREE"
 }
 
 
@@ -28,8 +31,8 @@ SCRIPT_HOME=$(realpath $(dirname $0))
 echo -e "Updating/installing WINE environment files.\n"
 
 
-echo -e "Trying to update files with Github ...\n"
-echo -e "----------------------------------------"
+echo -e "Trying to update files with Github ..."
+echo -e "--------------------------------------"
 
 cd "$SCRIPT_HOME"
 
@@ -56,22 +59,22 @@ else
 fi
 
 
-if ! [[ -d "$WINENV" ]];
+if ! [[ -d "$WINE_ENV" ]];
 then
-    mktree "$WINENV"
+    mktree "$WINE_ENV"
 fi
 
 
-copy -u "$SCRIPTS/.wine_env" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/.wine_env" "$WINE_ENV/"
 
-copy -ru "$SCRIPTS/cmds" "$WINE_ENV/"
-copy -ru "$SCRIPTS/for_prefixes" "$WINE_ENV/"
+copy -ru "$SCRIPT_HOME/cmds" "$WINE_ENV/"
+copy -ru "$SCRIPT_HOME/for_prefixes" "$WINE_ENV/"
 
-copy -u "$SCRIPTS/download_wine.sh" "$WINE_ENV/"
-copy -u "$SCRIPTS/install_wine.sh" "$WINE_ENV/"
-copy -u "$SCRIPTS/install_winetricks.sh" "$WINE_ENV/"
-copy -u "$SCRIPTS/make_prefix_autoload.sh" "$WINE_ENV/"
-copy -u "$SCRIPTS/make_wine_autoload.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/download_wine.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/install_wine.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/install_winetricks.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/make_prefix_autoload.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/make_wine_autoload.sh" "$WINE_ENV/"
 
 
 
