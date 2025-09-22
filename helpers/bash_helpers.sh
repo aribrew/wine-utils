@@ -15,6 +15,15 @@ abort()
 }
 
 
+check_if_admin()
+{
+    if [[ "$HOME" == "/root" ]];
+    then
+        export SUPER_USER=1
+    fi
+}
+
+
 check_sudo()
 {
     if [[ "$EUID" == "0" ]];
@@ -89,11 +98,11 @@ installed()
 }
 
 
-is_admin()
+lowercase()
 {
-    if [[ "$HOME" == "/root" ]];
+    if ! [[ "$1" == "" ]];
     then
-        export SUPER_USER=1
+        echo "$1" | awk '{print tolower($0)}'
     fi
 }
 
@@ -136,6 +145,15 @@ path()
 }
 
 
+uppercase()
+{
+    if ! [[ "$1" == "" ]];
+    then
+        echo "$1" | awk '{print toupper($0)}'
+    fi
+}
+
+
 usage()
 {
     echo "source bash_helpers.sh"
@@ -167,12 +185,15 @@ fi
 if ! [[ -v ZSH_VERSION ]];
 then
     export -f abort
+    export -f check_if_admin
     export -f check_sudo
     export -f exec_type
     export -f filext
     export -f is_admin
+    export -f lowercase
     export -f os_name
     export -f os_version
+    export -f uppercase
 fi
 
 

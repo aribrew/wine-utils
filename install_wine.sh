@@ -19,6 +19,61 @@ copy()
 }
 
 
+install_wine_from()
+{
+    WINE_PATH=$1
+
+    if [[ -f "${WINE_PATH}/.wine_branch" ]]; 
+    then
+        WINE_FOLDER=$(basename "$WINE_PATH")
+        
+        WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
+        WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
+        WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
+
+        if [[ -d "$WINE_ENV_PATH/$WINE_FOLDER" ]]; 
+        then
+            abort "This WINE version is already installed."
+        fi
+
+        echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
+        echo "in '$WINE_ENV_PATH' ..."
+        echo "--------------------------------------------------------------------"
+
+        if ! [[ -d "$WINE_ENV_PATH" ]]; 
+        then
+            mktree "$WINE_ENV_PATH"
+        fi
+
+        copy -r "$WINE_PATH" "$WINE_ENV_PATH"
+
+        if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine32" ]]; 
+        then
+            echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine32"
+
+            echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 32 bits."
+            echo ""
+
+        elif [[ "$WINE_ARCH" == "amd64" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine64" ]]; 
+        then
+            echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine64"
+
+            echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 64 bits."
+            echo ""
+        fi
+        
+        grep -q ".wine_env" "$HOME/.environment"
+
+        if ! [[ "$?" == "0" ]]; 
+        then
+            echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
+        fi
+
+        echo "Done."
+    fi
+}
+
+
 mktree()
 {
     $SUDO mkdir -p $*
@@ -34,9 +89,15 @@ then
 fi
 
 
+SCRIPT_HOME=$(realpath $(dirname $0))
+
+
 WINE_PATH=$1
 
-if [[ "$2" == "--system" ]];
+
+check_if_admin
+
+if [[ -v SUPER_USER ]];
 then
     WINE_ENV_PATH="/opt/winenv"
     SUDO="sudo"
@@ -45,51 +106,33 @@ else
 fi
 
 
-if [[ -f "${WINE_PATH}/.wine_branch" ]]; 
+if [[ "$WINE_PATH" == "" ]];
 then
-    WINE_FOLDER=$(basename "$WINE_PATH")
-	
-    WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
-    WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
-    WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
+    "$SCRIPT_HOME/download_wine.sh"
 
-    if [[ -d "$WINE_ENV_PATH/$WINE_FOLDER" ]]; 
+    if [[ "$?" == "0" ]];
     then
-        abort "This WINE version is already installed."
+        if [[ -f "/tmp/.last_wine32_download" ]];
+        then
+            WINE32_PATH=$(cat "/tmp/.last_wine32_download")
+
+            if [[ -f "$WINE32_PATH/.wine_version" ]];
+            then
+                install_wine_from "$WINE32_PATH"
+            fi
+        fi
+
+        if [[ -f "/tmp/.last_wine64_download" ]];
+        then
+            WINE64_PATH=$(cat "/tmp/.last_wine64_download")
+
+            if [[ -f "$WINE64_PATH/.wine_version" ]];
+            then
+                install_wine_from "$WINE64_PATH"
+            fi
+        fi
     fi
-
-    echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
-    echo "in '$WINE_ENV_PATH' ..."
-    echo "--------------------------------------------------------------------"
-
-    if ! [[ -d "$WINE_ENV_PATH" ]]; 
-    then
-        mktree "$WINE_ENV_PATH"
-    fi
-
-    copy -r "$WINE_PATH" "$WINE_ENV_PATH"
-
-    if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine32" ]]; 
-    then
-        echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine32"
-
-        echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 32 bits."
-        echo ""
-
-    elif [[ "$WINE_ARCH" == "amd64" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine64" ]]; 
-    then
-        echo "$WINE_ENV_PATH/$WINE_FOLDER" > "$WINE_ENV_PATH/.default_wine64"
-
-        echo "'$WINE_ENV_PATH/$WINE_FOLDER' is now the default for 64 bits."
-        echo ""
-    fi
-    
-    grep -q ".wine_env" "$HOME/.environment"
-
-    if ! [[ "$?" == "0" ]]; 
-    then
-        echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
-    fi
-
-    echo "Done."
+else
+    install_wine_from "$WINE_PATH"
 fi
+

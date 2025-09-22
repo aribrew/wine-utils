@@ -237,6 +237,8 @@ then
     echo "i386" > "$WINE32_DIR/.wine_arch"
 
     echo "WINE (32 bit) extracted in $WINE_TMP/$WINE32_DIR."
+
+    echo "$WINE32_DIR" > /tmp/.last_wine32_download
 fi
 
 
@@ -284,4 +286,6 @@ then
     echo "amd64" > "$WINE64_DIR/.wine_arch"
 
     echo "WINE (64 bit) extracted in $WINE_TMP/$WINE64_DIR."
+
+    echo "$WINE64_DIR" > /tmp/.last_wine64_download
 fi

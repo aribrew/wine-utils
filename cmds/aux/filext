@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
-then
-    FILE_NAME=$(basename "$1")
-    FILE_EXTENSION=${FILE_NAME##*.}
-
-    echo ".$FILE_EXTENSION"
-fi
