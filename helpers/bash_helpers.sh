@@ -189,7 +189,6 @@ then
     export -f check_sudo
     export -f exec_type
     export -f filext
-    export -f is_admin
     export -f lowercase
     export -f os_name
     export -f os_version
