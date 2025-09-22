@@ -25,29 +25,13 @@ mktree()
 }
 
 
-BASH_HELPERS="/opt/bin/bash_helpers.sh"
-SCRIPTS=$(realpath $(dirname $0))
+source bash_helpers.sh
 
-
-if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]];
+if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    "$SCRIPTS/helpers/bash_helpers.sh" --install
-fi
-
-
-if ! [[ -f "$BASH_HELPERS" ]]; 
-then
-    echo "Cannot find '$BASH_HELPERS'."
-    echo ""
-
+    echo -e "BASH Helpers not found in PATH. Install them first.\n"
     exit 1
-    
-else
-    source "$BASH_HELPERS"
 fi
-
-
 
 
 WINE_PATH=$1
@@ -84,12 +68,6 @@ then
     fi
 
     copy -r "$WINE_PATH" "$WINE_ENV_PATH"
-
-    if ! [[ -d "$WINE_ENV_PATH/cmds" ]] || 
-       ! [[ -d "$WINE_ENV_PATH/for_prefixes" ]];
-    then
-        "$SCRIPTS/update_env.sh"
-    fi
 
     if [[ "$WINE_ARCH" == "i386" ]] && ! [[ -f "$WINE_ENV_PATH/.default_wine32" ]]; 
     then

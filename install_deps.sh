@@ -4,26 +4,13 @@
 # Helper for installing WINE and Winetricks dependencies
 #########################################################
 
-BASH_HELPERS="/opt/bin/bash_helpers.sh"
-SCRIPTS=$(realpath $(dirname $0))
 
+source bash_helpers.sh
 
-if ! [[ -f "$BASH_HELPERS" ]] &&
-     [[ -f "$SCRIPTS/helpers/bash_helpers.sh" ]]; 
+if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    "$SCRIPTS/helpers/bash_helpers.sh" --install
-fi
-
-
-if ! [[ -f "$BASH_HELPERS" ]]; 
-then
-    echo "Cannot find '$BASH_HELPERS'."
-    echo ""
-
+    echo -e "BASH Helpers not found in PATH. Install them first.\n"
     exit 1
-    
-else
-    source "$BASH_HELPERS"
 fi
 
 

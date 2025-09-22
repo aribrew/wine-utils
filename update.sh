@@ -11,20 +11,12 @@ mktree()
 }
 
 
+source bash_helpers.sh
+
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    BASH_HELPERS="/opt/bin/bash_helpers.sh"
-
-    if ! [[ -f "$BASH_HELPERS" ]];
-    then
-        echo "Cannot find '$BASH_HELPERS'."
-        echo ""
-
-        exit 1
-        
-    else
-        source "$BASH_HELPERS"
-    fi
+    echo -e "BASH Helpers not found in PATH. Install them first.\n"
+    exit 1
 fi
 
 

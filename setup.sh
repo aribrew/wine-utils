@@ -15,4 +15,6 @@ then
 fi
 
 
-source "$SCRIPT_HOME/update.sh"
+"$SCRIPT_HOME/update.sh"
+"$SCRIPT_HOME/install_wine_repo.sh"
+"$SCRIPT_HOME/install_deps.sh"

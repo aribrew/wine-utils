@@ -7,20 +7,13 @@
 # Also creates some aliases for running WINE commands.
 #################################################################
 
-BASH_HELPERS="/opt/bin/bash_helpers.sh"
+source bash_helpers.sh
 
-if ! [[ -f "$BASH_HELPERS" ]];
+if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    echo "Cannot find '$BASH_HELPERS'."
-    echo ""
-
+    echo -e "BASH Helpers not found in PATH. Install them first.\n"
     exit 1
-    
-else
-    source "$BASH_HELPERS"
 fi
-
-
 
 
 usage()
