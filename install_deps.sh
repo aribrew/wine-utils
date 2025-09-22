@@ -14,6 +14,9 @@ then
 fi
 
 
+SCRIPT_HOME=$(realpath $(dirname $0))
+
+
 OS_NAME=$(os_name)
 THIS_ARCH=$(uname -m)
 
@@ -93,6 +96,18 @@ else
     fi
     
     PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
+fi
+
+
+if [[ "$OS_NAME" == "debian" ]] && 
+ ! [[ "/etc/apt/keyrings/winehq-archive.key" ]];
+then
+    $SCRIPT_HOME/install_wine_repo.sh
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed installing WINE repository. Cannot continue."
+    fi
 fi
 
 
