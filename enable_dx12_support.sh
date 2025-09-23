@@ -41,3 +41,7 @@ echo "------------------------------------------------"
 
 winetricks vkd3d
 
+if [[ "$?" == "0" ]];
+then
+    touch "$WINEPREFIX/.dx12_enabled"
+fi

@@ -41,3 +41,7 @@ echo "-------------------------------------------------------------------"
 
 winetricks dxvk
 
+if [[ "$?" == "0" ]];
+then
+    touch "$WINEPREFIX/.dx11_enabled"
+fi

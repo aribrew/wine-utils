@@ -73,6 +73,8 @@ copy -ru "$SCRIPT_HOME/cmds" "$WINE_ENV/"
 copy -ru "$SCRIPT_HOME/for_prefixes" "$WINE_ENV/"
 
 copy -u "$SCRIPT_HOME/download_wine.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/enable_dx11_support.sh" "$WINE_ENV/"
+copy -u "$SCRIPT_HOME/enable_dx12_support.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/install_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/install_winetricks.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/make_prefix_autoload.sh" "$WINE_ENV/"
