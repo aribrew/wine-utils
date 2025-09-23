@@ -145,6 +145,12 @@ path()
 }
 
 
+pause()
+{
+    read -p "Press ENTER to continue. Ctrl-C to abort."
+}
+
+
 uppercase()
 {
     if ! [[ "$1" == "" ]];
@@ -189,6 +195,7 @@ then
     export -f lowercase
     export -f os_name
     export -f os_version
+    export -f pause
     export -f uppercase
 fi
 

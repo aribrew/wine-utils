@@ -174,7 +174,7 @@ else
         WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
 
         if [[ "$WINE_ARCH" == "i386" ]] && [[ "$PREFIX_ARCH" == "win64" ]] ||
-           [[ "$WINE_ARCH" == "amd64" ]] && [[ "$PREFE_ARCH" == "win32" ]];
+           [[ "$WINE_ARCH" == "amd64" ]] && [[ "$PREFIX_ARCH" == "win32" ]];
         then
             echo -n "You are trying to create a '$PREFIX_ARCH' for a "
             echo "'$WINE_ARCH' WINE installation and both architectures must"
@@ -185,6 +185,14 @@ else
 
             abort
         fi
+    else
+        echo "Unable to check the active WINE installation architecture."
+        echo ""
+        echo "Keep in mind that you need to create a prefix that matches"
+        echo "the current loaded WINE architecture."
+        echo ""
+
+        pause
     fi
 fi
 
