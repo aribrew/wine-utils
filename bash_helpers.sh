@@ -215,7 +215,7 @@ then
     SCRIPT=$(realpath $0)
     FILENAME=$(basename "$SCRIPT")
 
-    INSTALL_PATH=$(path)
+    INSTALL_PATH=$(dirname $(path))
 
     if [[ -v SUPER_USER ]];
     then
