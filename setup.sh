@@ -10,7 +10,7 @@ then
 
     if [[ -f "$BASH_HELPERS" ]];
     then
-        "$SCRIPT_HOME/bash_helpers.sh --install"
+        "$SCRIPT_HOME/bash_helpers.sh" --install
     fi
     
     source "$SCRIPT_HOME/bash_helpers.sh"
