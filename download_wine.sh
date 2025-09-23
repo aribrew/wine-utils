@@ -49,6 +49,7 @@ fi
 WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
 WINE_TMP="/tmp/wine-tmp"
 
+
 mkdir -p "$WINE_TMP"
 cd "$WINE_TMP"
 
@@ -103,6 +104,11 @@ fi
 
 if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
+    if [[ -f "/tmp/.last_wine32_download" ]];
+    then
+        rm "/tmp/.last_wine32_download"
+    fi
+    
     echo ""
     echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "-------------------------------------------------------------"
@@ -145,6 +151,11 @@ fi
 
 if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
+    if [[ -f "/tmp/.last_wine64_download" ]];
+    then
+        rm "/tmp/.last_wine64_download"
+    fi
+    
     echo ""
     echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "------------------------------------------------------------"
@@ -238,7 +249,7 @@ then
 
     echo "WINE (32 bit) extracted in $WINE_TMP/$WINE32_DIR."
 
-    echo "$WINE32_DIR" > /tmp/.last_wine32_download
+    echo "$WINE_TMP/$WINE32_DIR" > /tmp/.last_wine32_download
 fi
 
 
@@ -287,5 +298,5 @@ then
 
     echo "WINE (64 bit) extracted in $WINE_TMP/$WINE64_DIR."
 
-    echo "$WINE64_DIR" > /tmp/.last_wine64_download
+    echo "$WINE_TMP/$WINE64_DIR" > /tmp/.last_wine64_download
 fi
