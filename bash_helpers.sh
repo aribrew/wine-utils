@@ -131,15 +131,15 @@ path()
 {
     if ! [[ "$TERMUX_VERSION" == "" ]];
     then
-        echo "$PREFIX/opt/bin"
+        echo "$PREFIX/opt/bin/bash_helpers.sh"
         
     else
         if [[ "$HOME" == "/root" ]];
         then
-            echo "/opt/bin"
+            echo "/opt/bin/bash_helpers.sh"
             
         else
-            echo "$HOME/.local/bin"
+            echo "$HOME/.local/bin/bash_helpers.sh"
         fi
     fi
 }
@@ -163,9 +163,6 @@ usage()
     echo ": Installs the helpers."
     echo "  - If NOT using sudo, installs in ~/.local/bin"
     echo "  - Otherwise installs in /opt/bin"
-    echo ""
-    echo "bash_helpers.sh --installed"
-    echo ": Tells where is the helpers scripts, or would be when installed."
     echo ""
     echo "bash_helpers.sh --path"
     echo ": Tells where the helpers are/would be installed."
@@ -202,10 +199,6 @@ export BASH_HELPERS_LOADED=1
 if [[ "$1" == "--path" ]];
 then
     path
-
-elif [[ "$1" == "--installed" ]];
-then
-    installed
     
 elif [[ "$1" == "--install" ]];
 then

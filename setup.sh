@@ -5,9 +5,10 @@ SCRIPT_HOME=$(realpath $(dirname $0))
 
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    BASH_HELPERS_INSTALLED=$("$SCRIPT_HOME/bash_helpers.sh" --installed)
+    # Tell us where is, or should be, the bash_helpers.sh script
+    BASH_HELPERS=$("$SCRIPT_HOME/bash_helpers.sh" --path)
 
-    if [[ "$BASH_HELPERS_INSTALLED" == "Helpers not found" ]];
+    if [[ -f "$BASH_HELPERS" ]];
     then
         "$SCRIPT_HOME/bash_helpers.sh --install"
     fi
