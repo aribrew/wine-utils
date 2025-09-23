@@ -36,6 +36,7 @@ install_wine_from()
             abort "This WINE version is already installed."
         fi
 
+        echo ""
         echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
         echo "in '$WINE_ENV' ..."
         echo "---------------------------------------------------------------"
@@ -63,8 +64,6 @@ install_wine_from()
             echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 64 bits."
             echo ""
         fi
-
-        echo "Done."
     fi
 }
 

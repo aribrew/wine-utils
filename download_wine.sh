@@ -130,8 +130,14 @@ then
         #WINE_i386_2+="=${WINE_VERSION}"
         #WINE_i386_2+="~${OS_VERSION}-1"
 
-        apt download $WINE_i386_1
-        apt download $WINE_i386_2
+        if [[ -f "$WINE_TMP/$WINE_i386_1" ]] &&
+           [[ -f "$WINE_TMP/$WINE_i386_2" ]];
+        then
+            echo "Already downloaded. Using the existing files."
+        else
+            apt download $WINE_i386_1
+            apt download $WINE_i386_2
+        fi
     else
         WINE_i386_1="wine-${WINE_BRANCH}-i386"
         WINE_i386_1+="_${WINE_VERSION}"
@@ -145,6 +151,14 @@ then
 
 #        WINE_i386_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
 #        WINE_i386_2+="~${LATEST_DEBIAN}-1_i386"
+
+        if [[ -f "$WINE_TMP/$WINE_i386_1" ]] &&
+           [[ -f "$WINE_TMP/$WINE_i386_2" ]];
+        then
+            echo "Already downloaded. Using the existing files."
+        else
+            echo "TODO: Web download"
+        fi
     fi
 fi
 
@@ -177,8 +191,14 @@ then
         #WINE_amd64_2+="=${WINE_VERSION}"
         #WINE_amd64_2+="~${OS_VERSION}-1"
 
-        apt download $WINE_amd64_1
-        apt download $WINE_amd64_2
+        if [[ -f "$WINE_TMP/$WINE_amd64_1" ]] &&
+           [[ -f "$WINE_TMP/$WINE_amd64_2" ]];
+        then
+            echo "Already downloaded. Using the existing files."
+        else
+            apt download $WINE_amd64_1
+            apt download $WINE_amd64_2
+        fi
     else
         WINE_amd64_1="wine-${WINE_BRANCH}-amd64"
         WINE_amd64_1+="_${WINE_VERSION}"
@@ -192,6 +212,14 @@ then
 
         #WINE_amd64_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
         #WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
+
+        if [[ -f "$WINE_TMP/$WINE_amd64_1" ]] &&
+           [[ -f "$WINE_TMP/$WINE_amd64_2" ]];
+        then
+            echo "Already downloaded. Using the existing files."
+        else
+            echo "TODO: Web download"
+        fi
     fi
 fi
 
