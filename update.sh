@@ -46,15 +46,17 @@ then
 fi
 
 
+echo ""
+
 if [[ "$HOME" == "/root" ]];
 then
-    echo -e "Running as admin. WINE environment in /opt/winenv.\n"
+    echo -e "Running as admin. WINE environment in /opt/winenv."
 
     WINE_ENV="/opt/winenv"
     export SUDO="sudo"
     
 else
-    echo -e "Running as user. WINE environment in ~/.local/bin/winenv.\n"
+    echo -e "Running as user. WINE environment in ~/.local/bin/winenv."
     WINE_ENV="$HOME/.local/bin/winenv"
 fi
 
