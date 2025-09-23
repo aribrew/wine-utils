@@ -2,6 +2,7 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
+
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
     BASH_HELPERS_INSTALLED=$("$SCRIPT_HOME/bash_helpers.sh" --installed)
