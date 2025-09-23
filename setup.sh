@@ -19,8 +19,34 @@ fi
 
 "$SCRIPT_HOME/update.sh"
 
-if ! [[ -v WINE_ENV ]];
+
+check_if_admin
+
+if [[ -v SUPER_USER ]];
 then
+    WINE_ENV_PATH="/opt/winenv"
+else
+    WINE_ENV_PATH="$HOME/.local/bin/winenv"
+fi
+
+
+if [[ -f "$WINE_ENV_PATH/.wine_env" ]];
+then
+    grep -q ".wine_env" "$HOME/.environment"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
+    fi
+else
+    abort "Cannot find '$WINE_ENV_PATH/.wine_env.'"
+fi
+
+
+if ! [[ -v WINE_ENV ]] && [[ -f "$WINE_ENV_PATH/.wine_env" ]];
+then
+    source "$WINE_ENV_PATH/.wine_env"
+    
     WINE_INSTALLATIONS=$(find "$WINE_ENV/" -maxdepth 1 -type d -name "wine-*")
 
     if [[ "$WINE_INSTALLATIONS" == "" ]];
