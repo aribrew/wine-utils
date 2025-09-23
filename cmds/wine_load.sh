@@ -51,6 +51,8 @@ then
     WINE_BRANCH=$(cat $WINE_PATH/.wine_branch)
     WINE_VERSION=$(cat $WINE_PATH/.wine_version)
 
+    # We only want to export the variable, not set it
+    export WINE_PATH
     export WINE_BINARIES=$WINE_PATH/opt/wine-${WINE_BRANCH}/bin
     export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
 
