@@ -169,18 +169,37 @@ if ! [[ -v WINELOADER ]];
 then
     abort "A WINE installation must be active before creating a prefix."
 else
+    echo -e "Current WINE path: $WINE_PATH"
+
     if [[ -v WINE_PATH ]];
     then
         WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
 
-        if [[ "$WINE_ARCH" == "i386" ]] && [[ "$PREFIX_ARCH" == "win64" ]] ||
-           [[ "$WINE_ARCH" == "amd64" ]] && [[ "$PREFIX_ARCH" == "win32" ]];
+        echo -e "Current WINE architecture: $WINE_ARCH"
+        echo -e "Requested prefix architecture: $PREFIX_ARCH\n"
+
+        if [[ "$WINE_ARCH" == "i386" ]] && [[ "$PREFIX_ARCH" == "win64" ]];
         then
-            echo -n "You are trying to create a '$PREFIX_ARCH' for a "
-            echo "'$WINE_ARCH' WINE installation and both architectures must"
-            echo "be the same."
-            echo -n "You need a win32 prefix for a i386 WINE and a win64"
-            echo "prefix for a amd64 WINE."
+            echo -n "You are trying to create a 32 bit prefix with a "
+            echo -e "64 bit WINE installation.\n"
+
+            WRONG_WINE_ARCH=1
+        fi
+
+        if [[ "$WINE_ARCH" == "amd64" ]] && [[ "$PREFIX_ARCH" == "win32" ]];
+        then
+            echo -n "You are trying to create a 64 bit prefix with a "
+            echo -e "32 bit WINE installation.\n"
+
+            WRONG_WINE_ARCH=1
+        fi
+
+        if [[ -v WRONG_WINE_ARCH ]];
+        then
+            echo -n "Both active WINE architecture and requested prefix one "
+            echo "must be the same."
+            echo -n "You need a i386 WINE active for creating a win32 prefix "
+            echo "and a amd64 WINE for creating a win64 prefix."
             echo ""
 
             abort
