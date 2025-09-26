@@ -40,7 +40,7 @@ WINE_PATH=$1
 
 if ! [[ "$WINE_PATH" == "" ]];
 then
-	WINE_PATH=$(realpath "$WINE_PATH")
+    WINE_PATH=$(realpath "$WINE_PATH")
 	
     if ! [[ -f "$WINE_PATH/.wine_version" ]];
     then
@@ -81,7 +81,7 @@ then
 
     else
         export WINELOADER="$WINE_BINARIES/wine64"
-        export WINEDLLPATH+="/lib/wine/i386-unix"
+        export WINEDLLPATH+="/lib64/wine/x86_64-unix"
         
         export WINE_UTILS+="/lib64/wine/x86_64-windows"
 
