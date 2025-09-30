@@ -15,6 +15,52 @@ abort()
 }
 
 
+ask_for()
+{
+    REQUEST=$1
+
+    if ! [[ "$REQUEST" == "" ]];
+    then
+        read -p "$REQUEST" RESPONSE
+
+        # Many ways to obtain the response
+        #
+        # - exported  RESPONSE variable
+        # - Temporal file
+        # - Printed (for reading with $()
+
+        export RESPONSE
+
+        echo "$RESPONSE" > /tmp/.last_request_response
+
+        echo "$RESPONSE"
+    fi
+}
+
+
+ask_yn()
+{
+    QUESTION=$1
+
+    if ! [[ "$QUESTION" == "" ]];
+    then
+        read -p "$QUESTION" answer
+
+        if [[ "$answer" == "y" ]] || [[ "$answer" == "s" ]];
+        then
+            return 0
+            
+        elif [[ "$answer" == "n" ]];
+        then
+            return 1
+            
+        else
+            return -1
+        fi
+    fi
+}
+
+
 check_if_admin()
 {
     if [[ "$HOME" == "/root" ]];
