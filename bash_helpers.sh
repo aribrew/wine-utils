@@ -234,6 +234,8 @@ fi
 if ! [[ -v ZSH_VERSION ]];
 then
     export -f abort
+    export -f ask_for
+    export -f ask_yn
     export -f check_if_admin
     export -f check_sudo
     export -f exec_type
