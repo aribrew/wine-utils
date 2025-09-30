@@ -233,12 +233,7 @@ then
         export WINEPREFIX="$WIN_ROOT/$PREFIX_NAME"
     fi
 else
-    if [[ "$PREFIX_NAME" == ".wine" ]] || [[ "$PREFIX_NAME" == ".wine64" ]];
-    then
-        export WINEPREFIX="$HOME/$PREFIX_NAME"
-    else
-        export WINEPREFIX="$HOME/.local/share/wineprefixes/$PREFIX_NAME"
-    fi
+    export WINEPREFIX="$HOME/.local/share/wineprefixes/$PREFIX_NAME"
 fi
 
 
