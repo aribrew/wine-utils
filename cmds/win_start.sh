@@ -47,7 +47,7 @@ then
             abort "Install a WINE prefix for win32 apps."
         fi
 
-        . wine_load $(cat "$WINE_ENV/.default_wine32")
+        . wine_load.sh $(cat "$WINE_ENV/.default_wine32")
         . "$HOME/.wine/activate"
         
     elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
@@ -62,7 +62,7 @@ then
             abort "Install a WINE prefix for win64 apps."
         fi
 
-        . wine_load $(cat "$WINE_ENV/.default_wine64")
+        . wine_load.sh $(cat "$WINE_ENV/.default_wine64")
         . "$HOME/.wine64/activate"
     else
         abort "The specified executable isn't a Windows 32/64 bit one."
