@@ -7,7 +7,6 @@ export WIN_D=WINEPREFIX_PLACEHOLDER/drive_d
 
 export WINEDEBUG=-all
 
-echo ""
 echo "WINE prefix '$WINEPREFIX' activated."
 echo ""
 echo "By default, all WINE debug info is silenced."
