@@ -22,7 +22,7 @@ then
 fi
 
 
-EXEC=$1
+EXEC=$(realpath "$1")
 
 if ! [[ "$EXEC" == "" ]] && [[ -f "$EXEC" ]];
 then
@@ -79,6 +79,6 @@ then
         
         echo -e " ..."
         
-        "$WINELOADER" "$ARGS"
+        "$WINELOADER" "$EXEC" "$ARGS"
     fi
 fi
