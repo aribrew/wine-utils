@@ -11,7 +11,7 @@ source bash_helpers.sh
 
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
-    echo -e "BASH Helpers not found in PATH. Install them first.\n"
+    echo -e "BASH helpers not found in PATH. Install it first.\n"
     exit 1
 fi
 
@@ -112,6 +112,7 @@ then
     alias wine="$WINELOADER"
     alias wineboot="\"$WINELOADER\" \"$WINE_UTILS/wineboot.exe\""
     alias winecfg="\"$WINELOADER\" \"$WINE_UTILS/winecfg.exe\""
+    alias winedump="\"$WINE_BINARIES/winedump\""
     alias winefile="\"$WINELOADER\" \"$WINE_UTILS/winefile.exe\""
     alias reg="\"$WINELOADER\" \"$WINE_UTILS/reg.exe\""
     alias regedit="\"$WINELOADER\" \"$WINE_UTILS/regedit.exe\""

@@ -251,6 +251,12 @@ fi
 export BASH_HELPERS_LOADED=1
 
 
+if ! [[ "$BASH_SOURCE" == "$0" ]];
+then
+    echo -e "BASH helpers loaded.\n"
+fi
+
+
 if [[ "$1" == "--path" ]];
 then
     path

@@ -1,15 +1,5 @@
 #!/bin/bash
 
-source bash_helpers.sh
-
-if ! [[ -v BASH_HELPERS_LOADED ]];
-then
-    echo -e "BASH Helpers not found in PATH. Install them first.\n"
-    exit 1
-fi
-
-
-
 
 PREFIX=$(realpath $(dirname $0))
 
@@ -22,7 +12,8 @@ then
 
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed creating ~/.wine64 symlink. A real dir exists?"
+            echo -e "Failed creating ~/.wine64 symlink. A real dir exists?\n"
+            exit 1
         fi
 
         echo "This WINE prefix is now the default for running 64 bit apps."
@@ -33,7 +24,8 @@ then
 
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed creating ~/.wine symlink. A real dir exists?"
+            echo -e "Failed creating ~/.wine symlink. A real dir exists?\n"
+            exit 1
         fi
 
         echo "This WINE prefix is now the default for running 32 bit apps."
