@@ -12,6 +12,8 @@ fi
 usage()
 {
     echo -e "Usage: win_start.sh <executable> [args]\n"
+    echo -e "To force a specific prefix or WINE version, export"
+    echo -e "WINE_PREFIX_NAME and/or WINE_INSTALL_PATH.\n"
 }
 
 
@@ -47,8 +49,29 @@ then
             abort "Install a WINE prefix for win32 apps."
         fi
 
-        . wine_load.sh $(cat "$WINE_ENV/.default_wine32")
-        . "$HOME/.wine/activate"
+        if ! [[ -v WINE_INSTALL_PATH ]];
+        then
+            . wine_load.sh $(cat "$WINE_ENV/.default_wine32");
+        else
+            if ! [[ -f "$WINE_INSTALL_PATH/.wine_version" ]];
+            then
+                abort "Invalid WINE installation in '$WINE_INSTALL_PATH'."
+            else
+                . wine_load.sh "$WINE_INSTALL_PATH"
+            fi
+        fi
+
+        if ! [[ -v WINE_PREFIX_NAME ]];
+        then
+            . "$HOME/.wine/activate"
+        else
+            if ! [[ -f "$HOME/.local/share/wineprefix/$WINE_PREFIX_NAME" ]];
+            then
+                abort "Invalid WINE prefix '$WINE_PREFIX_NAME'."
+            else
+                . "$HOME/.local/share/wineprefix/$WINE_PREFIX_NAME/activate"
+            fi
+        fi
         
     elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
     then
