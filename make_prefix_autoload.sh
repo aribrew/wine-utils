@@ -9,7 +9,7 @@ then
 fi
 
 
-if [[ "$1" == "" ]] || ! [[ -d "$1/dos_devices" ]];
+if [[ "$1" == "" ]] || ! [[ -d "$1/dosdevices" ]];
 then
     echo "No valid WINE prefix provided."
     echo ""
