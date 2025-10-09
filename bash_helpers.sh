@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 
@@ -11,7 +12,12 @@ abort()
         echo ""
     fi
 
-    exit 1
+    if [[ "${BASH_SOURCE}" == "" ]];
+    then
+        return 1
+    else
+        exit 1
+    fi
 }
 
 
@@ -66,6 +72,17 @@ check_if_admin()
     if [[ "$HOME" == "/root" ]];
     then
         export SUPER_USER=1
+    fi
+}
+
+
+check_port()
+{
+    PORT=$1
+    
+    if [[ "$PORT" == "" ]];
+    then
+        sudo netstat -nlp | grep ${PORT}
     fi
 }
 
@@ -144,6 +161,28 @@ installed()
 }
 
 
+is_newer()
+{
+    FILE_1=$1
+    FILE_2=$2
+
+    if [[ "$FILE_1" == "" ]] || [[ "$FILE_2" == "" ]];
+    then
+        abort "Need two file paths to compare."
+    fi
+
+    FILE_1=$(realpath "$FILE_1")
+    FILE_2=$(realpath "$FILE_2")
+
+    if [[ "$FILE_1" -nt "$FILE_2" ]];
+    then
+        echo -e "First is newer.\n"
+    else
+        echo -e "Second is newer\n."
+    fi
+}
+
+
 lowercase()
 {
     if ! [[ "$1" == "" ]];
@@ -197,6 +236,28 @@ pause()
 }
 
 
+test_ip()
+{
+    IP_ADDRESS=$1
+
+    if [[ "$IP_ADDRESS" == "" ]];
+    then
+        abort "IP address cannot be empty."
+    fi
+    
+    echo "Trying conecting to $IP_ADDRESS ..."
+    ping -c 1 $IP_ADDRESS >/dev/null
+    
+    if [[ "$?" == "1" ]];
+    then
+        echo -e "Cannot reach $IP_ADDRESS.\n"
+        exit 1
+    else
+        echo -e "OK.\n"
+    fi
+}
+
+
 uppercase()
 {
     if ! [[ "$1" == "" ]];
@@ -219,6 +280,9 @@ usage()
     echo "bash_helpers.sh --path"
     echo ": Tells where the helpers are/would be installed."
     echo ""
+    echo "bash_helpers.sh --cmds"
+    echo ": List all available exported commands."
+    echo ""
 }
 
 
@@ -237,27 +301,48 @@ then
     export -f ask_for
     export -f ask_yn
     export -f check_if_admin
+    export -f check_port
     export -f check_sudo
     export -f exec_type
+    export -f is_newer
     export -f filext
     export -f lowercase
     export -f os_name
     export -f os_version
     export -f pause
+    export -f test_ip
     export -f uppercase
 fi
 
 
-export BASH_HELPERS_LOADED=1
-
-
-if ! [[ "$BASH_SOURCE" == "$0" ]];
+if ! [[ -v BASH_HELPERS_LOADED ]];
 then
+    export BASH_HELPERS_LOADED=1
+    
     echo -e "BASH helpers loaded.\n"
 fi
 
 
-if [[ "$1" == "--path" ]];
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+then
+    usage
+
+elif [[ "$1" == "--cmds" ]];
+then
+    echo -e "Available cmds:"
+    echo -e "---------------"
+
+    CMDS=$(export -f)
+
+    for cmd in "$CMDS";
+    do
+        CMD_NAME=$(echo "$cmd" | cut -d ' ' -f 3)
+        echo "$CMD_NAME"
+    done
+
+    echo ""
+    
+elif [[ "$1" == "--path" ]];
 then
     path
     
