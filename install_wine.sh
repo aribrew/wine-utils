@@ -99,6 +99,14 @@ else
     export WINE_ENV="$HOME/.local/bin/winenv"
 fi
 
+if ! [[ -f "$WINE_ENV/.wine_env" ]];
+then
+    echo -e "The file .wine_env was not found in '$WINE_ENV'."
+    echo -e "Updating WINE environment first.\n"
+    
+    "$SCRIPT_HOME/update.sh"
+fi
+
 
 if [[ "$WINE_PATH" == "" ]];
 then
