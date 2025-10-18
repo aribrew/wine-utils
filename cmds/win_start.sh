@@ -15,6 +15,10 @@ usage()
 
     echo -e "To force a specific prefix or WINE version, export"
     echo -e "WINE_PREFIX_NAME and/or WINE_INSTALL_PATH.\n"
+
+    echo -e "Also, if a file .{executable}_winecfg exists along with the"
+    echo -e "executable file, the needed WINE configuration will be "
+    echo -e "automatically loaded.\n"
 }
 
 
@@ -30,12 +34,25 @@ EXEC=$(realpath "$1")
 
 if ! [[ "$EXEC" == "" ]] && [[ -f "$EXEC" ]];
 then
+    EXEC_PATH=$(dirname "$EXEC")
+    EXEC_FILENAME=$(basename "$EXEC")
+    EXEC_FILENAME_WITHOUT_EXT=$(filext "$EXEC_FILENAME")
+
+    EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
+    
     if ! [[ -v WINE_ENV ]];
     then
         abort "Cannot find WINE_ENV var. WINE environment not loaded."
     fi
 
     ARGS=${@:2}
+
+    if [[ -f "$EXEC_PATH/$EXEC_WINECFG" ]];
+    then
+        source "$EXEC_PATH/$EXEC_WINECFG"
+
+        echo -e "Loaded executable custom WINE config.\n"
+    fi
 
     if [[ -v WINE_INSTALL_PATH ]];
     then

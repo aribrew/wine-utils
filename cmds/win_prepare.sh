@@ -27,7 +27,7 @@ install_activator()
         echo "Cannot create activator for prefix '$WINEPREFIX'."
         abort "Template not found."
     fi
-        
+
     ACTIVATOR=$WINEPREFIX/activate
 
     cp "$WINE_ENV/for_prefixes/.activate_prefix" "$ACTIVATOR"
@@ -54,7 +54,7 @@ install_defaulter()
         echo "Cannot create defaulter for prefix '$WINEPREFIX'."
         abort "Template not found."
     fi
-        
+
     DEFAULTER="$WINEPREFIX/make_default"
 
     cp "$WINE_ENV/for_prefixes/.make_prefix_default" "$DEFAULTER"
@@ -249,7 +249,7 @@ fi
 
 
 echo -n "Checking if a prefix named '$PREFIX_NAME'"
-echo "already exists in '$PREFIX_PATH ..."
+echo "already exists in '$PREFIX_PATH' ..."
 
 
 if [[ -d "$WINEPREFIX/dosdevices" ]];
