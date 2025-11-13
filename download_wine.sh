@@ -43,6 +43,8 @@ fi
 if [[ "$1" == "--web-download" ]] || [[ "$OS_VERSION" == "rolling" ]];
 then
     USE_WEB_DOWNLOAD=1
+    
+    rm -r /tmp/debtmp
 fi
 
 
@@ -234,42 +236,50 @@ WINE64_DIR="wine-${WINE_VERSION}_amd64"
 
 if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
-    ls *_i386.deb > /dev/null
+    WINE_i386_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
+    WINE_i386_1_PKG+="-1_amd64.deb"
 
-    if ! [[ "$?" == "0" ]]; 
+    WINE_i386_2_PKG="wine-${WINE_BRANCH}-i386_${WINE_VERSION}~${OS_VERSION}"
+    WINE_i386_2_PKG+="-1_i386.deb"
+
+
+    if ! [[ -f "$WINE_i386_1_PKG" ]] || ! [[ -f "$WINE_i386_2_PKG" ]];
     then
         abort "Failed. WINE i386 packages may have failed downloading..."
     fi
 
-    for package in $(ls *_i386.deb);
-    do
-        if ! [[ -v USE_WEB_DOWNLOAD ]];
-        then
-            dpkg-deb -x $package $WINE32_DIR
-        else
-            mkdir /tmp/debtmp/wine
-                        
-            ar x $package --output /tmp/debtmp
-            
-            if [[ "$?" == "0" ]];
-            then
-                tar xvf /tmp/debtmp/data.tar.xz -C /tmp/debtmp/wine
-            
-                if [[ "$?" == "0" ]];
-                then
-                    mv /tmp/debtmp/wine/opt $WINE64_DIR/
-                    mv /tmp/debtmp/wine/usr $WINE64_DIR/
+    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    then
+        dpkg-deb -x $WINE_i386_1_PKG $WINE32_DIR
+        dpkg-deb -x $WINE_i386_2_PKG $WINE32_DIR
 
-                    rm -r /tmp/debtmp
-                fi
-            fi
-        fi
-        
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed extracting '$package' in '$WINE32_DIR'."
+            abort "Failed extracting WINE (32 bit) in '$WINE32_DIR'."
         fi
-    done
+    else
+        mkdir -p /tmp/debtmp/wine
+        mkdir -p /tmp/debtmp/wine_1
+        mkdir -p /tmp/debtmp/wine_2
+
+        ar x $WINE_i386_1_PKG --output /tmp/debtmp/wine_1
+        ar x $WINE_i386_2_PKG --output /tmp/debtmp/wine_2
+
+        if [[ "$?" == "0" ]];
+        then
+            tar xvf /tmp/debtmp/wine_1/data.tar.xz -C /tmp/debtmp/wine
+            tar xvf /tmp/debtmp/wine_2/data.tar.xz -C /tmp/debtmp/wine
+
+            if [[ "$?" == "0" ]];
+            then
+                mv /tmp/debtmp/wine/opt $WINE32_DIR/
+                mv /tmp/debtmp/wine/usr $WINE32_DIR/
+
+                rm -r /tmp/debtmp
+            fi
+        fi
+    fi
+
 
     echo "$WINE_BRANCH" > "$WINE32_DIR/.wine_branch"
     echo "$WINE_VERSION" > "$WINE32_DIR/.wine_version"
@@ -283,42 +293,49 @@ fi
 
 if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
-    ls *_amd64.deb > /dev/null
+    WINE_amd64_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
+    WINE_amd64_1_PKG+="-1_amd64.deb"
+    
+    WINE_amd64_2_PKG="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}~${OS_VERSION}"
+    WINE_amd64_2_PKG+="-1_amd64.deb"
 
-    if ! [[ "$?" == "0" ]]; 
+    if ! [[ -f "$WINE_amd64_1_PKG" ]] || ! [[ -f "$WINE_amd64_2_PKG" ]];
     then
         abort "Failed. WINE amd64 packages may have failed downloading..."
     fi
 
-    for package in $(ls *_amd64.deb);
-    do
-        if ! [[ -v USE_WEB_DOWNLOAD ]];
-        then
-            dpkg-deb -x $package $WINE64_DIR
-        else
-            mkdir /tmp/debtmp/wine
-            
-            ar x $package --output /tmp/debtmp
+    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    then
+        dpkg-deb -x $WINE_amd64_1_PKG $WINE64_DIR
+        dpkg-deb -x $WINE_amd64_2_PKG $WINE64_DIR
 
-            if [[ "$?" == "0" ]];
-            then
-                tar xvf /tmp/debtmp/data.tar.xz -C /tmp/debtmp/wine
-
-                if [[ "$?" == "0" ]];
-                then
-                    mv /tmp/debtmp/wine/opt $WINE64_DIR/
-                    mv /tmp/debtmp/wine/usr $WINE64_DIR/
-
-                    rm -r /tmp/debtmp
-                fi
-            fi
-        fi
-        
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed extracting '$package' in '$WINE64_DIR'."
+            abort "Failed extracting WINE (64 bit) in '$WINE64_DIR'."
         fi
-    done
+    else
+        mkdir -p /tmp/debtmp/wine
+        mkdir -p /tmp/debtmp/wine_1
+        mkdir -p /tmp/debtmp/wine_2
+
+        ar x $WINE_amd64_1_PKG --output /tmp/debtmp/wine_1
+        ar x $WINE_amd64_2_PKG --output /tmp/debtmp/wine_2
+
+        if [[ "$?" == "0" ]];
+        then
+            tar xvf /tmp/debtmp/wine_1/data.tar.xz -C /tmp/debtmp/wine
+            tar xvf /tmp/debtmp/wine_2/data.tar.xz -C /tmp/debtmp/wine
+            
+            if [[ "$?" == "0" ]];
+            then
+                mv /tmp/debtmp/wine/opt $WINE64_DIR/
+                mv /tmp/debtmp/wine/usr $WINE64_DIR/
+
+                rm -r /tmp/debtmp
+            fi
+        fi
+    fi
+
 
     echo "$WINE_BRANCH" > "$WINE64_DIR/.wine_branch"
     echo "$WINE_VERSION" > "$WINE64_DIR/.wine_version"
