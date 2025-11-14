@@ -25,6 +25,8 @@ echo -e ""
 echo -e "IMPORTANT: The WINE environment isn't WINE, but the environment"
 echo -e "and the scripts we are using to help us using WINE itself.\n"
 
+read -p "Press ENTER to continue."
+
 
 if [[ "$HOME" == "/root" ]];
 then
@@ -39,6 +41,20 @@ else
     echo -e "WINE environment will be in ~/.local/winenv\n"
     
     WINE_ENV="$HOME/.local/bin/winenv"
+fi
+
+
+if ! [[ -v BASH_HELPERS_LOADED ]];
+then
+    # Tell us where is, or should be, the bash_helpers.sh script
+    BASH_HELPERS=$("$SCRIPT_HOME/bash_helpers.sh" --path)
+
+    if [[ -f "$BASH_HELPERS" ]];
+    then
+        "$SCRIPT_HOME/bash_helpers.sh" --install
+    fi
+    
+    source "$SCRIPT_HOME/bash_helpers.sh"
 fi
 
 
@@ -60,6 +76,22 @@ copy -u "$SCRIPT_HOME/install_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/install_winetricks.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/make_prefix_autoload.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/make_wine_autoload.sh" "$WINE_ENV/"
+
+
+if ! [[ -f "$HOME/.environment" ]];
+then
+    touch "$HOME/.environment"
+
+    echo -e "\n\nsource \$HOME/.environment\n\n" >> "$HOME/.bashrc"
+fi
+
+
+grep -q ".wine_env" "$HOME/.environment"
+
+if ! [[ "$?" == "0" ]];
+then
+    echo "source $WINE_ENV/.wine_env" >> "$HOME/.environment"
+fi
 
 
 echo -e "WINE environment installed/updated in '$WINE_ENV'."
