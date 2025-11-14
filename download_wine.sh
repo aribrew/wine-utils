@@ -155,13 +155,13 @@ then
 	        apt download $WINE_BASE
 	        apt download $WINE_i386
 	    else
-            WINE_BASE+="wine-${WINE_BRANCH}"
+            WINE_BASE="wine-${WINE_BRANCH}"
             WINE_BASE+="_${WINE_VERSION}"
-            WINE_BASE+="~${LATEST_DEBIAN}-1_386.deb"	    
+            WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
 
 	        WINE_i386="wine-${WINE_BRANCH}-i386"
 	        WINE_i386+="_${WINE_VERSION}"
-	        WINE_i286+="~${LATEST_DEBIAN}-1_i386.deb"
+	        WINE_i386+="~${LATEST_DEBIAN}-1_i386.deb"
 
             BASE_URL="$WINE_URL"
             
@@ -201,8 +201,8 @@ then
     echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "------------------------------------------------------------"
 
-    if [[ -f "$WINE_TMP/$WINE_amd64_1_PKG" ]] &&
-       [[ -f "$WINE_TMP/$WINE_amd64_2_PKG" ]];
+    if [[ -f "$WINE_TMP/$WINE_BASE_PKG" ]] &&
+       [[ -f "$WINE_TMP/$WINE_amd64_PKG" ]];
     then
         echo "Already downloaded. Using the existing files."
     else    
@@ -219,7 +219,7 @@ then
 	        apt download $WINE_BASE
 	        apt download $WINE_amd64
 	    else
-            WINE_BASE+="wine-${WINE_BRANCH}"
+            WINE_BASE="wine-${WINE_BRANCH}"
    	        WINE_BASE+="_${WINE_VERSION}"
    	        WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
 	        	        
@@ -288,8 +288,8 @@ then
 
         if [[ "$?" == "0" ]];
         then
-            tar xvf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
-            tar xvf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
 
             if [[ "$?" == "0" ]];
             then
@@ -314,12 +314,6 @@ fi
 
 if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
-    #WINE_amd64_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
-    #WINE_amd64_1_PKG+="-1_amd64.deb"
-    
-    #WINE_amd64_2_PKG="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}~${OS_VERSION}"
-    #WINE_amd64_2_PKG+="-1_amd64.deb"
-
     if ! [[ -f "$WINE_BASE_PKG" ]] || ! [[ -f "$WINE_amd64_PKG" ]];
     then
         abort "Failed. WINE amd64 packages may have failed downloading..."
@@ -344,8 +338,8 @@ then
 
         if [[ "$?" == "0" ]];
         then
-            tar xvf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
-            tar xvf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
             
             if [[ "$?" == "0" ]];
             then
