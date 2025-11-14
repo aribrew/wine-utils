@@ -11,7 +11,7 @@ fi
 
 usage()
 {
-    echo "Usage: download_wine.sh [--web-download]"
+    echo "Usage: download_wine.sh [--web]"
     echo ""
     echo ""
     echo ""
@@ -29,6 +29,7 @@ fi
 
 OS_NAME=$(os_name)
 OS_VERSION=$(os_version)
+LATEST_DEBIAN="trixie"
 
 
 if [[ "$OS_NAME" == "arch" ]];
@@ -40,16 +41,27 @@ then
 fi
 
 
-if [[ "$1" == "--web-download" ]] || [[ "$OS_VERSION" == "rolling" ]];
+if [[ "$1" == "--web" ]] || [[ "$OS_VERSION" == "rolling" ]];
 then
     USE_WEB_DOWNLOAD=1
+
+    WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
     
-    rm -r /tmp/debtmp
+    if [[ -d "$WEB_TMP" ]];
+    then
+        rm -r "$WEB_TMP"
+    fi
 fi
 
 
-WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
+if [[ -v USE_WEB_DOWNLOAD ]];
+then
+    OS_VERSION="$LATEST_DEBIAN"
+fi
+
+
 WINE_TMP="/tmp/wine-tmp"
+WEB_TMP="/tmp/ar"
 
 
 mkdir -p "$WINE_TMP"
@@ -75,6 +87,16 @@ if ! [[ -v WINE_VERSION ]];
 then
     export WINE_VERSION="10.0.0.0"
 fi
+
+
+WINE_BASE_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
+WINE_BASE_PKG+="-1_amd64.deb"
+
+WINE_i386_PKG="wine-${WINE_BRANCH}-i386_${WINE_VERSION}~${OS_VERSION}"
+WINE_i386_PKG+="-1_i386.deb"
+
+WINE_amd64_PKG="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}~${OS_VERSION}"
+WINE_amd64_PKG+="-1_amd64.deb"
 
 
 if ! [[ -v USE_WEB_DOWNLOAD ]];
@@ -115,52 +137,55 @@ then
     echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "-------------------------------------------------------------"
 
-    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    if [[ -f "$WINE_TMP/$WINE_BASE_PKG" ]] &&
+       [[ -f "$WINE_TMP/$WINE_i386_PKG" ]];
     then
-        WINE_i386_1="wine-${WINE_BRANCH}-i386"
-        WINE_i386_1+="=${WINE_VERSION}"
-        WINE_i386_1+="~${OS_VERSION}-1"
+        echo "Already downloaded. Using the existing files."
+    else    
+	    if ! [[ -v USE_WEB_DOWNLOAD ]];
+	    then
+	    	WINE_BASE="wine-${WINE_BRANCH}"
+            WINE_BASE+="=${WINE_VERSION}"
+            WINE_BASE+="~${OS_VERSION}-1"
+		        
+	        WINE_i386="wine-${WINE_BRANCH}-i386"
+	        WINE_i386+="=${WINE_VERSION}"
+	        WINE_i386+="~${OS_VERSION}-1"
 
-        WINE_i386_2="wine-${WINE_BRANCH}"
-        WINE_i386_2+="=${WINE_VERSION}"
-        WINE_i386_2+="~${OS_VERSION}-1"
-        #WINE_i386_1="wine-${WINE_BRANCH}:i386"
-        #WINE_i386_1+="=${WINE_VERSION}"
-        #WINE_i386_1+="~${OS_VERSION}-1"
+	        apt download $WINE_BASE
+	        apt download $WINE_i386
+	    else
+            WINE_BASE+="wine-${WINE_BRANCH}"
+            WINE_BASE+="_${WINE_VERSION}"
+            WINE_BASE+="~${LATEST_DEBIAN}-1_386.deb"	    
 
-        #WINE_i386_2="wine-${WINE_BRANCH}-i386"
-        #WINE_i386_2+="=${WINE_VERSION}"
-        #WINE_i386_2+="~${OS_VERSION}-1"
+	        WINE_i386="wine-${WINE_BRANCH}-i386"
+	        WINE_i386+="_${WINE_VERSION}"
+	        WINE_i286+="~${LATEST_DEBIAN}-1_i386.deb"
 
-        if [[ -f "$WINE_TMP/$WINE_i386_1" ]] &&
-           [[ -f "$WINE_TMP/$WINE_i386_2" ]];
-        then
-            echo "Already downloaded. Using the existing files."
-        else
-            apt download $WINE_i386_1
-            apt download $WINE_i386_2
-        fi
-    else
-        WINE_i386_1="wine-${WINE_BRANCH}-i386"
-        WINE_i386_1+="_${WINE_VERSION}"
-        WINE_i286_1+="~${LATEST_DEBIAN}-1_i386"
+            BASE_URL="$WINE_URL"
+            
+            if [[ "$WINE_BRANCH" == "staging" ]];
+            then
+                BASE_URL+="/wine-staging"
+	        else
+	        	BASE_URL+="/wine"
+	       	fi
 
-        WINE_i386_2+="wine-${WINE_BRANCH}"
-        WINE_i386_2+="_${WINE_VERSION}"
-        WINE_i386_2+="~${LATEST_DEBIAN}-1_386"
-#        WINE_i386_1="wine-${WINE_BRANCH}-i386_${WINE_VERSION}"
-#        WINE_i386_1+="~${LATEST_DEBIAN}-1_i386"
+	       	curl -LO "$BASE_URL/$WINE_BASE"
 
-#        WINE_i386_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
-#        WINE_i386_2+="~${LATEST_DEBIAN}-1_i386"
+	       	if ! [[ "$?" == "0" ]];
+	       	then
+                abort "Failed downloading base WINE package."
+	       	fi
 
-        if [[ -f "$WINE_TMP/$WINE_i386_1" ]] &&
-           [[ -f "$WINE_TMP/$WINE_i386_2" ]];
-        then
-            echo "Already downloaded. Using the existing files."
-        else
-            echo "TODO: Web download"
-        fi
+	       	curl -LO "$BASE_URL/$WINE_i386"
+
+	       	if ! [[ "$?" == "0" ]];
+	        then
+	       	    abort "Failed downloading arch-specific WINE package."
+	        fi
+	    fi
     fi
 fi
 
@@ -176,53 +201,56 @@ then
     echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "------------------------------------------------------------"
 
-    if ! [[ -v USE_WEB_DOWNLOAD ]];
+    if [[ -f "$WINE_TMP/$WINE_amd64_1_PKG" ]] &&
+       [[ -f "$WINE_TMP/$WINE_amd64_2_PKG" ]];
     then
-        WINE_amd64_1="wine-${WINE_BRANCH}-amd64"
-        WINE_amd64_1+="=${WINE_VERSION}"
-        WINE_amd64_1+="~${OS_VERSION}-1"
-        
-        WINE_amd64_2="wine-${WINE_BRANCH}"
-        WINE_amd64_2+="=${WINE_VERSION}"
-        WINE_amd64_2+="~${OS_VERSION}-1"
-        #WINE_amd64_1="wine-${WINE_BRANCH}:amd64"
-        #WINE_amd64_1+="=${WINE_VERSION}"
-        #WINE_amd64_1+="~${OS_VERSION}-1"
+        echo "Already downloaded. Using the existing files."
+    else    
+	    if ! [[ -v USE_WEB_DOWNLOAD ]];
+	    then
+            WINE_BASE="wine-${WINE_BRANCH}"
+            WINE_BASE+="=${WINE_VERSION}"
+            WINE_BASE+="~${OS_VERSION}-1"
+            	        
+	        WINE_amd64="wine-${WINE_BRANCH}-amd64"
+	        WINE_amd64+="=${WINE_VERSION}"
+	        WINE_amd64+="~${OS_VERSION}-1"
+	        
+	        apt download $WINE_BASE
+	        apt download $WINE_amd64
+	    else
+            WINE_BASE+="wine-${WINE_BRANCH}"
+   	        WINE_BASE+="_${WINE_VERSION}"
+   	        WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
+	        	        
+            WINE_amd64="wine-${WINE_BRANCH}-amd64"
+            WINE_amd64+="_${WINE_VERSION}"
+            WINE_amd64+="~${LATEST_DEBIAN}-1_amd64.deb"
 
-        #WINE_amd64_2="wine-${WINE_BRANCH}-amd64"
-        #WINE_amd64_2+="=${WINE_VERSION}"
-        #WINE_amd64_2+="~${OS_VERSION}-1"
+	        BASE_URL="$WINE_URL"
+	                    
+            if [[ "$WINE_BRANCH" == "staging" ]];
+            then
+                BASE_URL+="/wine-staging"
+	        else
+	        	BASE_URL+="/wine"
+	       	fi
 
-        if [[ -f "$WINE_TMP/$WINE_amd64_1" ]] &&
-           [[ -f "$WINE_TMP/$WINE_amd64_2" ]];
-        then
-            echo "Already downloaded. Using the existing files."
-        else
-            apt download $WINE_amd64_1
-            apt download $WINE_amd64_2
-        fi
-    else
-        WINE_amd64_1="wine-${WINE_BRANCH}-amd64"
-        WINE_amd64_1+="_${WINE_VERSION}"
-        WINE_amd64_1+="~${LATEST_DEBIAN}-1_amd64"
-    
-        WINE_amd64_2+="wine-${WINE_BRANCH}"
-        WINE_amd64_2+="_${WINE_VERSION}"
-        WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
-        #WINE_amd64_1="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}"
-        #WINE_amd64_1+="~${LATEST_DEBIAN}-1_amd64"
+	       	curl -LO "$BASE_URL/$WINE_BASE"
 
-        #WINE_amd64_2="wine-${WINE_BRANCH}_${WINE_VERSION}"
-        #WINE_amd64_2+="~${LATEST_DEBIAN}-1_amd64"
+	       	if ! [[ "$?" == "0" ]];
+	       	then
+                abort "Failed downloading base WINE package."
+	       	fi
 
-        if [[ -f "$WINE_TMP/$WINE_amd64_1" ]] &&
-           [[ -f "$WINE_TMP/$WINE_amd64_2" ]];
-        then
-            echo "Already downloaded. Using the existing files."
-        else
-            echo "TODO: Web download"
-        fi
-    fi
+	       	curl -LO "$BASE_URL/$WINE_amd64"
+
+	       	if ! [[ "$?" == "0" ]];
+	        then
+	       	    abort "Failed downloading arch-specific WINE package."
+	        fi
+	    fi
+	fi
 fi
 
 
@@ -236,46 +264,39 @@ WINE64_DIR="wine-${WINE_VERSION}_amd64"
 
 if [[ "$OS_ARCH" == "i386" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
-    WINE_i386_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
-    WINE_i386_1_PKG+="-1_amd64.deb"
-
-    WINE_i386_2_PKG="wine-${WINE_BRANCH}-i386_${WINE_VERSION}~${OS_VERSION}"
-    WINE_i386_2_PKG+="-1_i386.deb"
-
-
-    if ! [[ -f "$WINE_i386_1_PKG" ]] || ! [[ -f "$WINE_i386_2_PKG" ]];
+    if ! [[ -f "$WINE_BASE_PKG" ]] || ! [[ -f "$WINE_i386_PKG" ]];
     then
         abort "Failed. WINE i386 packages may have failed downloading..."
     fi
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        dpkg-deb -x $WINE_i386_1_PKG $WINE32_DIR
-        dpkg-deb -x $WINE_i386_2_PKG $WINE32_DIR
+        dpkg-deb -x $WINE_BASE_PKG $WINE32_DIR
+        dpkg-deb -x $WINE_i386_PKG $WINE32_DIR
 
         if ! [[ "$?" == "0" ]]; 
         then
             abort "Failed extracting WINE (32 bit) in '$WINE32_DIR'."
         fi
     else
-        mkdir -p /tmp/debtmp/wine
-        mkdir -p /tmp/debtmp/wine_1
-        mkdir -p /tmp/debtmp/wine_2
+        mkdir -p "$WEB_TMP/wine"
+        mkdir -p "$WEB_TMP/wine_1"
+        mkdir -p "$WEB_TMP/wine_2"
 
-        ar x $WINE_i386_1_PKG --output /tmp/debtmp/wine_1
-        ar x $WINE_i386_2_PKG --output /tmp/debtmp/wine_2
+        ar x $WINE_BASE_PKG --output "$WEB_TMP/wine_1"
+        ar x $WINE_i386_PKG --output "$WEB_TMP/wine_2"
 
         if [[ "$?" == "0" ]];
         then
-            tar xvf /tmp/debtmp/wine_1/data.tar.xz -C /tmp/debtmp/wine
-            tar xvf /tmp/debtmp/wine_2/data.tar.xz -C /tmp/debtmp/wine
+            tar xvf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xvf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
 
             if [[ "$?" == "0" ]];
             then
-                mv /tmp/debtmp/wine/opt $WINE32_DIR/
-                mv /tmp/debtmp/wine/usr $WINE32_DIR/
+                mv "$WEB_TMP/wine/opt" $WINE32_DIR/
+                mv "$WEB_TMP/wine/usr" $WINE32_DIR/
 
-                rm -r /tmp/debtmp
+                rm -r "$WEB_TMP"
             fi
         fi
     fi
@@ -293,45 +314,45 @@ fi
 
 if [[ "$OS_ARCH" == "amd64" ]] || [[ "$OS_ARCH" == "both" ]]; 
 then
-    WINE_amd64_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
-    WINE_amd64_1_PKG+="-1_amd64.deb"
+    #WINE_amd64_1_PKG="wine-${WINE_BRANCH}_${WINE_VERSION}~${OS_VERSION}"
+    #WINE_amd64_1_PKG+="-1_amd64.deb"
     
-    WINE_amd64_2_PKG="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}~${OS_VERSION}"
-    WINE_amd64_2_PKG+="-1_amd64.deb"
+    #WINE_amd64_2_PKG="wine-${WINE_BRANCH}-amd64_${WINE_VERSION}~${OS_VERSION}"
+    #WINE_amd64_2_PKG+="-1_amd64.deb"
 
-    if ! [[ -f "$WINE_amd64_1_PKG" ]] || ! [[ -f "$WINE_amd64_2_PKG" ]];
+    if ! [[ -f "$WINE_BASE_PKG" ]] || ! [[ -f "$WINE_amd64_PKG" ]];
     then
         abort "Failed. WINE amd64 packages may have failed downloading..."
     fi
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        dpkg-deb -x $WINE_amd64_1_PKG $WINE64_DIR
-        dpkg-deb -x $WINE_amd64_2_PKG $WINE64_DIR
+        dpkg-deb -x $WINE_BASE_PKG $WINE64_DIR
+        dpkg-deb -x $WINE_amd64_PKG $WINE64_DIR
 
         if ! [[ "$?" == "0" ]]; 
         then
             abort "Failed extracting WINE (64 bit) in '$WINE64_DIR'."
         fi
     else
-        mkdir -p /tmp/debtmp/wine
-        mkdir -p /tmp/debtmp/wine_1
-        mkdir -p /tmp/debtmp/wine_2
+        mkdir -p "$WEB_TMP/wine"
+        mkdir -p "$WEB_TMP/wine_1"
+        mkdir -p "$WEB_TMP/wine_2"
 
-        ar x $WINE_amd64_1_PKG --output /tmp/debtmp/wine_1
-        ar x $WINE_amd64_2_PKG --output /tmp/debtmp/wine_2
+        ar x $WINE_BASE_PKG --output "$WEB_TMP/wine_1"
+        ar x $WINE_amd64_PKG --output "$WEB_TMP/wine_2"
 
         if [[ "$?" == "0" ]];
         then
-            tar xvf /tmp/debtmp/wine_1/data.tar.xz -C /tmp/debtmp/wine
-            tar xvf /tmp/debtmp/wine_2/data.tar.xz -C /tmp/debtmp/wine
+            tar xvf "$WEB_TMP/wine_1/data.tar.xz" -C "$WEB_TMP/wine"
+            tar xvf "$WEB_TMP/wine_2/data.tar.xz" -C "$WEB_TMP/wine"
             
             if [[ "$?" == "0" ]];
             then
-                mv /tmp/debtmp/wine/opt $WINE64_DIR/
-                mv /tmp/debtmp/wine/usr $WINE64_DIR/
+                mv "$WEB_TMP/wine/opt" $WINE64_DIR/
+                mv "$WEB_TMP/wine/usr" $WINE64_DIR/
 
-                rm -r /tmp/debtmp
+                rm -r "$WEB_TMP"
             fi
         fi
     fi
