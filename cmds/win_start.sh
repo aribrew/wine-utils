@@ -29,6 +29,12 @@ then
 fi
 
 
+if ! [[ -v WINE_ENV ]] && [[ -f "$HOME/.local/bin/winenv/.winenv" ]];
+then
+    source "$HOME/.local/bin/winenv/.winenv"
+fi
+
+
 EXEC=$(realpath "$1")
 
 
@@ -87,7 +93,8 @@ then
 
             if ! [[ -d "$HOME/.wine/dosdevices" ]];
             then
-                abort "Install a WINE prefix for win32 apps."
+                echo "Install a WINE prefix for win32 apps."
+                abort "Or set a existing one the default."
             fi
 
             if ! [[ -v WINE_INSTALL_PATH ]];

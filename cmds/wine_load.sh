@@ -114,6 +114,7 @@ then
     alias winecfg="\"$WINELOADER\" \"$WINE_UTILS/winecfg.exe\""
     alias winedump="\"$WINE_BINARIES/winedump\""
     alias winefile="\"$WINELOADER\" \"$WINE_UTILS/winefile.exe\""
+    alias cmd="\"$WINELOADER\" \"$WINE_UTILS/cmd.exe\""
     alias reg="\"$WINELOADER\" \"$WINE_UTILS/reg.exe\""
     alias regedit="\"$WINELOADER\" \"$WINE_UTILS/regedit.exe\""
 
