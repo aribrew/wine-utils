@@ -40,12 +40,14 @@ then
         export PATH=$WINE_ENV/cmds:$PATH
         export PATH=$WINE_ENV/cmds/aux:$PATH
 
-        if [[ -f "$WINE_ENV/.autoload_wine" ]];
+        if [[ -f "$WINE_ENV/.autoload_wine" ]] &&
+         ! [[ -v WIN_STARTING_EXEC ]];
         then
             source wine_load.sh $(cat "$WINE_ENV/.autoload_wine")
         fi
 
-        if [[ -f "$WINE_ENV/.autoload_prefix" ]];
+        if [[ -f "$WINE_ENV/.autoload_prefix" ]] &&
+         ! [[ -v WIN_STARTING_EXEC ]];
         then
             source $(cat "$WINE_ENV/.autoload_prefix")/activate
         fi

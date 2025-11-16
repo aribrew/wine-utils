@@ -29,6 +29,9 @@ then
 fi
 
 
+export WIN_STARTING_EXEC=1
+
+
 if ! [[ -v WINE_ENV ]] && [[ -f "$HOME/.local/bin/winenv/.wine_env" ]];
 then
     source "$HOME/.local/bin/winenv/.wine_env"
