@@ -29,9 +29,9 @@ then
 fi
 
 
-if ! [[ -v WINE_ENV ]] && [[ -f "$HOME/.local/bin/winenv/.winenv" ]];
+if ! [[ -v WINE_ENV ]] && [[ -f "$HOME/.local/bin/winenv/.wine_env" ]];
 then
-    source "$HOME/.local/bin/winenv/.winenv"
+    source "$HOME/.local/bin/winenv/.wine_env"
 fi
 
 
