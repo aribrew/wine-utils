@@ -40,6 +40,8 @@ then
         export PATH=$WINE_ENV/cmds:$PATH
         export PATH=$WINE_ENV/cmds/aux:$PATH
 
+        export WINEPREFIXES=$HOME/.local/share/wineprefixes
+
         if [[ -f "$WINE_ENV/.autoload_wine" ]] &&
          ! [[ -v WIN_STARTING_EXEC ]];
         then
