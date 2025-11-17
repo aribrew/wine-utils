@@ -79,12 +79,6 @@ setup_prefix()
     echo "Initializing $WINEARCH prefix '$WINEPREFIX' ..."
     echo ""
 
-    if ! [[ -v WINELOADER ]];
-    then
-        echo "No WINE environment loaded detected."
-        abort "Load one with '. wine_load <WINE path>' first."
-    fi
-
     "$WINELOADER" "$WINE_UTILS/wineboot.exe"
 
     if ! [[ "$?" == "0" ]];
