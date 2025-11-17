@@ -145,7 +145,7 @@ then
 
     if [[ -v WINELOADER ]] && [[ -v WINEPREFIX ]];
     then
-        echo -en "Launching '$EXEC'"
+        echo -en "Launching '$EXEC_FILENAME'"
 
         if ! [[ "$ARGS" == "" ]];
         then
@@ -153,7 +153,8 @@ then
         fi
         
         echo -e " ..."
-        
-        "$WINELOADER" "$EXEC" "$ARGS"
+
+        cd "$EXEC_PATH"
+        "$WINELOADER" "$EXEC_FILENAME" "$ARGS"
     fi
 fi
