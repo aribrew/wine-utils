@@ -93,11 +93,8 @@ setup_prefix()
     install_activator
     install_defaulter
 
-    cp -u "$WINE_ENV/enable_dx11_support_for_prefix.sh" \
-          "$WINEPREFIX/enable_dx11_support.sh"
-
-    cp -u "$WINE_ENV/enable_dx12_support_for_prefix.sh" \
-              "$WINEPREFIX/enable_dx12_support.sh"
+    cp -u "$WINE_ENV/for_prefixes/enable_dx11_support.sh" "$WINEPREFIX/"
+    cp -u "$WINE_ENV/for_prefixes/enable_dx12_support.sh" "$WINEPREFIX/"
 }
 
 
