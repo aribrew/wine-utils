@@ -64,40 +64,11 @@ then
         export WINEDLLPATH+="/lib/wine/i386-unix"
         
         export WINE_UTILS+="/lib/wine/i386-windows"
-
-        #echo "$LD_LIBRARY_PATH" | grep -q "wine/i386-unix"
-        #
-        #if ! [[ "$?" == "0" ]];
-        #then
-        #    if ! [[ -v LD_LIBRARY_PATH ]];
-        #    then
-        #        export LD_LIBRARY_PATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        #    else
-        #        export LD_LIBRARY_PATH+=":$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        #    fi
-        #
-        #    export LD_LIBRARY_PATH+="/lib/wine/i386-unix"
-        #fi
-
     else
         export WINELOADER="$WINE_BINARIES/wine64"
         export WINEDLLPATH+="/lib64/wine/x86_64-unix"
         
         export WINE_UTILS+="/lib64/wine/x86_64-windows"
-
-        #echo "$LD_LIBRARY_PATH" | grep -q "wine/x86_64-unix"
-        #
-        #if ! [[ "$?" == "0" ]];
-        #then
-        #    if ! [[ -v LD_LIBRARY_PATH ]];
-        #    then
-        #        export LD_LIBRARY_PATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        #    else
-        #        export LD_LIBRARY_PATH+=":$WINE_PATH/opt/wine-${WINE_BRANCH}"
-        #    fi
-        #
-        #    export LD_LIBRARY_PATH+="/lib64/wine/x86_64-unix"
-        #fi
     fi
 
     # Needed by winetricks
