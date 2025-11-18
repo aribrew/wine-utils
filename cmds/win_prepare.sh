@@ -258,6 +258,8 @@ then
         export WINEARCH="win32"
     fi
 
+    echo "$WINEARCH" > "$WINE_PREFIX/.arch"
+
     if ! [[ -f "$WINEPREFIX/activate" ]];
     then
         echo "The prefix exists but no activator was found."
