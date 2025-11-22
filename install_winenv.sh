@@ -67,6 +67,7 @@ fi
 copy -u "$SCRIPT_HOME/.wine_env" "$WINE_ENV/"
 
 copy -ru "$SCRIPT_HOME/cmds" "$WINE_ENV/"
+copy -ru "$SCRIPT_HOME/extras" "$WINE_ENV/"
 copy -ru "$SCRIPT_HOME/for_prefixes" "$WINE_ENV/"
 
 copy -u "$SCRIPT_HOME/download_wine.sh" "$WINE_ENV/"
