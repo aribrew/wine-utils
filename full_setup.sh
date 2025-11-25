@@ -20,6 +20,9 @@ fi
 "$SCRIPT_HOME/update.sh"
 
 
+"$SCRIPT_HOME/install_requirements.sh"
+
+
 check_if_admin
 
 if [[ -v SUPER_USER ]];
@@ -30,20 +33,21 @@ else
 fi
 
 
-if [[ -f "$WINE_ENV_PATH/.wine_env" ]];
+if ! [[ -f "$WINE_ENV_PATH/.wine_env" ]];
 then
-    grep -q ".wine_env" "$HOME/.environment"
-
-    if ! [[ "$?" == "0" ]];
-    then
-        echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
-    fi
-else
-    abort "Cannot find '$WINE_ENV_PATH/.wine_env.'"
+    "$SCRIPT_HOME/install_winenv.sh"
 fi
 
 
-if ! [[ -v WINE_ENV ]] && [[ -f "$WINE_ENV_PATH/.wine_env" ]];
+grep -q ".wine_env" "$HOME/.environment"
+
+if ! [[ "$?" == "0" ]];
+then
+    echo "source $WINE_ENV_PATH/.wine_env" >> "$HOME/.environment"
+fi
+
+
+if ! [[ -v WINE_ENV ]];
 then
     source "$WINE_ENV_PATH/.wine_env"
     
@@ -52,7 +56,7 @@ then
     if [[ "$WINE_INSTALLATIONS" == "" ]];
     then
         "$SCRIPT_HOME/install_wine_repo.sh"
-        "$SCRIPT_HOME/install_deps.sh"
+        "$SCRIPT_HOME/install_wine_deps.sh"
         "$SCRIPT_HOME/install_wine.sh"
     fi
 fi
