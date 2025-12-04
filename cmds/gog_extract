@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if ! [[ "/usr/bin/innoextract" ]];
+then
+    echo -e "Installing InnoExtract first ..."
+    echo -e "--------------------------------"
+
+    sudo apt install -y innoextract
+fi
+
+
+INSTALLER=$1
+GAME_NAME=$2
+
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]] && ! [[ "$2" == "" ]];
+then
+    INSTALLER=$(realpath "$INSTALLER")
+
+    innoextract -d "/tmp/${GAME_NAME}" --gog
+
+    if [[ "$?" == "0" ]];
+    then
+        echo -e "The game (or app) has been extracted in '/tmp/$GAME_NAME'."
+    fi
+fi
