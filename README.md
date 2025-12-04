@@ -12,8 +12,9 @@ host's architecture and WINE is only for i386 and AMD64 architectures.
 So, with these utils you will be able to download and "install" WINE without
 really installing it (with the package manager).
 
-The setup.sh script performs the minimal full setup, that includes updating
-the WINE environment scripts, installing the WINE repository and its
-dependencies. Then the recommended WINE version will be downloaded and 
+The full_setup.sh script includes installing/updating the scripts,
+installing the WINE repository and its dependencies.
+
+Then the recommended WINE version will be downloaded and 
 installed both for i386 and AMD64, and a default prefix will be created for
 each one.

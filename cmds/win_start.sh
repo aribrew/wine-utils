@@ -13,10 +13,10 @@ usage()
 {
     echo -e "Usage: win_start.sh <executable> [args]\n"
 
-    echo -e "To force a specific prefix or WINE version, export"
+    echo -e "To force a specific prefix or WINE version, export "
     echo -e "WINE_PREFIX_NAME and/or WINE_INSTALL_PATH.\n"
 
-    echo -e "Also, if a file .{executable}_winecfg exists along with the"
+    echo -e "Also, if a file .{executable}_winecfg exists along with the "
     echo -e "executable file, the needed WINE configuration will be "
     echo -e "automatically loaded.\n"
 }
@@ -45,7 +45,7 @@ if ! [[ "$EXEC" == "" ]] && [[ -f "$EXEC" ]];
 then
     EXEC_PATH=$(dirname "$EXEC")
     EXEC_FILENAME=$(basename "$EXEC")
-    EXEC_FILENAME_WITHOUT_EXT=$(filext "$EXEC_FILENAME")
+    EXEC_FILENAME_WITHOUT_EXT=$(basename $(filext "$EXEC_FILENAME"))
 
     EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
     
