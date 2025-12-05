@@ -20,6 +20,7 @@ mktree()
 SCRIPT_HOME=$(realpath $(dirname $0))
 
 
+echo -e ""
 echo -e "Installing/updating WINE environment."
 echo -e ""
 echo -e "IMPORTANT: The WINE environment isn't WINE, but the environment"
