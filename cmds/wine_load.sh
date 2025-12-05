@@ -47,28 +47,24 @@ then
         abort "No Wine installation detected at '$WINE_PATH'."
     fi
 
-    WINE_ARCH=$(cat $WINE_PATH/.wine_arch)
+    if [[ -f "$WINE_PATH/.wine_arch" ]];
+    then
+        WINE_ARCH=$(cat $WINE_PATH/.wine_arch)
+    else
+        WINE_ARCH="both"
+    fi
+    
     WINE_BRANCH=$(cat $WINE_PATH/.wine_branch)
     WINE_VERSION=$(cat $WINE_PATH/.wine_version)
 
-    if [[ -v WINEPREFIX ]];
+    if [[ "$WINEARCH" == "win32" ]] && [[ "$WINE_ARCH" == "both" ]];
     then
-        if [[ "$WINEARCH" == "win32" ]] && ! [[ "$WINE_ARCH" == "i386" ]];
-        then
-            echo -e "Detected a previously loaded 32 bit WINEPREFIX\n."
+        echo -e "Detected a previously loaded 32 bit WINEPREFIX\n."
             
-            echo -e "Due the loaded WINE installation is 64 bit,"
-            echo -e "the Wow64 support will be activated\n."
+        echo -e "The WINE installation loaded support both 64 and 32 bits."
+        echo -e "We can then launch both 32 bit apps with Wow64.\n."
 
-            WOW64_REQUIRED=1
-            
-        elif [[ "$WINEARCH" == "win64" ]] && [[ "$WINE_ARCH" == "i386" ]];
-        then
-            echo -e "A 64 bit WINEPREFIX has been loaded and"
-            echo -e "you are trying to load a 32 bit WINE installation.\n"
-
-            abort "This is an incompatible combination. Aborting.\n"
-        fi
+        WOW64=1
     fi
 
     # We only want to export the variable, not set it
@@ -84,17 +80,27 @@ then
         export WINEDLLPATH+="/lib/wine/i386-unix"
         
         export WINE_UTILS+="/lib/wine/i386-windows"
-    else
+    elif [[ "$WINE_ARCH" == "amd64"]];
+    then
         export WINELOADER="$WINE_BINARIES/wine64"
         export WINEDLLPATH+="/lib64/wine/x86_64-unix"
         
         export WINE_UTILS+="/lib64/wine/x86_64-windows"
+    else
+        export WINELOADER="$WINE_BINARIES/wine"
+        
+        WINE32DLLPATH="$WINEDLLPATH/lib/wine/i386-unix"
+        WINE64DLLPATH="$WINEDLLPATH/lib64/wine/x86_64-unix"
+
+        WINE32_UTILS=""
+        WINE64_UTILS=""
+        export WINEDLLPATH="${WINE32DLLPATH}:${WINE64DLLPATH}"
     fi
 
     # Needed by winetricks
-    if [[ -v WOW64_REQUIRED ]];
+    if [[ -v WOW64 ]];
     then
-        export WINE="$WINELOADER"
+        export WINE="$WINE_BINARIES/wine"
     else
         export WINE="$WINELOADER"
     fi
@@ -106,7 +112,7 @@ then
     # but not for the other scripts. They will include wine_cmds
     # instead
 
-    if [[ -v WOW64_REQUIRED ]];
+    if [[ -v WOW64 ]];
     then
         alias wine="$WINE_BINARIES/wine"
     else

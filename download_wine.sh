@@ -258,6 +258,8 @@ echo ""
 echo "Extracting WINE ..."
 echo "-------------------"
 
+WINE_DIR="wine-${WINE_VERSION}"
+
 WINE32_DIR="wine-${WINE_VERSION}_i386"
 WINE64_DIR="wine-${WINE_VERSION}_amd64"
 
@@ -271,12 +273,18 @@ then
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        dpkg-deb -x $WINE_BASE_PKG $WINE32_DIR
-        dpkg-deb -x $WINE_i386_PKG $WINE32_DIR
+        if [[ "$OS_ARCH" == "both" ]];
+        then
+            dpkg-deb -x $WINE_BASE_PKG $WINE_DIR
+            dpkg-deb -x $WINE_i386_PKG $WINE_DIR
+        else
+            dpkg-deb -x $WINE_BASE_PKG $WINE32_DIR
+            dpkg-deb -x $WINE_i386_PKG $WINE32_DIR
+        fi
 
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed extracting WINE (32 bit) in '$WINE32_DIR'."
+            abort "Failed extracting WINE (32 bit)."
         fi
     else
         mkdir -p "$WEB_TMP/wine"
@@ -304,10 +312,14 @@ then
 
     echo "$WINE_BRANCH" > "$WINE32_DIR/.wine_branch"
     echo "$WINE_VERSION" > "$WINE32_DIR/.wine_version"
-    echo "i386" > "$WINE32_DIR/.wine_arch"
 
-    echo "WINE (32 bit) extracted in $WINE_TMP/$WINE32_DIR."
-
+    if ! [[ "$OS_ARCH" == "both" ]];
+    then
+        echo "i386" > "$WINE32_DIR/.wine_arch"
+        
+        echo "WINE (32 bit) extracted in $WINE_TMP/$WINE32_DIR."
+    fi
+    
     echo "$WINE_TMP/$WINE32_DIR" > /tmp/.last_wine32_download
 fi
 
@@ -321,12 +333,17 @@ then
 
     if ! [[ -v USE_WEB_DOWNLOAD ]];
     then
-        dpkg-deb -x $WINE_BASE_PKG $WINE64_DIR
-        dpkg-deb -x $WINE_amd64_PKG $WINE64_DIR
-
+        if [[ "$OS_ARCH" == "both" ]];
+        then
+            dpkg-deb -x $WINE_amd64_PKG $WINE_DIR
+        else
+            dpkg-deb -x $WINE_BASE_PKG $WINE64_DIR
+            dpkg-deb -x $WINE_amd64_PKG $WINE64_DIR
+        fi
+        
         if ! [[ "$?" == "0" ]]; 
         then
-            abort "Failed extracting WINE (64 bit) in '$WINE64_DIR'."
+            abort "Failed extracting WINE (64 bit)."
         fi
     else
         mkdir -p "$WEB_TMP/wine"
@@ -354,9 +371,19 @@ then
 
     echo "$WINE_BRANCH" > "$WINE64_DIR/.wine_branch"
     echo "$WINE_VERSION" > "$WINE64_DIR/.wine_version"
-    echo "amd64" > "$WINE64_DIR/.wine_arch"
 
-    echo "WINE (64 bit) extracted in $WINE_TMP/$WINE64_DIR."
+    if ! [[ "$OS_ARCH" == "both" ]];
+    then
+        echo "amd64" > "$WINE64_DIR/.wine_arch"
+        
+        echo "WINE (64 bit) extracted in $WINE_TMP/$WINE64_DIR."
+    fi
 
     echo "$WINE_TMP/$WINE64_DIR" > /tmp/.last_wine64_download
+fi
+
+
+if [[ "$OS_ARCH" == "both" ]];
+then
+    echo "WINE (for 32 and 64 bits) extracted in $WINE_DIR"
 fi
