@@ -269,11 +269,6 @@ else
     fi
 fi
 
-echo "$WINE_BRANCH" > "$WINE32_DIR/.wine_branch"
-echo "$WINE_VERSION" > "$WINE32_DIR/.wine_version"
-
-echo "$WINE_TMP/$WINE32_DIR" > /tmp/.last_wine32_download
-
 
 if ! [[ -f "$WINE_BASE_PKG" ]] || ! [[ -f "$WINE_amd64_PKG" ]];
 then
@@ -312,10 +307,10 @@ else
 fi
 
 
-echo "$WINE_BRANCH" > "$WINE64_DIR/.wine_branch"
-echo "$WINE_VERSION" > "$WINE64_DIR/.wine_version"
+echo "$WINE_BRANCH" > "$WINE_DIR/.wine_branch"
+echo "$WINE_VERSION" > "$WINE_DIR/.wine_version"
 
-echo "$WINE_TMP/$WINE64_DIR" > /tmp/.last_wine64_download
+echo "$WINE_TMP/$WINE_DIR" > /tmp/.last_wine_download
 
 
 echo -e "WINE extracted in $WINE_DIR.\n"

@@ -23,7 +23,7 @@ install_wine_from()
 {
     WINE_PATH=$1
 
-    if [[ -f "${WINE_PATH}/.wine_branch" ]]; 
+    if [[ -f "${WINE_PATH}/.wine_version" ]]; 
     then
         WINE_FOLDER=$(basename "$WINE_PATH")
         
@@ -41,22 +41,22 @@ install_wine_from()
 
         copy -ru "$WINE_PATH" "$WINE_ENV/"
 
-        if [[ "$WINE_ARCH" == "i386" ]] && 
-         ! [[ -f "$WINE_ENV/.default_wine32" ]]; 
-        then
-            echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine32"
+        # if [[ "$WINE_ARCH" == "i386" ]] && 
+        #  ! [[ -f "$WINE_ENV/.default_wine32" ]]; 
+        # then
+        #     echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine32"
 
-            echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 32 bits."
-            echo ""
+        #     echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 32 bits."
+        #     echo ""
 
-        elif [[ "$WINE_ARCH" == "amd64" ]] && 
-           ! [[ -f "$WINE_ENV/.default_wine64" ]]; 
-        then
-            echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine64"
+        # elif [[ "$WINE_ARCH" == "amd64" ]] && 
+        #    ! [[ -f "$WINE_ENV/.default_wine64" ]]; 
+        # then
+        #     echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine64"
 
-            echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 64 bits."
-            echo ""
-        fi
+        #     echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 64 bits."
+        #     echo ""
+        # fi
     fi
 }
 
@@ -107,23 +107,13 @@ then
 
     if [[ "$?" == "0" ]];
     then
-        if [[ -f "/tmp/.last_wine32_download" ]];
+        if [[ -f "/tmp/.last_wine_download" ]];
         then
-            WINE32_PATH=$(cat "/tmp/.last_wine32_download")
+            WINE_PATH=$(cat "/tmp/.last_wine_download")
 
-            if [[ -f "$WINE32_PATH/.wine_version" ]];
+            if [[ -f "$WINE_PATH/.wine_version" ]];
             then
-                install_wine_from "$WINE32_PATH"
-            fi
-        fi
-
-        if [[ -f "/tmp/.last_wine64_download" ]];
-        then
-            WINE64_PATH=$(cat "/tmp/.last_wine64_download")
-
-            if [[ -f "$WINE64_PATH/.wine_version" ]];
-            then
-                install_wine_from "$WINE64_PATH"
+                install_wine_from "$WINE_PATH"
             fi
         fi
     fi
