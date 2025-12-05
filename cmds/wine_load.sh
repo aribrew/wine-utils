@@ -51,6 +51,26 @@ then
     WINE_BRANCH=$(cat $WINE_PATH/.wine_branch)
     WINE_VERSION=$(cat $WINE_PATH/.wine_version)
 
+    if [[ -v WINEPREFIX ]];
+    then
+        if [[ "$WINEARCH" == "win32" ]] && ! [[ "$WINE_ARCH" == "i386" ]];
+        then
+            echo -e "Detected a previously loaded 32 bit WINEPREFIX\n."
+            
+            echo -e "Due the loaded WINE installation is 64 bit,"
+            echo -e "the Wow64 support will be activated\n."
+
+            WOW64_REQUIRED=1
+            
+        elif [[ "$WINEARCH" == "win64" ]] && [[ "$WINE_ARCH" == "i386" ]];
+        then
+            echo -e "A 64 bit WINEPREFIX has been loaded and"
+            echo -e "you are trying to load a 32 bit WINE installation.\n"
+
+            abort "This is an incompatible combination. Aborting.\n"
+        fi
+    fi
+
     # We only want to export the variable, not set it
     export WINE_PATH
     export WINE_BINARIES=$WINE_PATH/opt/wine-${WINE_BRANCH}/bin
@@ -72,15 +92,27 @@ then
     fi
 
     # Needed by winetricks
-    export WINE="$WINELOADER"
-
+    if [[ -v WOW64_REQUIRED ]];
+    then
+        export WINE="$WINELOADER"
+    else
+        export WINE="$WINELOADER"
+    fi
+    
     export WINESERVER="$WINE_BINARIES/wineserver"
+
     
     # The aliases will be available for the current shell session
     # but not for the other scripts. They will include wine_cmds
-    # instead.
+    # instead
 
-    alias wine="$WINELOADER"
+    if [[ -v WOW64_REQUIRED ]];
+    then
+        alias wine="$WINE_BINARIES/wine"
+    else
+        alias wine="$WINELOADER"
+    fi
+    
     alias wineboot="\"$WINELOADER\" \"$WINE_UTILS/wineboot.exe\""
     alias winecfg="\"$WINELOADER\" \"$WINE_UTILS/winecfg.exe\""
     alias winedump="\"$WINE_BINARIES/winedump\""
