@@ -27,16 +27,14 @@ install_wine_from()
     then
         WINE_FOLDER=$(basename "$WINE_PATH")
         
-        WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
         WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
         WINE_VERSION=$(cat "$WINE_PATH/.wine_version")
 
         echo ""
-        echo -n "Installing WINE $WINE_VERSION ($WINE_BRANCH) for $WINE_ARCH "
-        echo "in '$WINE_ENV' ..."
+        echo "Installing WINE $WINE_VERSION ($WINE_BRANCH) in '$WINE_ENV' ..."
         echo "---------------------------------------------------------------"
 
-        if ! [[ -d "$WINE_ENV" ]]; 
+        if ! [[ -d "$WINE_ENV" ]];
         then
             mktree "$WINE_ENV"
         fi
