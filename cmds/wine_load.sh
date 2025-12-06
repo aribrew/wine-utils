@@ -59,8 +59,8 @@ then
     export WINE_PATH
 
     export WINE_BINARIES=$WINE_PATH/opt/wine-${WINE_BRANCH}/bin
-    export WINE_UTILS="$WINE_PATH/opt/wine-${WINE_BRANCH}"
-    export WINE_DLL_PATH="$WINE_PATH/opt/wine-${WINE_BRANCH}"
+    export WINE_UTILS=$WINE_PATH/opt/wine-${WINE_BRANCH}
+    export WINE_DLL_PATH=$WINE_PATH/opt/wine-${WINE_BRANCH}
 
     WINE32_UTILS="$WINE_UTILS/lib/wine/i386-windows"
     WINE64_UTILS="$WINE_UTILS/lib64/wine/x86_64-windows"
@@ -86,14 +86,24 @@ then
     # instead
 
     alias wine="$WINELOADER"
+    alias wine32="$WINE_BINARIES/wine"
+    alias wine64="$WINE_BINARIES/wine64"
+
     alias wineboot="\"$WINELOADER\" \"$WINE_UTILS/wineboot.exe\""
     alias winecfg="\"$WINELOADER\" \"$WINE_UTILS/winecfg.exe\""
     alias winedump="\"$WINE_BINARIES/winedump\""
-    alias winefile="\"$WINELOADER\" \"$WINE_UTILS/winefile.exe\""
     alias cmd="\"$WINELOADER\" \"$WINE_UTILS/cmd.exe\""
+    alias explorer="\"$WINELOADER\" \"$WINE_UTILS/winefile.exe\""
     alias reg="\"$WINELOADER\" \"$WINE_UTILS/reg.exe\""
     alias regedit="\"$WINELOADER\" \"$WINE_UTILS/regedit.exe\""
 
     echo "Activated Wine $WINE_BRANCH ($WINE_VERSION): $WINE_PATH"
+    echo ""
+    echo "You have available the following aliases: "
+    echo "- wine: Default WINE executable for the loaded prefix"
+    echo "- wine32: WINE executable for 32 bit software"
+    echo "- wine64: WINE executable for 64 bit software"
+    echo "- wineboot: Performs a 'reboot' of the loaded prefix."
+    echo "- explorer, reg, regedit: Launch these Windows programs." 
     echo ""
 fi

@@ -8,34 +8,6 @@ export WIN_D=WINEPREFIX_PLACEHOLDER/drive_d
 export WINEDEBUG=-all
 
 
-#if ! [[ -v WINELOADER ]];
-#then
-#    if [[ -f "$WINEPREFIX/.arch" ]];
-#    then
-#        PREFIX_ARCH=$(cat "$WINEPREFIX/.arch")
-#
-#        if [[ "$PREFIX_ARCH" == "win32" ]];
-#        then
-#            if [[ -f "$WINE_ENV/.default_wine32" ]];
-#            then
-#                echo -e "Activating the default WINE installation for 32 bit.\n"
-#                WINE_PATH=$(cat "$WINE_ENV/.default_wine32")
-#
-#                source wine_load.sh "$WINE_PATH"
-#            fi
-#        else
-#            if [[ -f "$WINE_ENV/.default_wine64" ]];
-#            then
-#                echo -e "Activating the default WINE installation for 64 bit.\n"
-#                WINE_PATH=$(cat "$WINE_ENV/.default_wine64")
-#
-#                source wine_load.sh "$WINE_PATH"
-#            fi
-#        fi
-#    fi
-#fi
-
-
 echo "WINE prefix '$WINEPREFIX' activated."
 echo ""
 #echo "By default, all WINE debug info is silenced."
