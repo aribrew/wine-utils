@@ -31,14 +31,14 @@ read -p "Press ENTER to continue."
 
 if [[ "$HOME" == "/root" ]];
 then
-    echo -e "Running as admin. WINE environment in /opt/winenv."
+    echo -e "\nRunning as admin. WINE environment in /opt/winenv."
     echo -e "WINE environment will be in /opt/winenv\n"
     
     WINE_ENV="/opt/winenv"
     export SUDO="sudo"
     
 else
-    echo -e "Running as user."
+    echo -e "\nRunning as user."
     echo -e "WINE environment will be in ~/.local/winenv\n"
     
     WINE_ENV="$HOME/.local/bin/winenv"
