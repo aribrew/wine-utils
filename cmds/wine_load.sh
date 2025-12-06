@@ -46,6 +46,11 @@ then
     then
         abort "No Wine installation detected at '$WINE_PATH'."
     fi
+
+    if ! [[ -v WINEARCH ]];
+    then
+        abort "A WINE prefix needs to be active first."
+    fi
     
     WINE_BRANCH=$(cat $WINE_PATH/.wine_branch)
     WINE_VERSION=$(cat $WINE_PATH/.wine_version)

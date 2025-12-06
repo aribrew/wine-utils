@@ -41,22 +41,10 @@ install_wine_from()
 
         copy -ru "$WINE_PATH" "$WINE_ENV/"
 
-        # if [[ "$WINE_ARCH" == "i386" ]] && 
-        #  ! [[ -f "$WINE_ENV/.default_wine32" ]]; 
-        # then
-        #     echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine32"
-
-        #     echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 32 bits."
-        #     echo ""
-
-        # elif [[ "$WINE_ARCH" == "amd64" ]] && 
-        #    ! [[ -f "$WINE_ENV/.default_wine64" ]]; 
-        # then
-        #     echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine64"
-
-        #     echo "'$WINE_ENV/$WINE_FOLDER' is now the default for 64 bits."
-        #     echo ""
-        # fi
+        if ! [[ -f "$WINE_ENV/.default_wine" ]];
+        then
+            echo "$WINE_ENV/$WINE_FOLDER" > "$WINE_ENV/.default_wine"
+        fi
     fi
 }
 
