@@ -61,7 +61,7 @@ install_defaulter()
     chmod +x "$DEFAULTER"
 
     echo "Execute '$WINEPREFIX/make_default' for set this prefix as the"
-    echo "default one for 32 or 64 bits apps (depending of its architecture)."
+    echo "default one for running apps with win_start.sh script."
     echo ""
 }
 
@@ -89,6 +89,8 @@ setup_prefix()
 
     echo "Prefix created. The helper scripts will be added now."
     echo ""
+
+    echo "$WINEARCH" > "$WINEPREFIX/.arch"
 
     install_activator
     install_defaulter
