@@ -74,8 +74,6 @@ copy -ru "$SCRIPT_HOME/for_prefixes" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/download_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/install_wine.sh" "$WINE_ENV/"
 copy -u "$SCRIPT_HOME/install_winetricks.sh" "$WINE_ENV/"
-copy -u "$SCRIPT_HOME/make_prefix_autoload.sh" "$WINE_ENV/"
-copy -u "$SCRIPT_HOME/make_wine_autoload.sh" "$WINE_ENV/"
 
 
 if ! [[ -f "$HOME/.environment" ]];
