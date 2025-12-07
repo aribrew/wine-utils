@@ -166,7 +166,7 @@ if ! [[ -f "$WINE_ENV/.default_wine" ]];
 then
     abort "Install WINE first, or make one installation the default one."
 else
-    DEFAULT_WINE_PATH=$("$WINE_ENV/.default_wine")
+    DEFAULT_WINE_PATH=$(cat "$WINE_ENV/.default_wine")
 
     source wine_load.sh "$DEFAULT_WINE_PATH"
 
