@@ -175,7 +175,7 @@ else
 
     echo -e "Current WINE path: $WINE_PATH"
 
-    if [[ -v WINE_PATH ]];
+    if [[ -v WINE_PATH ]] && [[ -f "$WINE_PATH/.wine_arch" ]];
     then
         WINE_ARCH=$(cat "$WINE_PATH/.wine_arch")
 
