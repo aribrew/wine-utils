@@ -18,9 +18,15 @@ then
 else
     WINE_INSTALL="$1"
 
-    echo "$WINE_ENV/$WINE_INSTALL" > "$WINE_ENV/.default_wine"
+    if ! [[ -f "$WINE_INSTALL/.wine_version" ]];
+    then
+        echo -e "Not valid WINE installation at '$WINE_INSTALL'.\n"
+    else
+        WINE_INSTALL=$(basename "$WINE_INSTALL")
+    
+        echo "$WINE_ENV/$WINE_INSTALL" > "$WINE_ENV/.default_wine"
 
-    echo "WINE installation at '$WINE_INSTALL' will now be the default one."
-    echo "It will be loaded for preparing new prefixes."
-    echo ""
+        echo -e "WINE installation at '$WINE_INSTALL' made the default one."
+        echo -e "It will be loaded for preparing new prefixes\n."
+    fi
 fi
