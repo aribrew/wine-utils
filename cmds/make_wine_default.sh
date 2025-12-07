@@ -27,6 +27,6 @@ else
         echo "$WINE_ENV/$WINE_INSTALL" > "$WINE_ENV/.default_wine"
 
         echo -e "WINE installation at '$WINE_INSTALL' made the default one."
-        echo -e "It will be loaded for preparing new prefixes\n."
+        echo -e "It will be loaded for preparing new prefixes.\n"
     fi
 fi
