@@ -162,6 +162,9 @@ else
 fi
 
 
+export WINEARCH=$PREFIX_ARCH
+
+
 if ! [[ -f "$WINE_ENV/.default_wine" ]];
 then
     abort "Install WINE first, or make one installation the default one."
@@ -236,9 +239,6 @@ then
 else
     export WINEPREFIX="$HOME/.local/share/wineprefixes/$PREFIX_NAME"
 fi
-
-
-export WINEARCH=$PREFIX_ARCH
 
 
 PREFIX_PATH=$(dirname "$WINEPREFIX")
