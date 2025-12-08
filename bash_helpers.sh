@@ -98,6 +98,21 @@ check_sudo()
 }
 
 
+dir_empty()
+{
+	DIR_PATH="$1"
+
+	ITEMS=$(in_dir "$1")
+
+	if [[ "$ITEMS" == "0" ]];
+	then
+	    return 0
+	else
+	    return 1
+	fi
+}
+
+
 exec_type()
 {
     EXEC=$1
@@ -145,6 +160,14 @@ filext()
     FILE_EXTENSION=${FILE_NAME##*.}
 
     echo .$FILE_EXTENSION
+}
+
+
+in_dir()
+{
+	DIR_PATH="$1"
+
+	echo $(ls "$DIR_PATH" | wc -l)
 }
 
 
@@ -303,7 +326,9 @@ then
     export -f check_if_admin
     export -f check_port
     export -f check_sudo
+    export -f dir_empty
     export -f exec_type
+    export -f in_dir
     export -f is_newer
     export -f filext
     export -f lowercase
@@ -318,8 +343,6 @@ fi
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
     export BASH_HELPERS_LOADED=1
-    
-    echo -e "BASH helpers loaded.\n"
 fi
 
 
@@ -371,6 +394,10 @@ then
         PERMS="770"
     fi
 
+    if ! [[ -d "$INSTALL_PATH" ]];
+    then
+        mkdir -p "$INSTALL_PATH"
+    fi
 
     $SUDO cp $SCRIPT $INSTALL_PATH/
     $SUDO chmod $PERMS "$INSTALL_PATH/${FILENAME}"
