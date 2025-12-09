@@ -1,0 +1,8 @@
+Fixes required by games and applications.
+These can be already installed or may be missing.
+
+Scorn
+------
+Install gstreamer1.0-plugins-bad package
+Fixes black screen due winegstreamer error.
+
