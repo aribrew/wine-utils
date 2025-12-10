@@ -63,7 +63,7 @@ then
         if [[ -f "$WINE_ENV/.autoload_wine" ]] &&
          ! [[ -v WIN_STARTING_EXEC ]];
         then
-            source wine_load.sh $(cat "$WINE_ENV/.autoload_wine")
+            source wine_load $(cat "$WINE_ENV/.autoload_wine")
         fi
 
         echo "Wine environment loaded."

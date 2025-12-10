@@ -61,7 +61,7 @@ install_defaulter()
     chmod +x "$DEFAULTER"
 
     echo "Execute '$WINEPREFIX/make_default' for set this prefix as the"
-    echo "default one for running apps with win_start.sh script."
+    echo "default one for running apps with win_start script."
     echo ""
 }
 
@@ -173,7 +173,7 @@ then
 else
     DEFAULT_WINE_PATH=$(cat "$WINE_ENV/.default_wine")
 
-    source wine_load.sh "$DEFAULT_WINE_PATH"
+    source wine_load "$DEFAULT_WINE_PATH"
 
     echo -e "Current WINE path: $WINE_PATH"
 

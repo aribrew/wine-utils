@@ -11,7 +11,7 @@ fi
 
 usage()
 {
-    echo -e "Usage: win_start.sh <executable> [args]\n"
+    echo -e "Usage: win_start <executable> [args]\n"
 
     echo -e "To force a specific prefix or WINE version, export "
     echo -e "WINE_PREFIX_NAME and/or WINE_INSTALL_PATH.\n"
@@ -69,7 +69,7 @@ then
         then
             abort "Invalid WINE installation in '$WINE_INSTALL_PATH'."
         else
-            . wine_load.sh "$WINE_INSTALL_PATH"
+            . wine_load "$WINE_INSTALL_PATH"
         fi
     fi
 
@@ -102,13 +102,13 @@ then
 
             if ! [[ -v WINE_INSTALL_PATH ]];
             then
-                . wine_load.sh $(cat "$WINE_ENV/.default_wine32");
+                . wine_load $(cat "$WINE_ENV/.default_wine32");
             else
                 if ! [[ -f "$WINE_INSTALL_PATH/.wine_version" ]];
                 then
                     abort "Invalid WINE installation in '$WINE_INSTALL_PATH'."
                 else
-                    . wine_load.sh "$WINE_INSTALL_PATH"
+                    . wine_load "$WINE_INSTALL_PATH"
                 fi
             fi
 
@@ -136,7 +136,7 @@ then
                 abort "Install a WINE prefix for win64 apps."
             fi
 
-            . wine_load.sh $(cat "$WINE_ENV/.default_wine64")
+            . wine_load $(cat "$WINE_ENV/.default_wine64")
             . "$HOME/.wine64/activate"
         else
             abort "The specified executable isn't a Windows 32/64 bit one."
