@@ -1,19 +1,6 @@
 #!/bin/bash
 
 
-ACTIVATOR="#!/bin/bash"
-ACTIVATOR+=""
-ACTIVATOR+="export WINEPREFIX=WINEPREFIX_PLACEHOLDER"
-ACTIVATOR+="export WINEARCH=WINEARCH_PLACEHOLDER"
-ACTIVATOR+="export WIN_C=WINEPREFIX_PLACEHOLDER/drive_c"
-ACTIVATOR+="export WIN_D=WINEPREFIX_PLACEHOLDER/drive_d"
-ACTIVATOR+=""
-ACTIVATOR+=""
-ACTIVATOR+="echo \"WINE prefix '$WINEPREFIX' activated.\""
-ACTIVATOR+="echo \"Unset WINEDEBUG var to view errors and warnings.\""
-ACTIVATOR+="echo \"\""
-
-
 abort()
 {
     MESSAGE=$1
@@ -72,48 +59,6 @@ exec_type()
 }
 
 
-install_prefix_activator()
-{
-    if ! [[ -f "$WINE_PATH/for_prefixes/.activate_prefix" ]];
-    then
-        echo "Cannot create activator for prefix '$WINEPREFIX'."
-        abort "Template not found."
-    fi
-
-    ACTIVATOR=$WINEPREFIX/activate
-
-    cp "$WINE_PATH/for_prefixes/.activate_prefix" "$ACTIVATOR"
-
-    sed -i "s|WINEPREFIX_PLACEHOLDER|$WINEPREFIX|g" "$ACTIVATOR"
-    sed -i "s|WINEARCH_PLACEHOLDER|$WINEARCH|g" "$ACTIVATOR"
-
-    chmod +x "$ACTIVATOR"
-    
-    echo "Activator installed for prefix '$WINEPREFIX'."
-    echo "Execute '. $WINEPREFIX/activate' for activate this prefix."
-    echo ""
-}
-
-
-install_prefix_defaulter()
-{
-    if ! [[ -f "$WINE_PATH/for_prefixes/.make_prefix_default" ]];
-    then
-        echo "Cannot create defaulter for prefix '$WINEPREFIX'."
-        abort "Template not found."
-    fi
-
-    DEFAULTER="$WINEPREFIX/make_default"
-
-    cp "$WINE_PATH/for_prefixes/.make_prefix_default" "$DEFAULTER"
-    chmod +x "$DEFAULTER"
-
-    echo "Execute '$WINEPREFIX/make_default' for set this prefix as the"
-    echo "default one for running apps with win_start script."
-    echo ""
-}
-
-
 is_wine_installation()
 {
 	WINE_PATH="$1"
@@ -163,7 +108,33 @@ load_prefix()
 {
     if [[ -d "$1" ]];
     then
-        echo "TODO"
+        is_wine_prefix "$1"
+
+        if [[ "$?" == "0" ]];
+        then
+            PREFIX="$1"
+        fi
+    else
+        is_wine_prefix "$WINE_PREFIXES/$1"
+
+        if [[ "$?" == "0" ]];
+        then
+            PREFIX="$WINE_PREFIXES/$1"
+        fi
+
+        if [[ "$PREFIX" == "" ]];
+        then
+            abort "Invalid prefix '$1'"
+        else
+            PREFIX_ARCH=$(prefix_arch "$PREFIX")
+        
+            export WINEPREFIX="$PREFIX"
+            export WINEARCH="$PREFIX_ARCH"
+            export WIN_C="$WINEPREFIX/drive_c"
+            export WIN_D="$WINEPREFIX/drive_d"
+            
+            echo -e "WINE prefix '$WINEPREFIX' activated.\n"
+        fi
     fi
 }
 
@@ -269,6 +240,60 @@ load_wine()
 }
 
 
+prefix_arch()
+{
+	PREFIX="$1"
+
+	is_wine_prefix "$PREFIX"
+
+	if ! [[ "$?" == "0" ]];
+	then
+        abort "Can't check the architecture of the invalid prefix '$PREFIX'."
+	fi
+
+	if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+    then
+        export WINEARCH="win64"
+    else
+        export WINEARCH="win32"
+    fi
+}
+
+
+set_default_win32_prefix()
+{
+	PREFIX="$1"
+
+	is_wine_prefix "$PREFIX"
+
+	if ! [[ "$?" == "0" ]];
+	then
+	    abort "Invalid prefix '$PREFIX'."
+	fi
+
+	ln -sf "$PREFIX" "$HOME/.wine"
+
+	echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
+}
+
+
+set_default_win64_prefix()
+{
+	PREFIX="$1"
+
+	is_wine_prefix "$PREFIX"
+
+	if ! [[ "$?" == "0" ]];
+	then
+	    abort "Invalid prefix '$PREFIX'."
+	fi
+
+	ln -sf "$PREFIX" "$HOME/.wine64"
+
+	echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
+}
+
+
 set_default_wine()
 {
     WINE_PATH="$1"
@@ -314,19 +339,16 @@ setup_prefix()
 
     echo "$WINEARCH" > "$WINEPREFIX/.arch"
 
-    install_prefix_activator
-    install_prefix_defaulter
-
     cp -u "$WINE_PATH/for_prefixes/enable_dx11_support.sh" "$WINEPREFIX/"
     cp -u "$WINE_PATH/for_prefixes/enable_dx12_support.sh" "$WINEPREFIX/"
 
     if [[ "$WINEARCH" == "win32" ]] && ! [[ -d "$HOME/.wine" ]];
     then
-        "$WINEPREFIX/make_default"
+        set_default_win32_prefix "$WINEPREFIX"
         
     elif [[ "$WINEARCH" == "win64" ]] && ! [[ -d "$HOME/.wine64" ]];
     then
-        "$WINEPREFIX/make_default"
+        set_default_win64_prefix "$WINEPREFIX"
     fi
 }
 
@@ -339,6 +361,9 @@ usage()
     echo -e "wine.sh --set_default <WINE installation>"
     echo -e ": Set this WINE installation as the default one."
     echo -e "  This is required by 'setup_prefix' to preload it."
+    echo -e ""
+    echo -e "wine.sh --set_default_win32_prefix <prefix name>"
+    echo -e "wine.sh --set_default_win64_prefix <prefix name>"
     echo -e ""
 	echo -e "wine.sh --setup_prefix <prefix name> [win32|win64]"
 	echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
@@ -387,6 +412,14 @@ then
             set_default_wine "$WINE_PATH"
         fi
     fi
+
+elif [[ "$1" == "--set_default_win32_prefix" ]];
+then
+    echo "TODO"
+
+elif [[ "$1" == "--set_default_win64_prefix" ]];
+then
+    echo "TODO"
     
 elif [[ "$1" == "--setup_prefix" ]];
 then
