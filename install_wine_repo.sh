@@ -2,7 +2,6 @@
 
 #############################################################################
 # Downloads WINE GPG key and install it along with the WINE repo source.
-# Also enables the 'contrib' repository, needed to download Winetricks
 #############################################################################
 
 
@@ -51,56 +50,26 @@ if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
    ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
 then
     echo ""
-    echo "Enabling i386 repository if not available yet ..."
+    echo "-e Enabling i386 repository if not available yet ...\n"
 
     sudo dpkg --add-architecture i386
 
-    SOURCES_LIST="/etc/apt/sources.list"
+    sudo apt update
 
-
-    if [[ "$OS_NAME" == "debian" ]];
+    if [[ "$(which wget)" == "" ]];
     then
-        echo ""
-        echo "Checking if 'contrib' repository is already enabled ..."
+        echo -e "\nInstalling wget ..."
+        echo -e "---------------------"
+        
+        sudo apt install -y wget
 
-        if [[ -f "$SOURCES_LIST" ]]; 
+        if ! [[ "$?" == "0" ]];
         then
-            cat "$SOURCES_LIST" | grep -q " contrib"
-
-            if [[ "$?" == "0" ]]; 
-            then
-                echo "All OK. Nothing to do here."
-                echo ""
-
-            else
-                if [[ "$(which apt-add-repository)" == "" ]]; 
-                then
-                    echo ""
-                    echo "Installing software-properties-common first ..."
-                    echo "----------------------------------------------"
-
-                    sudo apt update
-                    sudo apt install software-properties-common -y
-
-                    if ! [[ "$?" == "0" ]]; 
-                    then
-                        abort "Failed. Maybe there is something wrong with APT."
-                    fi
-                fi
-
-                echo ""
-                echo "Enabling 'contrib' repository ..."
-                echo "---------------------------------"
-
-                sudo apt-add-repository contrib -y
-
-                if ! [[ "$?" == "0" ]]; 
-                then
-                    abort "Failed. No 'contrib' repo in this distro?"
-                fi
-            fi
+            abort "Failed!"
         fi
     fi
+
+    SOURCES_LIST="/etc/apt/sources.list"
     
 
     echo ""

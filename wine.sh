@@ -93,6 +93,67 @@ is_wine_prefix()
 }
 
 
+download_wine()
+{
+    WINE_BRANCH="$1"
+    WINE_VERSION="$2"
+
+    if ! [[ "$WINE_BRANCH" == "stable" ]] && 
+       ! [[ "$WINE_BRANCH" == "staging"]];
+    then
+        abort "WINE branch must be 'stable' or 'staging'."
+    fi
+
+    WINE_BRANCH="($WINE_BRANCH)"
+    WINE_VERSION="$(WINE_VERSION)"
+    
+	WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
+	LATEST_DEBIAN="trixie"
+
+	WINE_BASE="wine-${WINE_BRANCH}"
+    WINE_BASE+="_${WINE_VERSION}"
+    WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
+
+    WINE_i386="wine-${WINE_BRANCH}-i386"
+    WINE_i386+="_${WINE_VERSION}"
+    WINE_i386+="~${LATEST_DEBIAN}-1_i386.deb"
+
+    BASE_URL="$WINE_URL"
+    
+    if [[ "$WINE_BRANCH" == "staging" ]];
+    then
+        BASE_URL+="/wine-staging"
+    else
+        BASE_URL+="/wine"
+    fi
+
+    echo ""
+    echo "Downloading WINE (32 bit) $WINE_BRANCH $WINE_VERSION ..."
+    echo "-------------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_BASE"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed downloading base WINE package."
+    fi
+
+    echo ""
+    echo "Downloading WINE (64 bit) $WINE_BRANCH $WINE_VERSION ..."
+    echo "-------------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_i386"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed downloading arch-specific WINE package."
+    fi
+
+    mkdir -p /tmp/wine-tmp
+    mv wine-*.deb /tmp/wine-tmp/
+}
+
+
 filext()
 {
     FULL_PATH=$1
@@ -455,7 +516,17 @@ then
 
 elif [[ "$1" == "--download" ]];
 then
-    echo "TODO"
+    if ! [[ "$2" == "" ]];
+    then
+        WINE_BRANCH="$2"
+
+        if ! [[ "$3" == "" ]];
+        then
+            WINE_VERSION="3"
+        fi
+    fi
+
+    download_wine $WINE_BRANCH $WINE_VERSION
 
 elif [[ "$1" == "--autoload" ]];
 then
