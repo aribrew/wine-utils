@@ -59,6 +59,17 @@ exec_type()
 }
 
 
+filext()
+{
+    FULL_PATH=$1
+
+    FILE_NAME=$(basename "$FULL_PATH")
+    FILE_EXTENSION=${FILE_NAME##*.}
+
+    echo .$FILE_EXTENSION
+}
+
+
 is_wine_installation()
 {
 	WINE_PATH="$1"
@@ -98,15 +109,22 @@ download_wine()
     WINE_BRANCH="$1"
     WINE_VERSION="$2"
 
+    if [[ "$WINE_BRANCH" == "" ]];
+    then
+        WINE_BRANCH="stable"
+    fi
+
+    if [[ "$WINE_VERSION" == "" ]];
+    then
+        WINE_VERSION="10.0.0.0"
+    fi
+
     if ! [[ "$WINE_BRANCH" == "stable" ]] && 
-       ! [[ "$WINE_BRANCH" == "staging"]];
+       ! [[ "$WINE_BRANCH" == "staging" ]];
     then
         abort "WINE branch must be 'stable' or 'staging'."
     fi
 
-    WINE_BRANCH="($WINE_BRANCH)"
-    WINE_VERSION="$(WINE_VERSION)"
-    
 	WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
 	LATEST_DEBIAN="trixie"
 
@@ -128,7 +146,7 @@ download_wine()
     fi
 
     echo ""
-    echo "Downloading WINE (32 bit) $WINE_BRANCH $WINE_VERSION ..."
+    echo "Downloading WINE (32 bit) ()$WINE_BRANCH) ($WINE_VERSION) ..."
     echo "-------------------------------------------------------------"
 
     curl -LO "$BASE_URL/$WINE_BASE"
@@ -149,19 +167,67 @@ download_wine()
         abort "Failed downloading arch-specific WINE package."
     fi
 
-    mkdir -p /tmp/wine-tmp
-    mv wine-*.deb /tmp/wine-tmp/
+    if [[ -d "/tmp/wine" ]];
+    then
+        rm -r /tmp/wine
+    fi
+    
+    mkdir -p /tmp/wine
+    mv wine-*.deb /tmp/wine/
 }
 
 
-filext()
+install_wine()
 {
-    FULL_PATH=$1
+    PACKAGE="$1"
+    INSTALL_PATH="$2"
 
-    FILE_NAME=$(basename "$FULL_PATH")
-    FILE_EXTENSION=${FILE_NAME##*.}
+    PACKAGE_NAME=$(basename "$PACKAGE")
+    
+    WINE_VERSION=$(echo "$PACKAGE_NAME" | grep -oP '\d+(?:\.\d+)+')
+    WINE_FOLDER="wine-$WINE_VERSION"
+    WINE_TMP="wine-tmp"
 
-    echo .$FILE_EXTENSION
+    if ! [[ -d "$INSTALL_PATH/$WINE_FOLDER" ]];
+    then
+        mkdir -p "$INSTALL_PATH/$WINE_FOLDER"
+    fi
+
+    mkdir -p "$WINE_TMP/wine_package"
+
+    echo -e "Extracting '$PACKAGE_NAME' to '$INSTALL_PATH'..."
+    echo -e "------------------------------------------------"
+
+    ar x "$PACKAGE" --output "$WINE_TMP"
+
+    if [[ "$?" == "0" ]];
+    then
+        tar xf "$WINE_TMP/data.tar.xz" -C "$WINE_TMP/wine_package"
+
+        if [[ "$?" == "0" ]];
+        then
+            if [[ -d "$WINE_TMP/opt" ]];
+            then
+                mv "$WINE_TMP/opt" "$INSTALL_PATH/$WINE_FOLDER/"
+            fi
+
+            if [[ -d "$WINE_TMP/usr" ]];
+            then
+                mv "$WINE_TMP/usr" "$INSTALL_PATH/$WINE_FOLDER/"
+            fi
+            
+            rm -r "$WINE_TMP"
+
+            is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
+
+            if [[ "$?" == "0" ]];
+            then
+                echo -e "All done.\n"
+            else
+                abort "Something failed. Cannot validate WINE installation."
+            fi
+        fi
+    fi
 }
 
 
@@ -522,11 +588,27 @@ then
 
         if ! [[ "$3" == "" ]];
         then
-            WINE_VERSION="3"
+            WINE_VERSION="$3"
         fi
     fi
 
     download_wine $WINE_BRANCH $WINE_VERSION
+
+elif [[ "$1" == "--install" ]];
+then
+    if ! [[ "$2" == "" ]];
+    then
+        WINE_PACKAGE="$2"
+
+        if [[ "$3" == "" ]];
+        then
+            WINE_INSTALL_PATH="$HOME/.local/bin/wine"
+        else
+            WINE_INSTALL_PATH="$3"
+        fi
+
+        install_wine "$WINE_PACKAGE" "$WINE_INSTALL_PATH"
+    fi
 
 elif [[ "$1" == "--autoload" ]];
 then
