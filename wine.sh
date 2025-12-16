@@ -255,6 +255,10 @@ install_wine()
 
     for p in $(ls "$WINE_PACKAGES_PATH/wine-"*.deb)
     do
+        PACKAGE_FILENAME=$(basename "$p")
+        
+        echo " - Processing $PACKAGE_FILENAME ..."
+        
         mkdir -p "$WINE_TMP/ar"
         
         ar x "$p" --output "$WINE_TMP/ar"
@@ -566,7 +570,7 @@ usage()
 	echo -e "  Loads the given prefix in the current environment."
 	echo -e ""
 	echo -e "wine.sh --download [branch] [version]"
-	echo -e ": Downloads WINE to ~/.local/bin/wine folder."
+	echo -e ": Downloads WINE to /tmp/wine folder."
 	echo -e "  Default branch and version: stable 10.0.0.0"
 	echo -e ""
 	echo -e "wine.sh --install <WINE package> [install dir]"
