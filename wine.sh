@@ -20,6 +20,29 @@ abort()
 }
 
 
+ask_yn()
+{
+    QUESTION=$1
+
+    if ! [[ "$QUESTION" == "" ]];
+    then
+        read -p "$QUESTION (Y/n): " answer
+
+        if [[ "$answer" == "Y" ]] || [[ "$answer" == "S" ]];
+        then
+            return 0
+            
+        elif [[ "$answer" == "n" ]];
+        then
+            return 1
+            
+        else
+            return -1
+        fi
+    fi
+}
+
+
 exec_type()
 {
     EXEC=$1
@@ -136,6 +159,10 @@ download_wine()
     WINE_i386+="_${WINE_VERSION}"
     WINE_i386+="~${LATEST_DEBIAN}-1_i386.deb"
 
+    WINE_amd64="wine-${WINE_BRANCH}-amd64"
+    WINE_amd64+="_${WINE_VERSION}"
+    WINE_amd64+="~${LATEST_DEBIAN}-1_amd64.deb"
+
     BASE_URL="$WINE_URL"
     
     if [[ "$WINE_BRANCH" == "staging" ]];
@@ -146,25 +173,36 @@ download_wine()
     fi
 
     echo ""
-    echo "Downloading WINE (32 bit) ()$WINE_BRANCH) ($WINE_VERSION) ..."
-    echo "-------------------------------------------------------------"
+    echo "Downloading WINE (Base) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "----------------------------------------------------------"
 
     curl -LO "$BASE_URL/$WINE_BASE"
 
     if ! [[ "$?" == "0" ]];
     then
-        abort "Failed downloading base WINE package."
+        abort "Failed."
     fi
 
     echo ""
-    echo "Downloading WINE (64 bit) $WINE_BRANCH $WINE_VERSION ..."
-    echo "-------------------------------------------------------------"
+    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "------------------------------------------------------------"
 
     curl -LO "$BASE_URL/$WINE_i386"
 
     if ! [[ "$?" == "0" ]];
     then
-        abort "Failed downloading arch-specific WINE package."
+        abort "Failed."
+    fi
+
+    echo ""
+    echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "------------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_amd64"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed."
     fi
 
     if [[ -d "/tmp/wine" ]];
@@ -185,48 +223,71 @@ install_wine()
     PACKAGE_NAME=$(basename "$PACKAGE")
     
     WINE_VERSION=$(echo "$PACKAGE_NAME" | grep -oP '\d+(?:\.\d+)+')
+    WINE_PACKAGES_PATH=$(dirname "$PACKAGE")
     WINE_FOLDER="wine-$WINE_VERSION"
     WINE_TMP="wine-tmp"
+
+    is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
+    
+    if [[ "$?" == "0" ]];
+    then
+        echo -n "A existing WINE installation was found in "
+        echo -ne "'$INSTALL_PATH/$WINE_FOLDER'.\n"
+
+        ask_yn "Overwrite it?"
+
+        if [[ "$?" == "1" ]] || [[ "$?" == "-1" ]];
+        then
+            abort "Aborted."
+        fi
+    fi
 
     if ! [[ -d "$INSTALL_PATH/$WINE_FOLDER" ]];
     then
         mkdir -p "$INSTALL_PATH/$WINE_FOLDER"
     fi
 
-    mkdir -p "$WINE_TMP/wine_package"
+    mkdir -p "$WINE_TMP/wine"
 
-    echo -e "Extracting '$PACKAGE_NAME' to '$INSTALL_PATH'..."
-    echo -e "------------------------------------------------"
+    echo -e ""
+    echo -e "Extracting WINE packages to '$INSTALL_PATH'..."
+    echo -e "----------------------------------------------"
 
-    ar x "$PACKAGE" --output "$WINE_TMP"
+    for p in $(ls "$WINE_PACKAGES_PATH/wine-"*.deb)
+    do
+        mkdir -p "$WINE_TMP/ar"
+        
+        ar x "$p" --output "$WINE_TMP/ar"
+    
+	    if [[ "$?" == "0" ]];
+	    then
+	        tar xf "$WINE_TMP/ar/data.tar.xz" -C "$WINE_TMP/wine"
 
+	        if [[ "$?" == "0" ]];
+	        then
+	            if [[ -d "$WINE_TMP/wine/opt" ]];
+	            then
+	                cp -ru "$WINE_TMP/wine/opt" "$INSTALL_PATH/$WINE_FOLDER/"
+	            fi
+
+	            if [[ -d "$WINE_TMP/wine/usr" ]];
+	            then
+	                cp -ru "$WINE_TMP/wine/usr" "$INSTALL_PATH/$WINE_FOLDER/"
+	            fi
+	            
+	            rm -r "$WINE_TMP/ar"
+	        fi
+	    fi
+	done
+
+	is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
+	
     if [[ "$?" == "0" ]];
     then
-        tar xf "$WINE_TMP/data.tar.xz" -C "$WINE_TMP/wine_package"
-
-        if [[ "$?" == "0" ]];
-        then
-            if [[ -d "$WINE_TMP/opt" ]];
-            then
-                mv "$WINE_TMP/opt" "$INSTALL_PATH/$WINE_FOLDER/"
-            fi
-
-            if [[ -d "$WINE_TMP/usr" ]];
-            then
-                mv "$WINE_TMP/usr" "$INSTALL_PATH/$WINE_FOLDER/"
-            fi
-            
-            rm -r "$WINE_TMP"
-
-            is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
-
-            if [[ "$?" == "0" ]];
-            then
-                echo -e "All done.\n"
-            else
-                abort "Something failed. Cannot validate WINE installation."
-            fi
-        fi
+        echo -e "All done.\n"
+        rm -r "$WINE_TMP"
+    else
+        abort "Something failed. Cannot validate WINE installation."
     fi
 }
 
@@ -507,6 +568,11 @@ usage()
 	echo -e "wine.sh --download [branch] [version]"
 	echo -e ": Downloads WINE to ~/.local/bin/wine folder."
 	echo -e "  Default branch and version: stable 10.0.0.0"
+	echo -e ""
+	echo -e "wine.sh --install <WINE package> [install dir]"
+	echo -e ": Installs a downloaded WINE version."
+	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
+	echo -e "  WINE package can be any of the two that gets downloaded."
 	echo -e ""
 	echo -e "wine.sh --autoload <WINE installation>"
 	echo -e "wine.sh --autoload_prefix <prefix name>"
