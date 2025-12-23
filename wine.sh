@@ -331,34 +331,6 @@ load_prefix()
 }
 
 
-load_required_prefix()
-{
-    EXEC_TYPE="$1"
-
-    if [[ "$EXEC_TYPE" == "windows-i386" ]];
-    then
-        if [[ -d "$HOME/.wine" ]];
-        then
-            source "$HOME/.wine/activate"
-        else
-            abort "No default 32 bit prefix found."
-        fi
-        
-    elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
-    then
-        if [[ -d "$HOME/.wine64" ]];
-        then
-            source "$HOME/.wine64/activate"
-        else
-            abort "No default 64 bit prefix found."
-        fi
-        
-    else
-        abort "The specified executable isn't a Windows one."
-    fi
-}
-
-
 load_wine()
 {
     WINE_PATH="$1"
@@ -694,21 +666,52 @@ fi
 
 export WINE_PATH=$(realpath $(dirname "$0"))
 
+is_wine_installation "$WINE_PATH"
 
-if ! [[ "$WINESERVER" == "" ]];
+if ! [[ "$?" == "0" ]];
 then
-    export WINE_BINARIES=$(dirname "$WINESERVER")
-    
-    if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
-    then
-        EXEC=$(realpath "$1")
-        EXEC_FILENAME=$(basename "$EXEC")
-        EXEC_FILENAME_WITHOUT_EXT=$(basename $(filext "$EXEC_FILENAME"))
-    
-        EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
+    echo "If running without params, the script must be inside a valid"
+    echo "WINE installation, because it will be used for executing"
+    echo "Windows programs directly."
 
+    abort
+fi
+
+
+if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    EXEC=$(realpath "$1")
+    EXEC_FILENAME=$(basename "$EXEC")
+    EXEC_FILENAME_WITHOUT_EXT=$(basename $(filext "$EXEC_FILENAME"))
+    EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
+
+    ARGS=${@:2}
+
+    if [[ -f "$EXEC_WINECFG" ]];
+    then
+        source "$EXEC_WINECFG"
+    fi
+
+    if ! [[ "$WINEPREFIX" == "" ]];
+    then
+        load_prefix "$WINEPREFIX"
+    else
         EXEC_TYPE=$(exec_type "$EXEC")
 
-        load_prefix $EXEC_TYPE
+        if [[ "$EXEC_TYPE" == "windows-i386" ]];
+        then
+            PREFIX="$HOME/.wine"
+           
+        elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
+        then
+            PREFIX="$HOME/.wine64"
+        fi
+
+        load_prefix "$PREFIX"
     fi
+
+    load_wine "$WINE_PATH"
+    
+    wine "$EXEC" "$ARGS"
 fi
+
