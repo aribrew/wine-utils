@@ -99,25 +99,25 @@ is_wine_installation()
 
 	if [[ -d "$WINE_PATH" ]];
 	then
-	    WINESERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
+	    WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
 
-	    if [[ "$WINESERVER" == "" ]];
+	    if ! [[ "$WINE_SERVER" == "" ]];
 	    then
-	        return 1
+	        return 0
 	    fi
-
-	    return 0
 	fi
+
+	return 1
 }
 
 
 is_wine_prefix()
 {
-	if [[ -d "$1" ]];
+    PREFIX="$1"
+    
+	if [[ -d "$PREFIX" ]];
 	then
-	    WINEPREFIX="$1"
-	    
-        if [[ -d "$WINEPREFIX/dosdevices" ]];
+        if [[ -d "$PREFIX/dosdevices" ]];
         then
             return 0
         fi
@@ -219,6 +219,22 @@ install_wine()
 {
     PACKAGE="$1"
     INSTALL_PATH="$2"
+
+    if [[ -d "$PACKAGE" ]];
+    then
+        ITEMS=$(ls "$PACKAGE"/*.deb)
+        ITEMS=$(echo "$ITEMS" | grep -m 1 "wine")
+
+        if [[ "$ITEMS" == "" ]];
+        then
+            echo -e "Given a path instead of a WINE package, but this place"
+            echo -e "does not contain wine packages.\n"
+
+            abort "Aborting installation."
+        fi
+
+        PACKAGE="$ITEMS"
+    fi
 
     PACKAGE_NAME=$(basename "$PACKAGE")
     
