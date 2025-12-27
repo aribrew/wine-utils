@@ -312,6 +312,127 @@ install_wine()
 }
 
 
+install_wine_deps()
+{
+    if [ -f "/usr/local/share/.wine32_deps_installed" ] &&
+       [ -f "/usr/local/share/.wine64_deps_installed" ];
+    then
+        echo -e "\nDependencies for WINE (32 and 64 bits) already installed.\n"
+    else
+        echo -e "Now WINE will be installed for easy dependency installation."
+        echo -e "After complete, WINE packages will be removed."
+        echo -e "================================================="
+        
+        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
+
+	    if ! [[ "$(which apt)" == "" ]];
+	    then
+	        if [[ "$OS_NAME" == "debian" ]] && 
+	         ! [[ "/etc/apt/keyrings/winehq-archive.key" ]];
+	        then
+	            install_wine_repo
+	        
+	            if ! [[ "$?" == "0" ]];
+	            then
+	                abort "Failed installing WINE repository. Cannot continue."
+	            fi
+
+	            if [[ "$OS_NAME" == "debian" ]];
+                then
+                    sudo apt install --install-recommends -y $PACKAGES
+                fi
+	        fi
+	    fi
+	fi
+}
+
+
+install_wine_repo()
+{
+	OS_NAME=$(os_name)
+	OS_VERSION=$(os_version)
+
+	APT_SOURCES_DIR="/etc/apt/sources.list.d"
+	APT_KEYRINGS_DIR="/etc/apt/keyrings"
+	
+	WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
+	WINE_APT_URL+="/dists/${OS_VERSION}"
+	WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
+	
+	WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
+	
+	if ! [[ "$(which apt)" == "" ]];
+	then
+		if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
+		then
+		    sudo mkdir -p "$APT_KEYRINGS_DIR"
+		fi
+
+		if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
+		   ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
+		then
+		    echo ""
+		    echo "-e Enabling i386 repository if not available yet ...\n"
+		
+		    sudo dpkg --add-architecture i386
+		
+		    sudo apt update
+		
+		    if [[ "$(which wget)" == "" ]];
+		    then
+		        echo -e "\nInstalling wget ..."
+		        echo -e "---------------------"
+		        
+		        sudo apt install -y wget
+		
+		        if ! [[ "$?" == "0" ]];
+		        then
+		            abort "Failed!"
+		        fi
+		    fi
+		
+		    SOURCES_LIST="/etc/apt/sources.list"
+		    
+		
+		    echo ""
+		    echo "Downloading WINE GPG key and sources.list for APT..."
+		    echo "----------------------------------------------------"
+		    echo ""
+		
+		    wget -N $WINE_GPG_URL
+		
+		    if ! [[ "$?" == "0" ]]; 
+		    then
+		        abort "Failed downloading GPG key."
+		    fi
+		
+		
+		    wget -N $WINE_APT_URL
+		
+		    if ! [[ "$?" == "0" ]]; 
+		    then
+		        abort "Failed downloading APT sources list."
+		    fi
+		
+		
+		    sudo mv winehq.key "$APT_KEYRINGS_DIR/winehq-archive.key"
+		    sudo mv winehq-${OS_VERSION}.sources "$APT_SOURCES_DIR/"
+		
+		
+		    echo "Refreshing APT database ..."
+		    echo ""
+		
+		    sudo apt update
+		
+		    if ! [[ "$?" == "0" ]]; 
+		    then
+		        abort "Something is wrong :S"
+		    fi
+		fi
+	fi
+}
+
+
 load_prefix()
 {
     if [[ -d "$1" ]];
@@ -417,6 +538,26 @@ load_wine()
     echo "- wineboot: Performs a 'reboot' of the loaded prefix."
     echo "- explorer, reg, regedit: Launch these Windows programs." 
     echo ""
+}
+
+
+os_name()
+{
+    echo "$(cat /etc/os-release | grep '^ID=' | cut -d '=' -f 2)"
+}
+
+
+os_version()
+{
+    if [[ "$(os_name)" == "manjaro" ]];
+    then
+        echo "rolling"
+    else
+        OS_INFO=$(cat /etc/os-release)
+        OS_VERSION=$(echo "$OS_INFO" | grep '^VERSION_CODENAME=')
+        
+        echo "$OS_VERSION" | cut -d '=' -f 2 
+    fi
 }
 
 
@@ -537,6 +678,12 @@ usage()
 {
 	echo -e "wine.sh <executable> [args]"
 	echo -e ": Executes a program with the default prefix."
+	echo -e ""
+	echo -e "  If a file {executable}_winecfg is found, and contains"
+	echo -e "  variables such as WINEPREFIX, this configuration will be"
+	echo -e "  used instead the default one."
+	echo -e ""
+	echo -e "  Same if you export a WINEPREFIX variable manually."
 	echo -e ""
     echo -e "wine.sh --set_default <WINE installation>"
     echo -e ": Set this WINE installation as the default one."
