@@ -592,9 +592,13 @@ set_default_win32_prefix()
 	    abort "Invalid prefix '$PREFIX'."
 	fi
 
-	ln -sf "$PREFIX" "$HOME/.wine"
-
-	echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
+    if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
+    then
+        echo -e "Not a 32 bit prefix.\n"
+    else
+	    ln -sf "$PREFIX" "$HOME/.wine"
+	    echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
+	fi
 }
 
 
@@ -609,9 +613,13 @@ set_default_win64_prefix()
 	    abort "Invalid prefix '$PREFIX'."
 	fi
 
-	ln -sf "$PREFIX" "$HOME/.wine64"
-
-	echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
+	if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
+	then
+    	ln -sf "$PREFIX" "$HOME/.wine64"
+    	echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
+	else
+        echo -e "Not a 64 bit prefix.\n"
+	fi
 }
 
 
@@ -631,6 +639,13 @@ setup_prefix()
 {
     export WINEPREFIX="$1"
     export WINEARCH="$2"
+
+    PREFIX_PATH=$(dirname "$WINEPREFIX")
+    
+    if ! [[ -d "$PREFIX_PATH" ]];
+    then
+        make -p "$PREFIX_PATH"
+    fi
 
     if ! [[ -v WINELOADER ]];
     then
@@ -747,15 +762,41 @@ then
 
 elif [[ "$1" == "--set_default_win32_prefix" ]];
 then
-    echo "TODO"
-
+    if ! [[ "$2" == "" ]]
+    then
+        set_default_win32_prefix "$2"
+    fi
+    
 elif [[ "$1" == "--set_default_win64_prefix" ]];
 then
-    echo "TODO"
+    if ! [[ "$2" == "" ]]
+    then
+        set_default_win64_prefix "$2"
+    fi
     
 elif [[ "$1" == "--setup_prefix" ]];
 then
-    echo "TODO"    
+    if ! [[ "$2" == "" ]];
+    then
+        if [[ "$2" == "win32" ]];
+        then
+            setup_prefix "$HOME/.local/share/wineprefixes/.wine" win32
+            
+        elif [[ "$2" == "win64" ]];
+        then
+            setup_prefix "$HOME/.local/share/wineprefixes/.wine64" win64
+        else
+            if [[ "$3" == "win32" ]] || [[ "$3" == "win64" ]];
+            then
+                if [[ "$2" =~ "/" ]];
+                then
+                    setup_prefix "$2" $3
+                else
+                    setup_prefix "$HOME/.local/share/wineprefixes/$2" $3
+                fi
+            fi
+        fi
+    fi
 
 elif [[ "$1" == "--load" ]];
 then
