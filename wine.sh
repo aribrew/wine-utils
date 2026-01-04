@@ -93,6 +93,16 @@ filext()
 }
 
 
+find_wine_installations()
+{
+	SEARCH_PATH="$1"
+
+	WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
+
+	echo "$WINE_SERVERS"
+}
+
+
 is_wine_installation()
 {
 	WINE_PATH="$1"
@@ -211,6 +221,7 @@ download_wine()
     fi
     
     mkdir -p /tmp/wine
+    
     mv wine-*.deb /tmp/wine/
 }
 
@@ -219,6 +230,16 @@ install_wine()
 {
     PACKAGE="$1"
     INSTALL_PATH="$2"
+
+    if [[ "$INSTALL_PATH" == "" ]];
+    then
+        if [[ -v WINE_ENV ]];
+        then
+            INSTALL_PATH="$WINE_ENV"
+        else
+            INSTALL_PATH="$HOME/.local/bin/wine"
+        fi
+    fi
 
     if [[ -d "$PACKAGE" ]];
     then
@@ -304,7 +325,11 @@ install_wine()
 	
     if [[ "$?" == "0" ]];
     then
+        echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
+        echo "$WINE_BRANCH" > "$INSTALL_PATH/$WINE_FOLDER/.wine_branch"
+        
         echo -e "All done.\n"
+
         rm -r "$WINE_TMP"
     else
         abort "Something failed. Cannot validate WINE installation."
@@ -728,9 +753,6 @@ usage()
 	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
 	echo -e "  WINE package can be any of the two that gets downloaded."
 	echo -e ""
-	echo -e "wine.sh --autoload <WINE installation>"
-	echo -e "wine.sh --autoload_prefix <prefix name>"
-	echo -e ""
 }
 
 
@@ -760,12 +782,16 @@ then
         fi
     fi
 
+    exit $?
+
 elif [[ "$1" == "--set_default_win32_prefix" ]];
 then
     if ! [[ "$2" == "" ]]
     then
         set_default_win32_prefix "$2"
     fi
+
+    exit $?
     
 elif [[ "$1" == "--set_default_win64_prefix" ]];
 then
@@ -773,6 +799,8 @@ then
     then
         set_default_win64_prefix "$2"
     fi
+
+    exit $?
     
 elif [[ "$1" == "--setup_prefix" ]];
 then
@@ -798,6 +826,8 @@ then
         fi
     fi
 
+    exit $?
+
 elif [[ "$1" == "--load" ]];
 then
     if ! [[ "$2" == "" ]];
@@ -811,6 +841,8 @@ then
             load_wine "$WINE_PATH"
         fi
     fi
+
+    exit $?
     
 elif [[ "$1" == "--load_prefix" ]];
 then
@@ -826,6 +858,8 @@ then
         fi
     fi
 
+    exit $?
+
 elif [[ "$1" == "--download" ]];
 then
     if ! [[ "$2" == "" ]];
@@ -839,6 +873,8 @@ then
     fi
 
     download_wine $WINE_BRANCH $WINE_VERSION
+
+    exit $?
 
 elif [[ "$1" == "--install" ]];
 then
@@ -856,17 +892,29 @@ then
         install_wine "$WINE_PACKAGE" "$WINE_INSTALL_PATH"
     fi
 
-elif [[ "$1" == "--autoload" ]];
-then
-    echo "TODO"
-
-elif [[ "$1" == "--autoload_prefix" ]];
-then
-    echo "TODO"
-else
-    echo "TODO"
+    exit $?
 fi
 
+
+if ! [[ -v WINE_PATH ]];
+then
+    SCRIPT_PATH=$(realpath $(dirname "$0"))
+
+    is_wine_installation "$SCRIPT_PATH"
+
+    if [[ "$?" == "0" ]];
+    then
+        export WINE_PATH="$SCRIPT_PATH"
+
+        echo -e "The script is being executed inside a WINE installation.\n"
+        
+        echo -e "Due WINE_PATH wasn't previously set, the script will use"
+        echo -e "the current path as the default WINE installation."
+    else
+        #if [[ -d "$HOME/.local/bin/wine" ]]
+        echo "TODO"
+    fi
+fi
 
 export WINE_PATH=$(realpath $(dirname "$0"))
 
@@ -896,10 +944,8 @@ then
         source "$EXEC_WINECFG"
     fi
 
-    if ! [[ "$WINEPREFIX" == "" ]];
+    if ! [[ -v WINEPREFIX ]];
     then
-        load_prefix "$WINEPREFIX"
-    else
         EXEC_TYPE=$(exec_type "$EXEC")
 
         if [[ "$EXEC_TYPE" == "windows-i386" ]];
@@ -914,7 +960,10 @@ then
         load_prefix "$PREFIX"
     fi
 
-    load_wine "$WINE_PATH"
+    if ! [[ -v WINELOADER ]];
+    then
+        load_wine "$WINE_PATH"
+    fi
     
     wine "$EXEC" "$ARGS"
 fi
