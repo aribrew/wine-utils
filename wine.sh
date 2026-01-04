@@ -226,7 +226,7 @@ download_wine()
 }
 
 
-install_wine()
+extract_wine()
 {
     PACKAGE="$1"
     INSTALL_PATH="$2"
@@ -748,10 +748,9 @@ usage()
 	echo -e ": Downloads WINE to /tmp/wine folder."
 	echo -e "  Default branch and version: stable 10.0.0.0"
 	echo -e ""
-	echo -e "wine.sh --install <WINE package> [install dir]"
+	echo -e "wine.sh --install <WINE path> [install dir]"
 	echo -e ": Installs a downloaded WINE version."
 	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
-	echo -e "  WINE package can be any of the two that gets downloaded."
 	echo -e ""
 }
 
@@ -808,11 +807,11 @@ then
     then
         if [[ "$2" == "win32" ]];
         then
-            setup_prefix "$HOME/.local/share/wineprefixes/.wine" win32
+            setup_prefix "$WINE_PREFIXES/.wine" win32
             
         elif [[ "$2" == "win64" ]];
         then
-            setup_prefix "$HOME/.local/share/wineprefixes/.wine64" win64
+            setup_prefix "$WINE_PREFIXES/.wine64" win64
         else
             if [[ "$3" == "win32" ]] || [[ "$3" == "win64" ]];
             then
@@ -820,7 +819,7 @@ then
                 then
                     setup_prefix "$2" $3
                 else
-                    setup_prefix "$HOME/.local/share/wineprefixes/$2" $3
+                    setup_prefix "$WINE_PREFIXES/$2" $3
                 fi
             fi
         fi
@@ -874,13 +873,18 @@ then
 
     download_wine $WINE_BRANCH $WINE_VERSION
 
+    if [[ -d "/tmp/wine" ]];
+    then
+        extract_wine "/tmp/wine" "/tmp/wine"
+    fi
+
     exit $?
 
 elif [[ "$1" == "--install" ]];
 then
     if ! [[ "$2" == "" ]];
     then
-        WINE_PACKAGE="$2"
+        WINE_INSTALLATION="$2"
 
         if [[ "$3" == "" ]];
         then
@@ -889,7 +893,7 @@ then
             WINE_INSTALL_PATH="$3"
         fi
 
-        install_wine "$WINE_PACKAGE" "$WINE_INSTALL_PATH"
+        mv "$WINE_INSTALLATION" "$WINE_INSTALL_PATH"
     fi
 
     exit $?
@@ -911,8 +915,10 @@ then
         echo -e "Due WINE_PATH wasn't previously set, the script will use"
         echo -e "the current path as the default WINE installation."
     else
-        #if [[ -d "$HOME/.local/bin/wine" ]]
-        echo "TODO"
+        if [[ -d "$HOME/.local/bin/wine" ]];
+        then
+            find_wine_installations "$HOME/.local/bin/wine"
+        fi
     fi
 fi
 
