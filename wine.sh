@@ -371,6 +371,34 @@ extract_wine()
 }
 
 
+install_script()
+{
+    local SCRIPT=$(realpath "$0")
+    local SCRIPT_FILE=$(basename "$SCRIPT")
+    
+    local INSTALL_PATH="$HOME/.local/bin"
+    
+	if ! [[ -d "$INSTALL_PATH" ]];
+	then
+        mkdir -p "$INSTALL_PATH"
+	fi
+
+	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
+	then
+	    are_same "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
+	
+	    if [[ "$?" == "1" ]];
+	    then
+	        cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+	        echo -e "Your wine.sh has been updated.\n"
+	    fi
+	else
+	    cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+	    echo -e "Wine.sh has been installed in ~/.local/bin.\n"
+	fi
+}
+
+
 install_wine_deps()
 {
     if [[ -f "/usr/local/share/.wine_deps_installed" ]];
@@ -848,22 +876,7 @@ then
 fi
 
 
-INSTALLED_SCRIPT="$HOME/.local/bin/wine.sh"
-THIS_SCRIPT=$(realpath "$0")
-
-mkdir -p $(dirname "$INSTALLED_SCRIPT")
-
-if [[ -f "$INSTALLED_SCRIPT" ]];
-then
-    are_same "$INSTALLED_SCRIPT" "$THIS_SCRIPT"
-
-    if [[ "$?" == "1" ]];
-    then
-        cp -u "$THIS_SCRIPT" "$INSTALLED_SCRIPT"
-    fi
-else
-    cp "$THIS_SCRIPT" "$INSTALLED_SCRIPT"
-fi
+install_script
 
 
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
