@@ -867,6 +867,7 @@ usage()
 }
 
 
+install_script
 
 
 if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
@@ -874,9 +875,6 @@ then
     usage
     abort
 fi
-
-
-install_script
 
 
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
