@@ -781,7 +781,7 @@ setup_prefix()
     
     if ! [[ -d "$PREFIX_PATH" ]];
     then
-        make -p "$PREFIX_PATH"
+        mkdir -p "$PREFIX_PATH"
     fi
 
     if ! [[ -v WINELOADER ]];
