@@ -361,6 +361,11 @@ extract_wine()
     then
         echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
         echo "$WINE_BRANCH" > "$INSTALL_PATH/$WINE_FOLDER/.wine_branch"
+
+        if ! [[ -f "$HOME/.default_wine" ]];
+        then
+            set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
+        fi
         
         echo -e "All done.\n"
 
@@ -373,15 +378,23 @@ extract_wine()
 
 install_script()
 {
-    local SCRIPT=$(realpath "$0")
+    local SCRIPT="/tmp/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
     local INSTALL_PATH="$HOME/.local/bin"
+
+    SCRIPT_URL="https://github.com/aribrew/wine-utils"
+    SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
     
 	if ! [[ -d "$INSTALL_PATH" ]];
 	then
         mkdir -p "$INSTALL_PATH"
 	fi
+
+	SAVED=$(pwd)
+    cd /tmp
+    curl -LO $SCRIPT_URL
+    cd "$SAVED"
 
 	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
 	then
