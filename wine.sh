@@ -851,6 +851,8 @@ fi
 INSTALLED_SCRIPT="$HOME/.local/bin/wine.sh"
 THIS_SCRIPT=$(realpath "$0")
 
+mkdir -p $(dirname "$INSTALLED_SCRIPT")
+
 if [[ -f "$INSTALLED_SCRIPT" ]];
 then
     are_same "$INSTALLED_SCRIPT" "$THIS_SCRIPT"
