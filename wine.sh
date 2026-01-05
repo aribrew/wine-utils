@@ -20,6 +20,32 @@ abort()
 }
 
 
+are_same()
+{
+	FIRST_FILE="$1"
+	SECOND_FILE="$2"
+
+	if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
+	then
+        return -1
+        
+	elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
+	then
+	    return -1
+	else
+        FIRST_MD5=$(md5sum "$FIRST_FILE" | cut -d ' ' -f 1)
+        SECOND_MD5=$(md5sum "$SECOND_FILE" | cut -d ' ' -f 1)
+
+        if [[ "$FIRST_MD5" == "$SECOND_MD5" ]];
+        then
+            return 0;
+        else
+            return 1;
+        fi
+	fi
+}
+
+
 ask_yn()
 {
     QUESTION=$1
@@ -40,6 +66,14 @@ ask_yn()
             return -1
         fi
     fi
+}
+
+
+check_script()
+{
+	SCRIPT=$(realpath $0)
+
+	bash -n "$SCRIPT"
 }
 
 
@@ -757,14 +791,30 @@ usage()
 
 
 
-export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
-
-
 if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
 fi
+
+
+INSTALLED_SCRIPT="$HOME/.local/bin/wine.sh"
+THIS_SCRIPT=$(realpath "$0")
+
+if [[ -f "$INSTALLED_SCRIPT" ]];
+then
+    are_same "$INSTALLED_SCRIPT" "$THIS_SCRIPT"
+
+    if [[ "$?" == "1" ]];
+    then
+        cp -u "$THIS_SCRIPT" "$INSTALLED_SCRIPT"
+    fi
+else
+    cp "$THIS_SCRIPT" "$INSTALLED_SCRIPT"
+fi
+
+
+export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
 if [[ "$1" == "--set_default" ]];
