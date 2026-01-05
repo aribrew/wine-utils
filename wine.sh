@@ -393,7 +393,7 @@ install_script()
 
 	SAVED=$(pwd)
     cd /tmp
-    curl -LO $SCRIPT_URL
+    curl -sLO $SCRIPT_URL
     cd "$SAVED"
 
 	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
