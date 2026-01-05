@@ -916,8 +916,11 @@ then
     
 elif [[ "$1" == "--setup_prefix" ]];
 then
-    if ! [[ "$2" == "" ]];
+    if [[ "$2" == "" ]];
     then
+        echo -e "Setting up default WINE prefix (64 bits)\n"
+        setup_prefix "$WINE_PREFIXES/.wine64" win64
+    else
         if [[ "$2" == "win32" ]];
         then
             setup_prefix "$WINE_PREFIXES/.wine" win32
