@@ -373,34 +373,51 @@ extract_wine()
 
 install_wine_deps()
 {
-    if [ -f "/usr/local/share/.wine32_deps_installed" ] &&
-       [ -f "/usr/local/share/.wine64_deps_installed" ];
+    if [[ -f "/usr/local/share/.wine_deps_installed" ]];
     then
-        echo -e "\nDependencies for WINE (32 and 64 bits) already installed.\n"
+        echo -e "\nDependencies for WINE already installed.\n"
     else
         echo -e "Now WINE will be installed for easy dependency installation."
         echo -e "After complete, WINE packages will be removed."
         echo -e "================================================="
-        
-        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
 
+        install_wine_repo
+
+        if ! [[ "$?" == "0" ]];
+        then
+            abort "Failed installing WINE repository. Cannot continue."
+        fi
+        
 	    if ! [[ "$(which apt)" == "" ]];
 	    then
-	        if [[ "$OS_NAME" == "debian" ]] && 
-	         ! [[ "/etc/apt/keyrings/winehq-archive.key" ]];
-	        then
-	            install_wine_repo
+	        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
 	        
-	            if ! [[ "$?" == "0" ]];
-	            then
-	                abort "Failed installing WINE repository. Cannot continue."
-	            fi
-
-	            if [[ "$OS_NAME" == "debian" ]];
+	        if ! [[ "/etc/apt/keyrings/winehq-archive.key" ]];
+	        then
+	            sudo apt install --install-recommends -y $PACKAGES
+	            
+                if ! [[ "$?" == "0" ]];
                 then
-                    sudo apt install --install-recommends -y $PACKAGES
+                    abort "Failed!"
                 fi
+
+                sudo apt remove $PACKAGES -y
+                
+                sudo touch "/usr/local/share/.wine_deps_installed"
 	        fi
+	        
+	    elif ! [[ "$(which dnf)" == "" ]];
+	    then
+            sudo dnf install wine-stable -y
+
+            if ! [[ "$?" == "0" ]];
+            then
+                abort "Failed!"
+            fi
+
+            sudo dnf remove wine-stable --noautoremove -y
+
+            sudo touch "/usr/local/share/.wine_deps_installed"
 	    fi
 	fi
 }
@@ -411,83 +428,116 @@ install_wine_repo()
 	OS_NAME=$(os_name)
 	OS_VERSION=$(os_version)
 
-	APT_SOURCES_DIR="/etc/apt/sources.list.d"
-	APT_KEYRINGS_DIR="/etc/apt/keyrings"
-	
-	WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
-	WINE_APT_URL+="/dists/${OS_VERSION}"
-	WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
-	
-	WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
-	
 	if ! [[ "$(which apt)" == "" ]];
 	then
-		if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
-		then
-		    sudo mkdir -p "$APT_KEYRINGS_DIR"
-		fi
-
-		if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
-		   ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
-		then
-		    echo ""
-		    echo "-e Enabling i386 repository if not available yet ...\n"
+	    if [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] &&
+	       [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
+   		then
+            echo -e "WINE repository already installed."
+        else
+	        APT_SOURCES_DIR="/etc/apt/sources.list.d"
+		    APT_KEYRINGS_DIR="/etc/apt/keyrings"
 		
-		    sudo dpkg --add-architecture i386
+		    WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
+		    WINE_APT_URL+="/dists/${OS_VERSION}"
+		    WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
 		
-		    sudo apt update
+		    WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
 		
-		    if [[ "$(which wget)" == "" ]];
+		    if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
 		    then
-		        echo -e "\nInstalling wget ..."
-		        echo -e "---------------------"
-		        
-		        sudo apt install -y wget
-		
-		        if ! [[ "$?" == "0" ]];
-		        then
-		            abort "Failed!"
-		        fi
+		        sudo mkdir -p "$APT_KEYRINGS_DIR"
 		    fi
+
+		    if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
+		       ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
+		    then
+		        echo ""
+		        echo "-e Enabling i386 repository if not available yet ...\n"
 		
-		    SOURCES_LIST="/etc/apt/sources.list"
+		        sudo dpkg --add-architecture i386
+		
+		        sudo apt update
+		
+		        if [[ "$(which wget)" == "" ]];
+		        then
+		            echo -e "\nInstalling wget ..."
+		            echo -e "---------------------"
+		        
+		            sudo apt install -y wget
+		
+		            if ! [[ "$?" == "0" ]];
+		            then
+		                abort "Failed!"
+		            fi
+		        fi
+		
+		        SOURCES_LIST="/etc/apt/sources.list"
 		    
 		
-		    echo ""
-		    echo "Downloading WINE GPG key and sources.list for APT..."
-		    echo "----------------------------------------------------"
-		    echo ""
+		        echo ""
+		        echo "Downloading WINE GPG key and sources.list for APT..."
+		        echo "----------------------------------------------------"
+		        echo ""
 		
-		    wget -N $WINE_GPG_URL
+		        wget -N $WINE_GPG_URL
 		
-		    if ! [[ "$?" == "0" ]]; 
-		    then
-		        abort "Failed downloading GPG key."
+		        if ! [[ "$?" == "0" ]]; 
+		        then
+		            abort "Failed downloading GPG key."
+		        fi
+		
+		
+		        wget -N $WINE_APT_URL
+		
+		        if ! [[ "$?" == "0" ]]; 
+		        then
+		            abort "Failed downloading APT sources list."
+		        fi
+		
+		
+		        sudo mv winehq.key "$APT_KEYRINGS_DIR/winehq-archive.key"
+		        sudo mv winehq-${OS_VERSION}.sources "$APT_SOURCES_DIR/"
+		
+		
+		        echo "Refreshing APT database ..."
+		        echo ""
+		
+		        sudo apt update
+		
+		        if ! [[ "$?" == "0" ]]; 
+		        then
+		            abort "Something is wrong :S"
+		        fi
 		    fi
+        fi
 		
-		
-		    wget -N $WINE_APT_URL
-		
-		    if ! [[ "$?" == "0" ]]; 
-		    then
-		        abort "Failed downloading APT sources list."
-		    fi
-		
-		
-		    sudo mv winehq.key "$APT_KEYRINGS_DIR/winehq-archive.key"
-		    sudo mv winehq-${OS_VERSION}.sources "$APT_SOURCES_DIR/"
-		
-		
-		    echo "Refreshing APT database ..."
-		    echo ""
-		
-		    sudo apt update
-		
-		    if ! [[ "$?" == "0" ]]; 
-		    then
-		        abort "Something is wrong :S"
-		    fi
-		fi
+	elif ! [[ "$(which dnf)" == "" ]];
+	then
+        sudo dnf repolist | grep -q WineHQ
+
+        if [[ "$?" == "0" ]];
+        then
+            echo -e "WINE repository already installed.\n"
+        else
+	        FEDORA_VERSION=$(cat /etc/os_release | grep VERSION_ID)
+	        FEDORA_VERSION=$(echo "$FEDORA_VERSION" | cut -d '=' -f 2)
+
+	        if [[ "$FEDORA_VERSION" == "" ]];
+	        then
+	            abort "Unable check Fedora version."
+	        fi
+	        
+	        REPO_URL="https://dl.winehq.org/wine-builds/fedora/$FEDORA_VERSION"
+	        REPO_URL+="/winehq.repo"
+	        
+	        dnf5 config-manager addrepo --from-repofile="$REPO_URL"
+
+	        if ! [[ "$?" == "0" ]];
+	        then
+                abort "Failed installing the WINE repository."
+	        fi
+        fi
 	fi
 }
 
