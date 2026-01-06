@@ -20,32 +20,6 @@ abort()
 }
 
 
-are_same()
-{
-	FIRST_FILE="$1"
-	SECOND_FILE="$2"
-
-	if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
-	then
-        return -1
-        
-	elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
-	then
-	    return -1
-	else
-        FIRST_MD5=$(md5sum "$FIRST_FILE" | cut -d ' ' -f 1)
-        SECOND_MD5=$(md5sum "$SECOND_FILE" | cut -d ' ' -f 1)
-
-        if [[ "$FIRST_MD5" == "$SECOND_MD5" ]];
-        then
-            return 0;
-        else
-            return 1;
-        fi
-	fi
-}
-
-
 ask_yn()
 {
     QUESTION=$1
@@ -398,7 +372,7 @@ install_script()
 
 	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
 	then
-	    are_same "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
+	    same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
 	
 	    if [[ "$?" == "1" ]];
 	    then
@@ -728,6 +702,32 @@ prefix_arch()
     else
         export WINEARCH="win32"
     fi
+}
+
+
+same_file()
+{
+	FIRST_FILE="$1"
+	SECOND_FILE="$2"
+
+	if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
+	then
+        return -1
+        
+	elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
+	then
+	    return -1
+	else
+        FIRST_MD5=$(md5sum "$FIRST_FILE" | cut -d ' ' -f 1)
+        SECOND_MD5=$(md5sum "$SECOND_FILE" | cut -d ' ' -f 1)
+
+        if [[ "$FIRST_MD5" == "$SECOND_MD5" ]];
+        then
+            return 0;
+        else
+            return 1;
+        fi
+	fi
 }
 
 
