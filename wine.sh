@@ -241,12 +241,7 @@ extract_wine()
 
     if [[ "$INSTALL_PATH" == "" ]];
     then
-        if [[ -v WINE_ENV ]];
-        then
-            INSTALL_PATH="$WINE_ENV"
-        else
-            INSTALL_PATH="$HOME/.local/bin/wine"
-        fi
+        INSTALL_PATH="$WINE_ENV"
     fi
 
     if [[ -d "$PACKAGE" ]];
@@ -352,6 +347,12 @@ extract_wine()
 
 install_script()
 {
+    if [[ -v SKIP_UPDATING_WINESH ]];
+    then
+        echo -e "Skipping updating existing wine.sh\n"
+        return 0
+    fi
+
     local SCRIPT="/tmp/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
@@ -396,38 +397,33 @@ install_wine_deps()
         echo -e "After complete, WINE packages will be removed."
         echo -e "================================================="
 
-        install_wine_repo
-
-        if ! [[ "$?" == "0" ]];
-        then
-            abort "Failed installing WINE repository. Cannot continue."
-        fi
-        
-	    if ! [[ "$(which apt)" == "" ]];
+	    if [[ -f "/usr/bin/apt" ]];
 	    then
 	        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
 	        
-	        if ! [[ "/etc/apt/keyrings/winehq-archive.key" ]];
+	        if [[ "/etc/apt/keyrings/winehq-archive.key" ]];
 	        then
 	            sudo apt install --install-recommends -y $PACKAGES
 	            
                 if ! [[ "$?" == "0" ]];
                 then
-                    abort "Failed!"
+                    abort "Failed! Maybe WINE repository is not installed?"
                 fi
 
                 sudo apt remove $PACKAGES -y
                 
                 sudo touch "/usr/local/share/.wine_deps_installed"
-	        fi
+	        else
+                abort "WINE GPG key is missing. Install WINE repository."
+            fi
 	        
-	    elif ! [[ "$(which dnf)" == "" ]];
+	    elif [[ -f "/usr/bin/dnf" ]];
 	    then
             sudo dnf install wine-stable -y
 
             if ! [[ "$?" == "0" ]];
             then
-                abort "Failed!"
+                abort "Failed! Maybe WINE repository is not installed?"
             fi
 
             sudo dnf remove wine-stable --noautoremove -y
@@ -443,16 +439,16 @@ install_wine_repo()
 	OS_NAME=$(os_name)
 	OS_VERSION=$(os_version)
 
-	if ! [[ "$(which apt)" == "" ]];
+	if [[ -f "/usr/bin/apt" ]];
 	then
+        APT_SOURCES_DIR="/etc/apt/sources.list.d"
+		APT_KEYRINGS_DIR="/etc/apt/keyrings"
+
 	    if [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] &&
 	       [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
    		then
             echo -e "WINE repository already installed."
         else
-	        APT_SOURCES_DIR="/etc/apt/sources.list.d"
-		    APT_KEYRINGS_DIR="/etc/apt/keyrings"
-		
 		    WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
 		    WINE_APT_URL+="/dists/${OS_VERSION}"
 		    WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
@@ -468,7 +464,7 @@ install_wine_repo()
 		       ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
 		    then
 		        echo ""
-		        echo "-e Enabling i386 repository if not available yet ...\n"
+		        echo -e "Enabling i386 repository if not available yet ...\n"
 		
 		        sudo dpkg --add-architecture i386
 		
@@ -527,7 +523,7 @@ install_wine_repo()
 		    fi
         fi
 		
-	elif ! [[ "$(which dnf)" == "" ]];
+	elif [[ -f "/usr/bin/dnf" ]];
 	then
         sudo dnf repolist | grep -q WineHQ
 
@@ -778,7 +774,8 @@ set_default_wine()
     WINE_PATH="$1"
     
 	echo "$WINE_PATH" > "$HOME/.default_wine"
-	            
+
+    echo -e ""  
 	echo -e "WINE installation at '$WINE_PATH' made the default one."
 	echo -e "It will be loaded for preparing new prefixes.\n"
 	echo ""
@@ -863,7 +860,7 @@ usage()
 	echo -e ""
     echo -e "wine.sh --load <WINE installation"
     echo -e ": Use with 'source' or '.'."
-    echo -e "  Activates the given WINE installation."
+    echo -e "  Loads the given WINE installation in the current environment."
     echo -e ""
 	echo -e "wine.sh --load_prefix <prefix name>"
 	echo -e ": Use with 'source' or '.'."
@@ -876,6 +873,16 @@ usage()
 	echo -e "wine.sh --install <WINE path> [install dir]"
 	echo -e ": Installs a downloaded WINE version."
 	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
+    echo -e ""
+    echo -e "wine.sh --install_deps"
+    echo -e ": Installs WINE dependencies."
+    echo -e ""
+    echo -e "wine.sh --install_repo"
+    echo -e ": Installs the WINE repository."
+	echo -e ""
+	echo -e "wine.sh --install_winetricks"
+	echo -e ": Downloads Winetricks into ~/.local/bin/wine."
+	echo -e "  Also install its dependencies."
 	echo -e ""
 }
 
@@ -887,6 +894,24 @@ if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
+fi
+
+
+SYSTEM_WINE=$(which wine)
+
+if ! [[ "$SYSTEM_WINE" == "" ]];
+then
+    export SYSTEM_WINE=1
+
+    echo -e "A WINE installation was found in this system."
+    echo -e "You can override it unsetting WINELOADER variable."
+    echo -e "If so, remember setting another WINE as the default.\n"
+fi
+
+
+if ! [[ -v WINE_ENV ]];
+then
+    export WINE_ENV="$HOME/.local/bin/wine"
 fi
 
 
@@ -1013,55 +1038,34 @@ elif [[ "$1" == "--install" ]];
 then
     if ! [[ "$2" == "" ]];
     then
-        WINE_INSTALLATION="$2"
+        WINE_PATH="$2"
 
         if [[ "$3" == "" ]];
         then
-            WINE_INSTALL_PATH="$HOME/.local/bin/wine"
+            WINE_INSTALL_PATH="$WINE_ENV"
         else
             WINE_INSTALL_PATH="$3"
         fi
 
-        mv "$WINE_INSTALLATION" "$WINE_INSTALL_PATH"
+        mv "$WINE_PATH" "$WINE_INSTALL_PATH"
     fi
 
     exit $?
-fi
 
-
-if ! [[ -v WINE_PATH ]];
+elif [[ "$1" == "--install_deps" ]];
 then
-    SCRIPT_PATH=$(realpath $(dirname "$0"))
+    install_wine_deps
+    exit $?
 
-    is_wine_installation "$SCRIPT_PATH"
-
-    if [[ "$?" == "0" ]];
-    then
-        export WINE_PATH="$SCRIPT_PATH"
-
-        echo -e "The script is being executed inside a WINE installation.\n"
-        
-        echo -e "Due WINE_PATH wasn't previously set, the script will use"
-        echo -e "the current path as the default WINE installation."
-    else
-        if [[ -d "$HOME/.local/bin/wine" ]];
-        then
-            find_wine_installations "$HOME/.local/bin/wine"
-        fi
-    fi
-fi
-
-export WINE_PATH=$(realpath $(dirname "$0"))
-
-is_wine_installation "$WINE_PATH"
-
-if ! [[ "$?" == "0" ]];
+elif [[ "$1" == "--install_repo" ]];
 then
-    echo "If running without params, the script must be inside a valid"
-    echo "WINE installation, because it will be used for executing"
-    echo "Windows programs directly."
+    install_wine_repo
+    exit $?
 
-    abort
+elif [[ "$1" == "--install_winetricks" ]];
+then
+    install_winetricks
+    exit $?
 fi
 
 
