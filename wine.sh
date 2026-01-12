@@ -870,6 +870,9 @@ usage()
 	echo -e ": Downloads WINE to /tmp/wine folder."
 	echo -e "  Default branch and version: stable 10.0.0.0"
 	echo -e ""
+	echo -e "wine.sh --install --system-wide [branch] [version]"
+	echo -e ": Installs WINE system wide. This is the standard way."
+	echo -e ""
 	echo -e "wine.sh --install <WINE path> [install dir]"
 	echo -e ": Installs a downloaded WINE version."
 	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
@@ -1038,16 +1041,51 @@ elif [[ "$1" == "--install" ]];
 then
     if ! [[ "$2" == "" ]];
     then
-        WINE_PATH="$2"
-
-        if [[ "$3" == "" ]];
+        if [[ "$?" == "--system-wide" ]];
         then
-            WINE_INSTALL_PATH="$WINE_ENV"
-        else
-            WINE_INSTALL_PATH="$3"
-        fi
+            if [[ "$3" == "" ]];
+            then
+                WINE_BRANCH="stable"
+            else
+                WINE_BRANCH="$3"
+            fi
 
-        mv "$WINE_PATH" "$WINE_INSTALL_PATH"
+            if [[ "$4" == "" ]];
+            then
+                WINE_VERSION="10.0.0.0"
+            else
+                WINE_VERSION="$4"
+            fi
+
+            echo -en "Installing WINE ($WINE_BRANCH) ($WINE_VERSION)"
+            echo -e " system wide"
+            echo -e "---------------------------------------------\n"
+
+            if [[ -f "/usr/bin/apt" ]];
+            then
+                PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
+                PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
+                PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
+                PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
+                
+                sudo apt install $PACKAGES -y
+                
+            elif [[ -f "/usr/bin/dnf" ]];
+            then
+                echo -n "TODO for Fedora.\n"
+            fi
+        else
+            WINE_PATH="$2"
+
+            if [[ "$3" == "" ]];
+            then
+                WINE_INSTALL_PATH="$WINE_ENV"
+            else
+                WINE_INSTALL_PATH="$3"
+            fi
+
+            mv "$WINE_PATH" "$WINE_INSTALL_PATH"
+        fi
     fi
 
     exit $?
