@@ -157,7 +157,7 @@ download_wine()
 
     if [[ "$WINE_VERSION" == "" ]];
     then
-        WINE_VERSION="10.0.0.0"
+        WINE_VERSION="11.0.0.0"
     fi
 
     if ! [[ "$WINE_BRANCH" == "stable" ]] && 
@@ -868,7 +868,7 @@ usage()
 	echo -e ""
 	echo -e "wine.sh --download [branch] [version]"
 	echo -e ": Downloads WINE to /tmp/wine folder."
-	echo -e "  Default branch and version: stable 10.0.0.0"
+	echo -e "  Default branch and version: stable 11.0.0.0"
 	echo -e ""
 	echo -e "wine.sh --install --system-wide [branch] [version]"
 	echo -e ": Installs WINE system wide. This is the standard way."
@@ -1052,7 +1052,7 @@ then
 
             if [[ "$4" == "" ]];
             then
-                WINE_VERSION="10.0.0.0"
+                WINE_VERSION="11.0.0.0"
             else
                 WINE_VERSION="$4"
             fi
