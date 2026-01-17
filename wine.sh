@@ -161,6 +161,21 @@ find_wine_installations()
 }
 
 
+install_winetricks()
+{
+    WINETRICKS_URL="https://raw.githubusercontent.com"
+    WINETRICKS_URL+="Winetricks/winetricks/master/src/winetricks"
+    
+    cd /tmp
+
+    curl -LO $WINETRICKS_URL
+
+    chmod +x /tmp/winetricks
+
+    cp -u /tmp/winetricks "$WINE_ENV/winetricks"
+}
+
+
 is_wine_installation()
 {
 	WINE_PATH="$1"
