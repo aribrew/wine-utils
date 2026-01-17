@@ -619,28 +619,51 @@ load_wine()
 	export WINE_BINARIES=$(find "$WINE_PATH"/** -type d -name "bin")
     export WINE_ROOT=$(dirname "$WINE_BINARIES")
 
-    if [[ "$WINEARCH" == "win32" ]];
+    WINE_MAJOR_VERSION=$(cat "$WINE_PATH/.wine_version")
+    WINE_MAJOR_VERSION=$(echo "$WINE_MAJOR_VERSION" | cut -d '.' -f 1)
+
+    if ! [[ "$WINE_MAJOR_VERSION" == "11" ]];
     then
+        if [[ "$WINEARCH" == "win32" ]];
+        then
+            export WINELOADER="$WINE_BINARIES/wine"
+            export WINEDLLPATH="$WINE_ROOT/lib/wine"
+
+            export WINE32_UTILS="$WINE_UTILS/lib/wine/i386-windows"
+            export WINE_UTILS="$WINE32_UTILS"
+        else
+            export WINELOADER="$WINE_BINARIES/wine64"
+            export WINEDLLPATH="$WINE_DLL_PATH/lib64/wine"
+
+            export WINE64_UTILS="$WINE_UTILS/lib64/wine/x86_64-windows"
+            export WINE_UTILS="$WINE64_UTILS"
+        fi
+    else
         export WINELOADER="$WINE_BINARIES/wine"
         export WINEDLLPATH="$WINE_ROOT/lib/wine"
-
+        
         export WINE32_UTILS="$WINE_UTILS/lib/wine/i386-windows"
-        export WINE_UTILS="$WINE32_UTILS"
-    else
-        export WINELOADER="$WINE_BINARIES/wine64"
-        export WINEDLLPATH="$WINE_DLL_PATH/lib64/wine"
+        export WINE64_UTILS="$WINE_UTILS/lib/wine/x86_64-windows"
 
-        export WINE64_UTILS="$WINE_UTILS/lib64/wine/x86_64-windows"
-        export WINE_UTILS="$WINE64_UTILS"
+        if [[ "$WINEARCH" == "win32" ]];
+        then
+            export WINE_UTILS="$WINE32_UTILS"
+        else
+            export WINE_UTILS="$WINE64_UTILS"
+        fi
     fi
 
     export WINE="$WINELOADER"
     export WINESERVER="$WINE_BINARIES/wineserver"
 
     alias wine="$WINELOADER"
-    alias wine32="$WINE_BINARIES/wine"
-    alias wine64="$WINE_BINARIES/wine64"
 
+    if ! [[ "$WINE_MAJOR_VERSION" == "11" ]];
+    then
+        alias wine32="$WINE_BINARIES/wine"
+        alias wine64="$WINE_BINARIES/wine64"
+    fi
+    
     alias wineboot="\"$WINELOADER\" \"$WINE_UTILS/wineboot.exe\""
     alias winecfg="\"$WINELOADER\" \"$WINE_UTILS/winecfg.exe\""
     alias winedump="\"$WINE_BINARIES/winedump\""
@@ -652,9 +675,16 @@ load_wine()
     echo "Activated Wine $WINE_BRANCH $WINE_VERSION: $WINE_PATH"
     echo ""
     echo "You have available the following aliases: "
-    echo "- wine: Default WINE executable for the loaded prefix"
-    echo "- wine32: WINE executable for 32 bit software"
-    echo "- wine64: WINE executable for 64 bit software"
+
+    if ! [[ "$WINE_MAJOR_VERSION" == "11" ]];
+    then
+        echo "- wine: Default WINE executable for the loaded prefix"
+        echo "- wine32: WINE executable for 32 bit software"
+        echo "- wine64: WINE executable for 64 bit software"
+    else
+        echo "- wine: WINE executable"
+    fi
+    
     echo "- wineboot: Performs a 'reboot' of the loaded prefix."
     echo "- explorer, reg, regedit: Launch these Windows programs." 
     echo ""
