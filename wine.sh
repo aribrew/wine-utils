@@ -832,9 +832,6 @@ setup_prefix()
 
     echo "$WINEARCH" > "$WINEPREFIX/.arch"
 
-    cp -u "$WINE_PATH/for_prefixes/enable_dx11_support.sh" "$WINEPREFIX/"
-    cp -u "$WINE_PATH/for_prefixes/enable_dx12_support.sh" "$WINEPREFIX/"
-
     if [[ "$WINEARCH" == "win32" ]] && ! [[ -d "$HOME/.wine" ]];
     then
         set_default_win32_prefix "$WINEPREFIX"
