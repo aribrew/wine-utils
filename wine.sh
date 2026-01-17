@@ -345,48 +345,6 @@ extract_wine()
 }
 
 
-install_script()
-{
-    if [[ -v SKIP_UPDATING_WINESH ]];
-    then
-        echo -e "Skipping updating existing wine.sh\n"
-        return 0
-    fi
-
-    local SCRIPT="/tmp/wine.sh"
-    local SCRIPT_FILE=$(basename "$SCRIPT")
-    
-    local INSTALL_PATH="$HOME/.local/bin"
-
-    SCRIPT_URL="https://github.com/aribrew/wine-utils"
-    SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
-    
-	if ! [[ -d "$INSTALL_PATH" ]];
-	then
-        mkdir -p "$INSTALL_PATH"
-	fi
-
-	SAVED=$(pwd)
-    cd /tmp
-    curl -sLO $SCRIPT_URL
-    cd "$SAVED"
-
-	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
-	then
-	    same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
-	
-	    if [[ "$?" == "1" ]];
-	    then
-	        cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-	        echo -e "Your wine.sh has been updated.\n"
-	    fi
-	else
-	    cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-	    echo -e "Wine.sh has been installed in ~/.local/bin.\n"
-	fi
-}
-
-
 install_wine_deps()
 {
     if [[ -f "/usr/local/share/.wine_deps_installed" ]];
@@ -629,21 +587,21 @@ load_wine()
             export WINELOADER="$WINE_BINARIES/wine"
             export WINEDLLPATH="$WINE_ROOT/lib/wine"
 
-            export WINE32_UTILS="$WINE_UTILS/lib/wine/i386-windows"
+            export WINE32_UTILS="$WINE_ROOT/lib/wine/i386-windows"
             export WINE_UTILS="$WINE32_UTILS"
         else
             export WINELOADER="$WINE_BINARIES/wine64"
             export WINEDLLPATH="$WINE_DLL_PATH/lib64/wine"
 
-            export WINE64_UTILS="$WINE_UTILS/lib64/wine/x86_64-windows"
+            export WINE64_UTILS="$WINE_ROOT/lib64/wine/x86_64-windows"
             export WINE_UTILS="$WINE64_UTILS"
         fi
     else
         export WINELOADER="$WINE_BINARIES/wine"
         export WINEDLLPATH="$WINE_ROOT/lib/wine"
         
-        export WINE32_UTILS="$WINE_UTILS/lib/wine/i386-windows"
-        export WINE64_UTILS="$WINE_UTILS/lib/wine/x86_64-windows"
+        export WINE32_UTILS="$WINE_ROOT/lib/wine/i386-windows"
+        export WINE64_UTILS="$WINE_ROOT/lib/wine/x86_64-windows"
 
         if [[ "$WINEARCH" == "win32" ]];
         then
@@ -686,7 +644,29 @@ load_wine()
     fi
     
     echo "- wineboot: Performs a 'reboot' of the loaded prefix."
-    echo "- explorer, reg, regedit: Launch these Windows programs." 
+    echo "- explorer, reg, regedit: Launch these Windows programs."
+
+    if [[ -v DEBUG ]];
+    then
+        echo ""
+        echo "DEBUG: WINE: $WINE"
+        echo "DEBUG: WINE_PATH: $WINE_PATH"
+        echo "DEBUG: WINE_BRANCH: $WINE_BRANCH"
+        echo "DEBUG: WINE_VERSION: $WINE_VERSION"
+        echo "DEBUG: WINELOADER: $WINELOADER"
+        echo "DEBUG: WINESERVER: $WINESERVER"
+        echo "DEBUG: WINEDLLPATH: $WINEDLLPATH"
+        echo "DEBUG: WINE32_UTILS: $WINE32_UTILS"
+        echo "DEBUG: WINE64_UTILS: $WINE64_UTILS"
+        echo "DEBUG: WINE_UTILS: $WINE_UTILS"
+        echo ""
+
+        if [[ -v DEBUG_EXIT ]];
+        then
+            exit 0
+        fi
+    fi
+
     echo ""
 }
 
@@ -866,6 +846,48 @@ setup_prefix()
 }
 
 
+update_script()
+{
+    if [[ -v SKIP_UPDATING_WINESH ]];
+    then
+        echo -e "Skipping updating existing wine.sh\n"
+        return 0
+    fi
+
+    local SCRIPT="/tmp/wine.sh"
+    local SCRIPT_FILE=$(basename "$SCRIPT")
+    
+    local INSTALL_PATH="$HOME/.local/bin"
+
+    SCRIPT_URL="https://github.com/aribrew/wine-utils"
+    SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
+    
+	if ! [[ -d "$INSTALL_PATH" ]];
+	then
+        mkdir -p "$INSTALL_PATH"
+	fi
+
+	SAVED=$(pwd)
+    cd /tmp
+    curl -sLO $SCRIPT_URL
+    cd "$SAVED"
+
+	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
+	then
+	    same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
+	
+	    if [[ "$?" == "1" ]];
+	    then
+	        cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+	        echo -e "Your wine.sh has been updated.\n"
+	    fi
+	else
+	    cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+	    echo -e "Wine.sh has been installed in ~/.local/bin.\n"
+	fi
+}
+
+
 usage()
 {
 	echo -e "wine.sh <executable> [args]"
@@ -920,7 +942,7 @@ usage()
 }
 
 
-install_script
+update_script
 
 
 if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
