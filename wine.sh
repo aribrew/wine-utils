@@ -51,6 +51,56 @@ check_script()
 }
 
 
+enable_dx11()
+{
+    WINEPREFIX="$1"
+
+    if ! [[ -f "$WINE_ENV/winetricks" ]];
+    then
+        abort "Winetricks not found in '$WINE_ENV'."
+    fi
+
+	echo ""
+	echo "Installing DXVK (DirectX -> Vulkan) for DirectX 11 compatibility..."
+	echo "-------------------------------------------------------------------"
+	
+	winetricks dxvk
+	
+	if [[ "$?" == "0" ]];
+	then
+	    touch "$WINEPREFIX/.dx11_enabled"
+
+	    echo ""
+	    echo -e "Prefix ready for running DirectX 11 games.\n"
+	fi
+}
+
+
+enable_dx12()
+{
+    WINEPREFIX="$1"
+
+    if ! [[ -f "$WINE_ENV/winetricks" ]];
+    then
+        abort "Winetricks not found in '$WINE_ENV'."
+    fi
+
+    echo ""
+    echo "Installing VKD3D for DirectX 12 compatibility..."
+    echo "------------------------------------------------"
+
+    winetricks vkd3d
+
+    if [[ "$?" == "0" ]];
+    then
+        touch "$WINEPREFIX/.dx12_enabled"
+    
+	    echo ""
+	    echo -e "Prefix ready for running DirectX 12 games.\n"
+	fi
+}
+
+
 exec_type()
 {
     EXEC=$1
@@ -827,9 +877,6 @@ setup_prefix()
         exit 1
     fi
 
-    echo "Prefix created. The helper scripts will be added now."
-    echo ""
-
     echo "$WINEARCH" > "$WINEPREFIX/.arch"
 
     if [[ "$WINEARCH" == "win32" ]] && ! [[ -d "$HOME/.wine" ]];
@@ -918,6 +965,9 @@ usage()
 	echo -e "wine.sh --download [branch] [version]"
 	echo -e ": Downloads WINE to /tmp/wine folder."
 	echo -e "  Default branch and version: stable 11.0.0.0"
+	echo -e ""
+	echo -e "wine.sh --enable_dx11_support <prefix>"
+	echo -e "wine.sh --enable_dx12_support <prefix>"
 	echo -e ""
 	echo -e "wine.sh --install --system-wide [branch] [version]"
 	echo -e ": Installs WINE system wide. This is the standard way."
@@ -1084,6 +1134,40 @@ then
         extract_wine "/tmp/wine" "/tmp/wine"
     fi
 
+    exit $?
+
+elif [[ "$1" == "--enable_dx11_support" ]];
+then
+    if ! [[ "$2" == "" ]];
+    then
+        WINEPREFIX="$2"
+    
+        is_wine_prefix "$WINEPREFIX"
+    
+        if [[ "$?" == "0" ]];
+        then
+            load_prefix "$WINEPREFIX"
+            enable_dx11_support "$WINEPREFIX"
+        fi
+    fi
+    
+    exit $?
+
+elif [[ "$1" == "--enable_dx12_support" ]];
+then
+    if ! [[ "$2" == "" ]];
+    then
+        WINEPREFIX="$2"
+    
+        is_wine_prefix "$WINEPREFIX"
+    
+        if [[ "$?" == "0" ]];
+        then
+            load_prefix "$WINEPREFIX"
+            enable_dx12_support "$WINEPREFIX"
+        fi
+    fi
+    
     exit $?
 
 elif [[ "$1" == "--install" ]];
