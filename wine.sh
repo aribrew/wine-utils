@@ -288,14 +288,14 @@ download_wine()
         abort "Failed."
     fi
 
-    if [[ -d "/tmp/wine" ]];
+    if [[ -d "/tmp/wine/$WINE_BRANCH/$WINE_VERSION" ]];
     then
-        rm -r /tmp/wine
+        rm -r /tmp/wine/$WINE_BRANCH/$WINE_VERSION
     fi
     
-    mkdir -p /tmp/wine
+    mkdir -p /tmp/wine/$WINE_BRANCH/$WINE_VERSION
     
-    mv wine-*.deb /tmp/wine/
+    mv wine-*.deb /tmp/wine/$WINE_BRANCH/$WINE_VERSION
 }
 
 
@@ -407,6 +407,40 @@ extract_wine()
     else
         abort "Something failed. Cannot validate WINE installation."
     fi
+}
+
+
+install_wine_system_wide()
+{
+    WINE_BRANCH="$3"
+    WINE_VERSION="$4"
+    
+	if [[ "$WINE_BRANCH" == "" ]];
+	then
+        WINE_BRANCH="stable"
+    fi
+	
+    if [[ "$WINE_VERSION" == "" ]];
+    then
+        WINE_VERSION="11.0.0.0"
+    fi
+	
+    echo -e "Installing WINE ($WINE_BRANCH) ($WINE_VERSION) system wide"
+    echo -e "----------------------------------------------------------\n"
+	
+    if [[ -f "/usr/bin/apt" ]];
+    then
+        PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
+        PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
+        PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
+        PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
+	                
+        sudo apt install $PACKAGES -y
+
+	elif [[ -f "/usr/bin/dnf" ]];
+	then
+	    echo -n "TODO for Fedora.\n"
+	fi
 }
 
 
@@ -993,6 +1027,9 @@ usage()
 	echo -e "wine.sh --install <WINE path> [install dir]"
 	echo -e ": Installs a downloaded WINE version."
 	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
+	echo -e ""
+	echo -e "wine.sh --install [branch] [version] [install dir]"
+	echo -e ": Downloads and install the specified WINE branch and version."
     echo -e ""
     echo -e "wine.sh --install_deps"
     echo -e ": Installs WINE dependencies."
@@ -1192,50 +1229,53 @@ elif [[ "$1" == "--install" ]];
 then
     if ! [[ "$2" == "" ]];
     then
-        if [[ "$?" == "--system-wide" ]];
+        if [[ "$2" == "--system-wide" ]];
         then
-            if [[ "$3" == "" ]];
-            then
-                WINE_BRANCH="stable"
-            else
-                WINE_BRANCH="$3"
-            fi
+            WINE_BRANCH="$3"
+            WINE_VERSION="$4"
 
-            if [[ "$4" == "" ]];
-            then
-                WINE_VERSION="11.0.0.0"
-            else
-                WINE_VERSION="$4"
-            fi
-
-            echo -en "Installing WINE ($WINE_BRANCH) ($WINE_VERSION)"
-            echo -e " system wide"
-            echo -e "---------------------------------------------\n"
-
-            if [[ -f "/usr/bin/apt" ]];
-            then
-                PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
-                PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
-                PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
-                PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
-                
-                sudo apt install $PACKAGES -y
-                
-            elif [[ -f "/usr/bin/dnf" ]];
-            then
-                echo -n "TODO for Fedora.\n"
-            fi
+            install_wine_system_wide $WINE_BRANCH $WINE_VERSION
         else
             WINE_PATH="$2"
 
-            if [[ "$3" == "" ]];
-            then
-                WINE_INSTALL_PATH="$WINE_ENV"
-            else
-                WINE_INSTALL_PATH="$3"
-            fi
+            is_wine_installation "$WINE_PATH"
 
-            mv "$WINE_PATH" "$WINE_INSTALL_PATH"
+            if [[ "$?" == "0" ]];
+            then
+                if [[ "$3" == "" ]];
+                then
+                    WINE_INSTALL_PATH="$WINE_ENV"
+                else
+                    WINE_INSTALL_PATH="$3"
+                fi
+
+                mv "$WINE_PATH" "$WINE_INSTALL_PATH"
+            else
+                WINE_BRANCH="$2"
+                WINE_VERSION="$3"
+                WINE_INSTALL_PATH="$4"
+
+                if [[ "$WINE_BRANCH" == "stable" ]] || 
+                   [[ "$WINE_BRANCH" == "staging" ]]
+                then
+                    download_wine $WINE_BRANCH $WINE_VERSION
+
+                    WINE_TMP="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+                    WINE_PATH="$WINE_TMP/extracted"
+                    
+                    if [[ -d "$WINE_TMP" ]];
+                    then
+                        extract_wine "$WINE_TMP" "$WINE_PATH"
+
+                        if [[ "$WINE_INSTALL_PATH" == "" ]];
+                        then
+                            WINE_INSTALL_PATH="$WINE_ENV"
+                        fi
+
+                        mv "$WINE_PATH" "$WINE_INSTALL_PATH"
+                    fi
+                fi
+            fi
         fi
     fi
 
