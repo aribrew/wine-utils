@@ -51,6 +51,97 @@ check_script()
 }
 
 
+download_wine()
+{
+    WINE_BRANCH="$1"
+    WINE_VERSION="$2"
+
+    if [[ "$WINE_BRANCH" == "" ]];
+    then
+        WINE_BRANCH="stable"
+    fi
+
+    if [[ "$WINE_VERSION" == "" ]];
+    then
+        WINE_VERSION="11.0.0.0"
+    fi
+
+    if ! [[ "$WINE_BRANCH" == "stable" ]] && 
+       ! [[ "$WINE_BRANCH" == "staging" ]];
+    then
+        abort "WINE branch must be 'stable' or 'staging'."
+    fi
+
+	WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
+	LATEST_DEBIAN="trixie"
+
+	WINE_BASE="wine-${WINE_BRANCH}"
+    WINE_BASE+="_${WINE_VERSION}"
+    WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
+
+    WINE_i386="wine-${WINE_BRANCH}-i386"
+    WINE_i386+="_${WINE_VERSION}"
+    WINE_i386+="~${LATEST_DEBIAN}-1_i386.deb"
+
+    WINE_amd64="wine-${WINE_BRANCH}-amd64"
+    WINE_amd64+="_${WINE_VERSION}"
+    WINE_amd64+="~${LATEST_DEBIAN}-1_amd64.deb"
+
+    BASE_URL="$WINE_URL"
+    
+    if [[ "$WINE_BRANCH" == "staging" ]];
+    then
+        BASE_URL+="/wine-staging"
+    else
+        BASE_URL+="/wine"
+    fi
+
+    echo ""
+    echo "Downloading WINE (Base) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "----------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_BASE"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed."
+    fi
+
+    echo ""
+    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "------------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_i386"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed."
+    fi
+
+    echo ""
+    echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
+    echo "------------------------------------------------------------"
+
+    curl -LO "$BASE_URL/$WINE_amd64"
+
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Failed."
+    fi
+
+    WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+
+    if [[ -d "$WINE_TMP_PATH" ]];
+    then
+        rm -r "$WINE_TMP_PATH"
+    fi
+    
+    mkdir -p "$WINE_TMP_PATH"
+    
+    mv wine-*.deb "$WINE_TMP_PATH"
+}
+
+
 enable_dx11()
 {
     WINEPREFIX="$1"
@@ -137,165 +228,6 @@ exec_type()
             fi
         fi
     fi
-}
-
-
-filext()
-{
-    FULL_PATH=$1
-
-    FILE_NAME=$(basename "$FULL_PATH")
-    FILE_EXTENSION=${FILE_NAME##*.}
-
-    echo .$FILE_EXTENSION
-}
-
-
-find_wine_installations()
-{
-	SEARCH_PATH="$1"
-
-	WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
-
-	echo "$WINE_SERVERS"
-}
-
-
-install_winetricks()
-{
-    WINETRICKS_URL="https://raw.githubusercontent.com"
-    WINETRICKS_URL+="Winetricks/winetricks/master/src/winetricks"
-    
-    cd /tmp
-
-    curl -LO $WINETRICKS_URL
-
-    chmod +x /tmp/winetricks
-
-    cp -u /tmp/winetricks "$WINE_ENV/winetricks"
-}
-
-
-is_wine_installation()
-{
-	WINE_PATH="$1"
-
-	if [[ -d "$WINE_PATH" ]];
-	then
-	    WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
-
-	    if ! [[ "$WINE_SERVER" == "" ]];
-	    then
-	        return 0
-	    fi
-	fi
-
-	return 1
-}
-
-
-is_wine_prefix()
-{
-    PREFIX="$1"
-    
-	if [[ -d "$PREFIX" ]];
-	then
-        if [[ -d "$PREFIX/dosdevices" ]];
-        then
-            return 0
-        fi
-	fi
-
-	return 1
-}
-
-
-download_wine()
-{
-    WINE_BRANCH="$1"
-    WINE_VERSION="$2"
-
-    if [[ "$WINE_BRANCH" == "" ]];
-    then
-        WINE_BRANCH="stable"
-    fi
-
-    if [[ "$WINE_VERSION" == "" ]];
-    then
-        WINE_VERSION="11.0.0.0"
-    fi
-
-    if ! [[ "$WINE_BRANCH" == "stable" ]] && 
-       ! [[ "$WINE_BRANCH" == "staging" ]];
-    then
-        abort "WINE branch must be 'stable' or 'staging'."
-    fi
-
-	WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
-	LATEST_DEBIAN="trixie"
-
-	WINE_BASE="wine-${WINE_BRANCH}"
-    WINE_BASE+="_${WINE_VERSION}"
-    WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
-
-    WINE_i386="wine-${WINE_BRANCH}-i386"
-    WINE_i386+="_${WINE_VERSION}"
-    WINE_i386+="~${LATEST_DEBIAN}-1_i386.deb"
-
-    WINE_amd64="wine-${WINE_BRANCH}-amd64"
-    WINE_amd64+="_${WINE_VERSION}"
-    WINE_amd64+="~${LATEST_DEBIAN}-1_amd64.deb"
-
-    BASE_URL="$WINE_URL"
-    
-    if [[ "$WINE_BRANCH" == "staging" ]];
-    then
-        BASE_URL+="/wine-staging"
-    else
-        BASE_URL+="/wine"
-    fi
-
-    echo ""
-    echo "Downloading WINE (Base) ($WINE_BRANCH) ($WINE_VERSION) ..."
-    echo "----------------------------------------------------------"
-
-    curl -LO "$BASE_URL/$WINE_BASE"
-
-    if ! [[ "$?" == "0" ]];
-    then
-        abort "Failed."
-    fi
-
-    echo ""
-    echo "Downloading WINE (32 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
-    echo "------------------------------------------------------------"
-
-    curl -LO "$BASE_URL/$WINE_i386"
-
-    if ! [[ "$?" == "0" ]];
-    then
-        abort "Failed."
-    fi
-
-    echo ""
-    echo "Downloading WINE (64 bit) ($WINE_BRANCH) ($WINE_VERSION) ..."
-    echo "------------------------------------------------------------"
-
-    curl -LO "$BASE_URL/$WINE_amd64"
-
-    if ! [[ "$?" == "0" ]];
-    then
-        abort "Failed."
-    fi
-
-    if [[ -d "/tmp/wine/$WINE_BRANCH/$WINE_VERSION" ]];
-    then
-        rm -r /tmp/wine/$WINE_BRANCH/$WINE_VERSION
-    fi
-    
-    mkdir -p /tmp/wine/$WINE_BRANCH/$WINE_VERSION
-    
-    mv wine-*.deb /tmp/wine/$WINE_BRANCH/$WINE_VERSION
 }
 
 
@@ -396,11 +328,6 @@ extract_wine()
         echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
         echo "$WINE_BRANCH" > "$INSTALL_PATH/$WINE_FOLDER/.wine_branch"
 
-        if ! [[ -f "$HOME/.default_wine" ]];
-        then
-            set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
-        fi
-        
         echo -e "All done.\n"
 
         rm -r "$WINE_TMP"
@@ -410,37 +337,67 @@ extract_wine()
 }
 
 
-install_wine_system_wide()
+filext()
 {
-    WINE_BRANCH="$3"
-    WINE_VERSION="$4"
-    
-	if [[ "$WINE_BRANCH" == "" ]];
-	then
-        WINE_BRANCH="stable"
-    fi
-	
-    if [[ "$WINE_VERSION" == "" ]];
-    then
-        WINE_VERSION="11.0.0.0"
-    fi
-	
-    echo -e "Installing WINE ($WINE_BRANCH) ($WINE_VERSION) system wide"
-    echo -e "----------------------------------------------------------\n"
-	
-    if [[ -f "/usr/bin/apt" ]];
-    then
-        PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
-        PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
-        PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
-        PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
-	                
-        sudo apt install $PACKAGES -y
+    FULL_PATH=$1
 
-	elif [[ -f "/usr/bin/dnf" ]];
-	then
-	    echo -n "TODO for Fedora.\n"
-	fi
+    FILE_NAME=$(basename "$FULL_PATH")
+    FILE_EXTENSION=${FILE_NAME##*.}
+
+    echo .$FILE_EXTENSION
+}
+
+
+find_wine_installations()
+{
+	SEARCH_PATH="$1"
+
+	WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
+
+	echo "$WINE_SERVERS"
+}
+
+
+install_wine()
+{
+    WINE_PATH="$1"
+    INSTALL_PATH="$2"
+
+    WINE_FOLDER=$(basename "$WINE_PATH")
+
+    is_wine_installation "$WINE_PATH"
+
+    if [[ "$?" == "0" ]];
+    then
+        if [[ "$INSTALL_PATH" == "" ]] ||
+           [[ "$INSTALL_PATH" == "$WINE_PATH" ]];
+        then
+            set_default_wine "$WINE_PATH"
+        else
+            if ! [[ -d "$INSTALL_PATH" ]];
+            then
+                mkdir -p "$INSTALL_PATH"
+            fi
+
+            cp -ru "$WINE_PATH" "$INSTALL_PATH"/
+            set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
+        fi
+    fi
+}
+
+
+install_winetricks()
+{
+    WINETRICKS_URL="https://raw.githubusercontent.com"
+    WINETRICKS_URL+="Winetricks/winetricks/master/src/winetricks"
+    
+    cd /tmp
+
+    curl -LO $WINETRICKS_URL
+
+    chmod +x /tmp/winetricks
+
+    cp -u /tmp/winetricks "$WINE_ENV/winetricks"
 }
 
 
@@ -607,6 +564,74 @@ install_wine_repo()
 	        fi
         fi
 	fi
+}
+
+
+install_wine_system_wide()
+{
+    WINE_BRANCH="$3"
+    WINE_VERSION="$4"
+    
+	if [[ "$WINE_BRANCH" == "" ]];
+	then
+        WINE_BRANCH="stable"
+    fi
+	
+    if [[ "$WINE_VERSION" == "" ]];
+    then
+        WINE_VERSION="11.0.0.0"
+    fi
+	
+    echo -e "Installing WINE ($WINE_BRANCH) ($WINE_VERSION) system wide"
+    echo -e "----------------------------------------------------------\n"
+	
+    if [[ -f "/usr/bin/apt" ]];
+    then
+        PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
+        PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
+        PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
+        PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
+	                
+        sudo apt install $PACKAGES -y
+
+	elif [[ -f "/usr/bin/dnf" ]];
+	then
+	    echo -n "TODO for Fedora.\n"
+	fi
+}
+
+
+is_wine_installation()
+{
+	WINE_PATH="$1"
+
+	if [[ -d "$WINE_PATH" ]];
+	then
+	    WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
+
+	    if ! [[ "$WINE_SERVER" == "" ]];
+	    then
+	        return 0
+	    fi
+	fi
+
+	return 1
+}
+
+
+is_wine_prefix()
+{
+    PREFIX="$1"
+    
+	if [[ -d "$PREFIX" ]];
+	then
+        if [[ -d "$PREFIX/dosdevices" ]];
+        then
+            return 0
+        fi
+	fi
+
+	return 1
 }
 
 
@@ -1172,21 +1197,16 @@ then
 
 elif [[ "$1" == "--download" ]];
 then
-    if ! [[ "$2" == "" ]];
-    then
-        WINE_BRANCH="$2"
-
-        if ! [[ "$3" == "" ]];
-        then
-            WINE_VERSION="$3"
-        fi
-    fi
+    WINE_BRANCH="$2"
+    WINE_VERSION="$3"
 
     download_wine $WINE_BRANCH $WINE_VERSION
 
-    if [[ -d "/tmp/wine" ]];
+    WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+
+    if [[ -d "$WINE_TMP_PATH" ]];
     then
-        extract_wine "/tmp/wine" "/tmp/wine"
+        extract_wine "$WINE_TMP_PATH" "$WINE_TMP_PATH"
     fi
 
     exit $?
@@ -1227,55 +1247,35 @@ then
 
 elif [[ "$1" == "--install" ]];
 then
-    if ! [[ "$2" == "" ]];
+    if [[ "$2" == "--system-wide" ]];
     then
-        if [[ "$2" == "--system-wide" ]];
+        # Installs WINE using OS package manager
+        WINE_BRANCH="$3"
+        WINE_VERSION="$4"
+
+        install_wine_system_wide $WINE_BRANCH $WINE_VERSION
+    else
+        if [[ -d "$2" ]] || [[ -f "$2" ]];
         then
-            WINE_BRANCH="$3"
-            WINE_VERSION="$4"
-
-            install_wine_system_wide $WINE_BRANCH $WINE_VERSION
-        else
+            # Installs a previously downloaded WINE
             WINE_PATH="$2"
+            install_wine "$WINE_PATH"
+        else
+            # Downloads WINE and install it
+            WINE_BRANCH="$2"
+            WINE_VERSION="$3"
+            WINE_INSTALL_PATH="$4"
 
-            is_wine_installation "$WINE_PATH"
-
-            if [[ "$?" == "0" ]];
+            if [[ "$WINE_INSTALL_PATH" == "" ]];
             then
-                if [[ "$3" == "" ]];
-                then
-                    WINE_INSTALL_PATH="$WINE_ENV"
-                else
-                    WINE_INSTALL_PATH="$3"
-                fi
-
-                mv "$WINE_PATH" "$WINE_INSTALL_PATH"
-            else
-                WINE_BRANCH="$2"
-                WINE_VERSION="$3"
-                WINE_INSTALL_PATH="$4"
-
-                if [[ "$WINE_BRANCH" == "stable" ]] || 
-                   [[ "$WINE_BRANCH" == "staging" ]]
-                then
-                    download_wine $WINE_BRANCH $WINE_VERSION
-
-                    WINE_TMP="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
-                    WINE_PATH="$WINE_TMP/extracted"
-                    
-                    if [[ -d "$WINE_TMP" ]];
-                    then
-                        extract_wine "$WINE_TMP" "$WINE_PATH"
-
-                        if [[ "$WINE_INSTALL_PATH" == "" ]];
-                        then
-                            WINE_INSTALL_PATH="$WINE_ENV"
-                        fi
-
-                        mv "$WINE_PATH" "$WINE_INSTALL_PATH"
-                    fi
-                fi
+                WINE_INSTALL_PATH="$WINE_ENV"
             fi
+
+            WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+
+            download_wine $WINE_BRANCH $WINE_VERSION
+            extract_wine "$WINE_TMP_PATH" "$WINE_INSTALL_PATH"
+            install_wine "$WINE_INSTALL_PATH"
         fi
     fi
 
