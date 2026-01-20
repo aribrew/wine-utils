@@ -678,7 +678,7 @@ load_wine()
     then
         if [[ -f "$HOME/.default_wine" ]];
         then
-            WINE_PATH=$(cat "$HOMEU/.default_wine")
+            WINE_PATH=$(cat "$HOME/.default_wine")
         else
             abort "Unable to load WINE. No installation set as the default."
         fi
