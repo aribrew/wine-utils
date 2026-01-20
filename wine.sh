@@ -981,12 +981,6 @@ setup_prefix()
 
 update_script()
 {
-    if [[ -v SKIP_UPDATING_WINESH ]];
-    then
-        echo -e "Skipping updating existing wine.sh\n"
-        return 0
-    fi
-
     local SCRIPT="/tmp/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
@@ -1084,10 +1078,10 @@ usage()
 	echo -e ": Downloads Winetricks into ~/.local/bin/wine."
 	echo -e "  Also install its dependencies."
 	echo -e ""
+	echo -e "wine.sh --update"
+	echo -e ": Updates the wine.sh script."
+	echo -e ""
 }
-
-
-update_script
 
 
 if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
@@ -1350,6 +1344,11 @@ then
 elif [[ "$1" == "--install_winetricks" ]];
 then
     install_winetricks
+    exit $?
+
+elif [[ "$1" == "--update" ]];
+then
+    update_script
     exit $?
 fi
 
