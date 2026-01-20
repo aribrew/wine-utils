@@ -674,6 +674,16 @@ load_wine()
 {
     WINE_PATH="$1"
 
+    if [[ "$WINE_PATH" == "" ]];
+    then
+        if [[ -f "$HOME/.default_wine" ]];
+        then
+            WINE_PATH=$(cat "$HOMEU/.default_wine")
+        else
+            abort "Unable to load WINE. No installation set as the default."
+        fi
+    fi
+
     is_wine_installation "$WINE_PATH"
     
    	if ! [[ "$?" == "0" ]];
@@ -737,6 +747,7 @@ load_wine()
 
     export WINE="$WINELOADER"
     export WINESERVER="$WINE_BINARIES/wineserver"
+    export WINEDEBUG="-all"
 
     alias wine="$WINELOADER"
 
@@ -769,6 +780,8 @@ load_wine()
     
     echo "- wineboot: Performs a 'reboot' of the loaded prefix."
     echo "- explorer, reg, regedit: Launch these Windows programs."
+    echo ""
+    echo "Also, y you want to see debug information, unset WINEDEBUG."
 
     if [[ -v DEBUG ]];
     then
@@ -947,7 +960,9 @@ setup_prefix()
 
     if ! [[ "$?" == "0" ]];
     then
-        echo -e "Initialization failed. Maybe a permissions problem.\n"
+        echo -e "Initialization failed.\n"
+        echo -e "May be a permissions problem creating the prefix..."
+        echo -e "...or some WINE dependencies may be missing..."
         exit 1
     fi
 
@@ -1016,6 +1031,9 @@ usage()
 	echo -e "  used instead the default one."
 	echo -e ""
 	echo -e "  Same if you export a WINEPREFIX variable manually."
+	echo -e ""
+	echo -e "wine.sh --config <prefix>"
+	echo -e ": Configs the specified prefix."
 	echo -e ""
     echo -e "wine.sh --set_default <WINE installation>"
     echo -e ": Set this WINE installation as the default one."
@@ -1100,7 +1118,31 @@ fi
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
-if [[ "$1" == "--set_default" ]];
+if [[ "$1" == "--config" ]];
+then
+    if ! [[ "$2" == "" ]];
+    then
+        WINEPREFIX="$2"
+        
+        if ! [[ "$WINEPREFIX" =~ "/" ]];
+        then
+            WINEPREFIX="$WINE_PREFIXES/$WINEPREFIX"
+        fi
+
+        is_wine_prefix "$WINEPREFIX"
+
+        if [[ "$?" == "0" ]];
+        then
+            load_prefix "$WINEPREFIX"
+            load_wine
+
+            "$WINELOADER" "$WINE_UTILS/winecfg.exe"
+        fi
+    fi
+
+    exit $?
+    
+elif [[ "$1" == "--set_default" ]];
 then
     if ! [[ "$2" == "" ]];
     then
@@ -1141,7 +1183,7 @@ then
         echo -e "No prefix specified."
         echo -e "Will create the default for 64 bits.\n"
 
-        WINEPREFIX="$WINE_PREFIX/.wine64"
+        WINEPREFIX="$WINE_PREFIXES/.wine64"
         WINEARCH="win64"
     else
         if [[ "$3" == "" ]];
