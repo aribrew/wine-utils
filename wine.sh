@@ -637,35 +637,16 @@ is_wine_prefix()
 
 load_prefix()
 {
-    if [[ -d "$1" ]];
+    is_wine_prefix "$1"
+
+    if [[ "$?" == "0" ]];
     then
-        is_wine_prefix "$1"
-
-        if [[ "$?" == "0" ]];
-        then
-            PREFIX="$1"
-        fi
-    else
-        is_wine_prefix "$WINE_PREFIXES/$1"
-
-        if [[ "$?" == "0" ]];
-        then
-            PREFIX="$WINE_PREFIXES/$1"
-        fi
-
-        if [[ "$PREFIX" == "" ]];
-        then
-            abort "Invalid prefix '$1'"
-        else
-            PREFIX_ARCH=$(prefix_arch "$PREFIX")
-        
-            export WINEPREFIX="$PREFIX"
-            export WINEARCH="$PREFIX_ARCH"
-            export WIN_C="$WINEPREFIX/drive_c"
-            export WIN_D="$WINEPREFIX/drive_d"
-            
-            echo -e "WINE prefix '$WINEPREFIX' activated.\n"
-        fi
+        export WINEPREFIX="$1"
+        export WINEARCH=$(prefix_arch "$WINEPREFIX")
+        export WIN_C="$WINEPREFIX/drive_c"
+        export WIN_D="$WINEPREFIX/drive_d"
+                    
+        echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
     fi
 }
 
@@ -839,11 +820,16 @@ prefix_arch()
         abort "Can't check the architecture of the invalid prefix '$PREFIX'."
 	fi
 
-	if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
-    then
-        export WINEARCH="win64"
-    else
-        export WINEARCH="win32"
+	if [[ -f "$PREFIX/.arch" ]];
+	then
+        cat "$PREFIX/.arch"
+	else
+        if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+        then
+            echo "win64"
+        else
+            echo "win32"
+        fi
     fi
 }
 
