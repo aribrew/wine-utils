@@ -1138,27 +1138,30 @@ elif [[ "$1" == "--setup_prefix" ]];
 then
     if [[ "$2" == "" ]];
     then
-        echo -e "Setting up default WINE prefix (64 bits)\n"
-        setup_prefix "$WINE_PREFIXES/.wine64" win64
+        echo -e "No prefix specified."
+        echo -e "Will create the default for 64 bits.\n"
+
+        WINEPREFIX="$WINE_PREFIX/.wine64"
+        WINEARCH="win64"
     else
-        if [[ "$2" == "win32" ]];
+        if [[ "$3" == "" ]];
         then
-            setup_prefix "$WINE_PREFIXES/.wine" win32
+            echo -e "No architecture specified."
+            echo -e "Will create the prefix for 64 bits.\n"
             
-        elif [[ "$2" == "win64" ]];
-        then
-            setup_prefix "$WINE_PREFIXES/.wine64" win64
+            WINEPREFIX="$2"
+            WINEARCH="win64"
         else
-            if [[ "$3" == "win32" ]] || [[ "$3" == "win64" ]];
-            then
-                if [[ "$2" =~ "/" ]];
-                then
-                    setup_prefix "$2" $3
-                else
-                    setup_prefix "$WINE_PREFIXES/$2" $3
-                fi
-            fi
+            WINEPREFIX="$2"
+            WINEARCH="$3"
         fi
+    fi
+
+    if [[ "$WINEPREFIX" =~ "/" ]];
+    then
+        setup_prefix "$WINEPREFIX" $WINEARCH
+    else
+        setup_prefix "$WINE_PREFIXES/$WINEPREFIX" $WINEARCH
     fi
 
     exit $?
@@ -1266,16 +1269,27 @@ then
             WINE_VERSION="$3"
             WINE_INSTALL_PATH="$4"
 
+            if [[ "$WINE_BRANCH" == "" ]];
+            then
+                WINE_BRANCH="stable"
+            fi
+
+            if [[ "$WINE_VERSION" == "" ]];
+            then
+                WINE_VERSION="11.0.0.0"
+            fi
+
             if [[ "$WINE_INSTALL_PATH" == "" ]];
             then
                 WINE_INSTALL_PATH="$WINE_ENV"
             fi
 
+            WINE_FOLDER="wine-$WINE_VERSION"
             WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
 
             download_wine $WINE_BRANCH $WINE_VERSION
             extract_wine "$WINE_TMP_PATH" "$WINE_INSTALL_PATH"
-            install_wine "$WINE_INSTALL_PATH"
+            install_wine "$WINE_INSTALL_PATH/$WINE_FOLDER"
         fi
     fi
 
