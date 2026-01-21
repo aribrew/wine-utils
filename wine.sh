@@ -11,7 +11,7 @@ abort()
         echo ""
     fi
 
-    if [[ "${BASH_SOURCE}" == "" ]];
+    if [[ "$0" == "$SHELL" ]];
     then
         return 1
     else
@@ -189,6 +189,17 @@ enable_dx12()
 	    echo ""
 	    echo -e "Prefix ready for running DirectX 12 games.\n"
 	fi
+}
+
+
+end()
+{
+	if [[ "$0" == "$SHELL" ]];
+    then
+        return 1
+    else
+        exit 1
+    fi
 }
 
 
@@ -622,7 +633,7 @@ is_wine_installation()
 is_wine_prefix()
 {
     PREFIX="$1"
-    
+
 	if [[ -d "$PREFIX" ]];
 	then
         if [[ -d "$PREFIX/dosdevices" ]];
@@ -637,12 +648,31 @@ is_wine_prefix()
 
 load_prefix()
 {
-    is_wine_prefix "$1"
+    if ! [[ "$1" =~ "/" ]];
+    then
+        PREFIX="$WINE_PREFIXES/$1"
+    else
+        PREFIX="$1"
+    fi
+    
+    is_wine_prefix "$PREFIX"
 
     if [[ "$?" == "0" ]];
     then
-        export WINEPREFIX="$1"
-        export WINEARCH=$(prefix_arch "$WINEPREFIX")
+        export WINEPREFIX="$PREFIX"
+
+        if [[ -f "$PREFIX/.arch" ]];
+        then
+            export WINEARCH=$(cat "$PREFIX/.arch")
+        else
+            if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+            then
+                export WINEARCH="win64"
+            else
+                export WINEARCH="win32"
+            fi
+        fi
+        
         export WIN_C="$WINEPREFIX/drive_c"
         export WIN_D="$WINEPREFIX/drive_d"
                     
@@ -805,31 +835,6 @@ os_version()
         OS_VERSION=$(echo "$OS_INFO" | grep '^VERSION_CODENAME=')
         
         echo "$OS_VERSION" | cut -d '=' -f 2 
-    fi
-}
-
-
-prefix_arch()
-{
-	PREFIX="$1"
-
-	is_wine_prefix "$PREFIX"
-
-	if ! [[ "$?" == "0" ]];
-	then
-        abort "Can't check the architecture of the invalid prefix '$PREFIX'."
-	fi
-
-	if [[ -f "$PREFIX/.arch" ]];
-	then
-        cat "$PREFIX/.arch"
-	else
-        if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
-        then
-            echo "win64"
-        else
-            echo "win32"
-        fi
     fi
 }
 
@@ -1100,22 +1105,33 @@ export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 if [[ "$1" == "--config" ]];
 then
-    if ! [[ "$2" == "" ]];
+    if [[ -v WINEPREFIX ]] && [[ -v WINELOADER ]];
     then
-        WINEPREFIX="$2"
-        
-        if ! [[ "$WINEPREFIX" =~ "/" ]];
+        echo -e "Configuring loaded WINE prefix '$WINEPREFIX'..."
+        "$WINELOADER" "$WINE_UTILS/winecfg.exe"
+    else
+        if ! [[ "$2" == "" ]];
         then
-            WINEPREFIX="$WINE_PREFIXES/$WINEPREFIX"
-        fi
+            WINEPREFIX="$2"
 
-        is_wine_prefix "$WINEPREFIX"
+            if ! [[ "$WINEPREFIX" =~ "/" ]];
+            then
+                WINEPREFIX="$WINE_PREFIXES/$WINEPREFIX"
+            fi
 
-        if [[ "$?" == "0" ]];
-        then
-            load_prefix "$WINEPREFIX"
-            load_wine
+            is_wine_prefix "$WINEPREFIX"
 
+            if [[ "$?" == "0" ]];
+            then
+                load_prefix "$WINEPREFIX"
+
+                if ! [[ -v WINELOADER ]];
+                then
+                    load_wine
+                fi
+            fi
+
+            echo -e "Configuring WINE prefix '$WINEPREFIX'..."
             "$WINELOADER" "$WINE_UTILS/winecfg.exe"
         fi
     fi
@@ -1190,35 +1206,36 @@ then
 
 elif [[ "$1" == "--load" ]];
 then
-    if ! [[ "$2" == "" ]];
+    if [[ "$2" == "" ]];
     then
-        WINE_PATH="$2"
-        
-        is_wine_installation "$WINE_PATH"
-        
-        if [[ "$?" == "0" ]];
+        if [[ -f "$HOME/.default_wine" ]];
         then
-            load_wine "$WINE_PATH"
+            WINE_PATH=$(cat "$HOME/.default_wine")
+        else
+            echo -e "Failed loading default WINE installation. Not set."
         fi
+    else
+        WINE_PATH="$2"
+    fi
+    
+    is_wine_installation "$WINE_PATH"
+            
+    if [[ "$?" == "0" ]];
+    then
+        load_wine "$WINE_PATH"
     fi
 
-    exit $?
+    end
     
 elif [[ "$1" == "--load_prefix" ]];
 then
     if ! [[ "$2" == "" ]];
     then
         WINEPREFIX="$2"
-
-        is_wine_prefix "$WINEPREFIX"
-
-        if [[ "$?" == "0" ]];
-        then
-            load_prefix "$WINEPREFIX"
-        fi
+        load_prefix "$WINEPREFIX"
     fi
 
-    exit $?
+    end
 
 elif [[ "$1" == "--download" ]];
 then
@@ -1335,11 +1352,11 @@ then
 elif [[ "$1" == "--update" ]];
 then
     update_script
-    exit $?
+    exit $
 fi
 
 
-if ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+if ! [[ "$0" == "SHELL" ]] && ! [[ "$1" == "" ]] && [[ -f "$1" ]];
 then
     EXEC=$(realpath "$1")
     EXEC_FILENAME=$(basename "$EXEC")
