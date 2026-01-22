@@ -877,7 +877,6 @@ prefix_arch_match_loaded_wine()
 	    echo "A 64 bit prefix is loaded but WINE environment is 32 bit."
 	    return 1;
 	else
-	    echo "WINEPREFIX and WINE environment architectures match."
 	    return 0;
 	fi
 }
