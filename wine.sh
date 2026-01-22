@@ -784,6 +784,14 @@ load_wine()
     alias regedit="\"$WINELOADER\" \"$WINE_UTILS/regedit.exe\""
 
     echo "Activated Wine $WINE_BRANCH $WINE_VERSION: $WINE_PATH"
+
+    if [[ "$WINEARCH" == "win32" ]];
+    then
+        echo "Loaded a 32 bit environment."
+    else
+        echo "Loaded a 64 bit environment."
+    fi
+    
     echo ""
     echo "You have available the following aliases: "
 
@@ -861,11 +869,15 @@ prefix_arch_match_loaded_wine()
 	
 	if [[ "$WINEARCH" == "win32" ]] && [[ -v WINEBOOT_IS_64BIT ]];
 	then
+	    echo "A 32 bit prefix is loaded but WINE environment is 64 bit."
 	    return 1 
+	    
 	elif [[ "$WINEARCH" == "win64" ]] && [[ -v WINEBOOT_IS_32BIT ]];
 	then
+	    echo "A 64 bit prefix is loaded but WINE environment is 32 bit."
 	    return 1;
 	else
+	    echo "WINEPREFIX and WINE environment architectures match."
 	    return 0;
 	fi
 }
@@ -873,9 +885,17 @@ prefix_arch_match_loaded_wine()
 
 reload_wine()
 {
-    # Just some syntatic sugar
     echo -en "Reloading WINE environment to match"
-    echo -e "the current PREFIX architecture...\n"
+    echo -e " the current PREFIX architecture...\n"
+
+    unset WINE_BINARIES
+    unset WINE_ROOT
+    unset WINELOADER
+    unset WINESERVER
+    unset WINEDLLPATH
+    unset WINE32_UTILS
+    unset WINE64_UTILS
+    unset WINE_UTILS
                 
 	load_wine
 }
@@ -918,7 +938,7 @@ set_default_win32_prefix()
 	    abort "Invalid prefix '$PREFIX'."
 	fi
 
-    if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
+    if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
     then
         echo -e "Not a 32 bit prefix.\n"
     else
@@ -967,6 +987,8 @@ setup_prefix()
     export WINEPREFIX="$1"
     export WINEARCH="$2"
 
+    echo -e "Preparing to setup a $WINEARCH prefix in '$WINEPREFIX'...\n"
+
     PREFIX_PATH=$(dirname "$WINEPREFIX")
     
     if ! [[ -d "$PREFIX_PATH" ]];
@@ -985,9 +1007,6 @@ setup_prefix()
             reload_wine
         fi
     fi
-    
-    echo "Initializing $WINEARCH prefix '$WINEPREFIX' ..."
-    echo ""
 
     "$WINELOADER" "$WINE_UTILS/wineboot.exe"
 
