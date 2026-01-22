@@ -677,6 +677,13 @@ load_prefix()
         export WIN_D="$WINEPREFIX/drive_d"
                     
         echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
+
+        prefix_arch_match_loaded_wine
+
+        if ! [[ "$?" == "0" ]];
+        then
+            reload
+        fi
     fi
 }
 
@@ -839,6 +846,41 @@ os_version()
 }
 
 
+prefix_arch_match_loaded_wine()
+{
+	WINEBOOT_ARCH=$(file "$WINE_UTILS/wineboot.exe")
+	
+	echo "$WINEBOOT_ARCH" | grep -q "PE32+"
+	
+	if [[ "$?" == "0" ]];
+	then
+	    WINEBOOT_IS_64BIT=1
+	else
+	    WINEBOOT_IS_32BIT=1
+	fi
+	
+	if [[ "$WINEARCH" == "win32" ]] && [[ -v WINEBOOT_IS_64BIT ]];
+	then
+	    return 1 
+	elif [[ "$WINEARCH" == "win64" ]] && [[ -v WINEBOOT_IS_32BIT ]];
+	then
+	    return 1;
+	else
+	    return 0;
+	fi
+}
+
+
+reload_wine()
+{
+    # Just some syntatic sugar
+    echo -en "Reloading WINE environment to match"
+    echo -e "the current PREFIX architecture...\n"
+                
+	load_wine
+}
+
+
 same_file()
 {
 	FIRST_FILE="$1"
@@ -934,13 +976,13 @@ setup_prefix()
 
     if ! [[ -v WINELOADER ]];
     then
-        if ! [[ -f "$HOME/.default_wine" ]];
-        then
-            abort "No WINE installation defined as the default."
-        else
-            WINE_PATH=$(cat "$HOME/.default_wine")
+        load_wine
+    else
+        prefix_arch_match_loaded_wine
 
-            load_wine "$WINE_PATH"
+        if ! [[ "$?" == "0" ]];
+        then
+            reload_wine
         fi
     fi
     
