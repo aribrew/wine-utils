@@ -12,7 +12,7 @@ abort()
         echo ""
     fi
 
-    if [[ "${BASH_SOURCE}" == "" ]];
+    if [[ "$0" == "$SHELL" ]];
     then
         return 1
     else
@@ -50,9 +50,9 @@ ask_yn()
 
     if ! [[ "$QUESTION" == "" ]];
     then
-        read -p "$QUESTION" answer
+        read -p "$QUESTION (YS/n): " answer
 
-        if [[ "$answer" == "y" ]] || [[ "$answer" == "s" ]];
+        if [[ "$answer" == "Y" ]] || [[ "$answer" == "S" ]];
         then
             return 0
             
@@ -359,7 +359,7 @@ uppercase()
 }
 
 
-usage()
+helpers_usage()
 {
     echo "source bash_helpers.sh"
     echo ": Loads the functions in the current shell."
@@ -376,15 +376,6 @@ usage()
     echo ": List all available exported commands."
     echo ""
 }
-
-
-
-
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
-then
-    usage
-    abort
-fi
 
 
 if ! [[ -v ZSH_VERSION ]];
@@ -419,7 +410,8 @@ fi
 
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
-    usage
+    helpers_usage
+    abort
 
 elif [[ "$1" == "--cmds" ]];
 then

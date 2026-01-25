@@ -711,7 +711,22 @@ load_wine()
 
 	if ! [[ -v WINEARCH ]];
 	then
-        abort "No WINE prefix loaded. Load one first."
+	    if [[ -v WINEPREFIX ]];
+	    then
+            if [[ -f "$WINEPREFIX/.arch" ]];
+            then
+                WINEARCH=$(cat "$WINEPREFIX/.arch")
+            else
+                if [[ -d "$WINEPREFIX/drive_c/Program Files (x86)" ]];
+                then
+                    export WINEARCH="win64"
+                else
+                    export WINEARCH="win32"
+                fi
+            fi
+	    else
+            abort "No WINE prefix loaded. Load one first."
+        fi
 	fi
 
 	if [[ -f "$WINE_PATH/.wine_branch" ]];
@@ -1080,8 +1095,8 @@ usage()
 	echo -e "wine.sh --config <prefix>"
 	echo -e ": Configs the specified prefix."
 	echo -e ""
-    echo -e "wine.sh --set_default <WINE installation>"
-    echo -e ": Set this WINE installation as the default one."
+    echo -e "wine.sh --set_default <WINE path>"
+    echo -e ": Set this WINE as the default one."
     echo -e "  This is required by 'setup_prefix' to preload it."
     echo -e ""
     echo -e "wine.sh --set_default_win32_prefix <prefix name>"
@@ -1091,9 +1106,9 @@ usage()
 	echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
 	echo -e "  The default architecture, if none is specified, is win64."
 	echo -e ""
-    echo -e "wine.sh --load <WINE installation"
+    echo -e "wine.sh --load <WINE path>"
     echo -e ": Use with 'source' or '.'."
-    echo -e "  Loads the given WINE installation in the current environment."
+    echo -e "  Loads the given WINE in the current environment."
     echo -e ""
 	echo -e "wine.sh --load_prefix <prefix name>"
 	echo -e ": Use with 'source' or '.'."
