@@ -400,7 +400,7 @@ install_wine()
 install_winetricks()
 {
     WINETRICKS_URL="https://raw.githubusercontent.com"
-    WINETRICKS_URL+="Winetricks/winetricks/master/src/winetricks"
+    WINETRICKS_URL+="/Winetricks/winetricks/master/src/winetricks"
     
     cd /tmp
 
@@ -1050,7 +1050,7 @@ update_script()
     local SCRIPT="/tmp/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
-    local INSTALL_PATH="$HOME/.local/bin"
+    local INSTALL_PATH="$WINE_ENV"
 
     SCRIPT_URL="https://github.com/aribrew/wine-utils"
     SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
@@ -1172,6 +1172,23 @@ fi
 if ! [[ -v WINE_ENV ]];
 then
     export WINE_ENV="$HOME/.local/bin/wine"
+
+    if ! [[ -d "$WINE_ENV" ]];
+    then
+        echo "$HOME/.environment" | grep -q ".local/bin/wine"
+
+        if ! [[ "$?" == "0" ]];
+        then
+            echo -e "\nexport PATH=\$PATH:$WINE_ENV" >> "$HOME/.environment"
+
+            echo "$HOME/.bashrc" | grep -q ".environment"
+
+            if ! [[ "$?" == "0" ]];
+            then
+                echo -e "\nsource \$HOME/.environment" >> "$HOME/.bashrc"
+            fi
+        fi
+    fi
 fi
 
 
