@@ -678,12 +678,7 @@ load_prefix()
                     
         echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
 
-        prefix_arch_match_loaded_wine
-
-        if ! [[ "$?" == "0" ]];
-        then
-            reload
-        fi
+        load_wine
     fi
 }
 
@@ -869,52 +864,6 @@ os_version()
 }
 
 
-prefix_arch_match_loaded_wine()
-{
-	WINEBOOT_ARCH=$(file "$WINE_UTILS/wineboot.exe")
-	
-	echo "$WINEBOOT_ARCH" | grep -q "PE32+"
-	
-	if [[ "$?" == "0" ]];
-	then
-	    WINEBOOT_IS_64BIT=1
-	else
-	    WINEBOOT_IS_32BIT=1
-	fi
-	
-	if [[ "$WINEARCH" == "win32" ]] && [[ -v WINEBOOT_IS_64BIT ]];
-	then
-	    echo "A 32 bit prefix is loaded but WINE environment is 64 bit."
-	    return 1 
-	    
-	elif [[ "$WINEARCH" == "win64" ]] && [[ -v WINEBOOT_IS_32BIT ]];
-	then
-	    echo "A 64 bit prefix is loaded but WINE environment is 32 bit."
-	    return 1;
-	else
-	    return 0;
-	fi
-}
-
-
-reload_wine()
-{
-    echo -en "Reloading WINE environment to match"
-    echo -e " the current PREFIX architecture...\n"
-
-    unset WINE_BINARIES
-    unset WINE_ROOT
-    unset WINELOADER
-    unset WINESERVER
-    unset WINEDLLPATH
-    unset WINE32_UTILS
-    unset WINE64_UTILS
-    unset WINE_UTILS
-                
-	load_wine
-}
-
-
 same_file()
 {
 	FIRST_FILE="$1"
@@ -1050,7 +999,7 @@ update_script()
     local SCRIPT="/tmp/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
-    local INSTALL_PATH="$WINE_ENV"
+    local INSTALL_PATH="$HOME/.local/bin"
 
     SCRIPT_URL="https://github.com/aribrew/wine-utils"
     SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
@@ -1113,6 +1062,7 @@ usage()
 	echo -e "wine.sh --load_prefix <prefix name>"
 	echo -e ": Use with 'source' or '.'."
 	echo -e "  Loads the given prefix in the current environment."
+	echo -e "  Also, the default WINE is loaded or reloaded."
 	echo -e ""
 	echo -e "wine.sh --download [branch] [version]"
 	echo -e ": Downloads WINE to /tmp/wine folder."
