@@ -194,12 +194,12 @@ enable_dx12()
 
 end()
 {
-	if [[ "$0" == "$SHELL" ]];
-    then
-        return 1
-    else
-        exit 1
-    fi
+	if [[ "$0" == *bash ]] || [[ "$0" == *zsh ]];
+	then
+	    return 1
+	else
+	    exit 1
+	fi
 }
 
 
