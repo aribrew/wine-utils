@@ -11,7 +11,7 @@ abort()
         echo ""
     fi
 
-    if [[ "$0" == "$SHELL" ]];
+    if [[ "$0" == *bash ]] || [[ "$0" == *zsh ]];
     then
         return 1
     else
