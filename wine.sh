@@ -401,6 +401,18 @@ install_winetricks()
 {
     WINETRICKS_URL="https://raw.githubusercontent.com"
     WINETRICKS_URL+="/Winetricks/winetricks/master/src/winetricks"
+
+    if ! [[ -f "/usr/bin/zenity" ]] || [[ -f "/usr/bin/cabextract" ]];
+    then
+        if [[ -f "/usr/bin/apt" ]];
+        then
+            sudo apt install -y zenity cabextract
+            
+        elif [[ -f "/usr/bin/dnf" ]];
+        then
+            sudo dnf install -y zenity cabextract
+        fi
+    fi
     
     cd /tmp
 
@@ -426,7 +438,7 @@ install_wine_deps()
 	    then
 	        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
 	        
-	        if [[ "/etc/apt/keyrings/winehq-archive.key" ]];
+	        if [[ -f "/etc/apt/keyrings/winehq-archive.key" ]];
 	        then
 	            sudo apt install --install-recommends -y $PACKAGES
 	            
@@ -1430,9 +1442,17 @@ then
 
     if ! [[ -v WINELOADER ]];
     then
-        load_wine "$WINE_PATH"
+        if [[ "$WINE_PATH" ]];
+        then
+            load_wine "$WINE_PATH"
+        else
+            load_wine
+        fi
     fi
-    
-    wine "$EXEC" "$ARGS"
+
+    if [[ -v WINEPREFIX ]] && [[ -v WINELOADER ]];
+    then
+        wine "$EXEC" "$ARGS"
+    fi
 fi
 
