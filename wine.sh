@@ -971,17 +971,7 @@ setup_prefix()
         mkdir -p "$PREFIX_PATH"
     fi
 
-    if ! [[ -v WINELOADER ]];
-    then
-        load_wine
-    else
-        prefix_arch_match_loaded_wine
-
-        if ! [[ "$?" == "0" ]];
-        then
-            reload_wine
-        fi
-    fi
+    load_wine
 
     "$WINELOADER" "$WINE_UTILS/wineboot.exe"
 
