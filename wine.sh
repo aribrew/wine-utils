@@ -658,6 +658,42 @@ is_wine_prefix()
 }
 
 
+load_env()
+{
+	if ! [[ -v WINEPREFIX ]];
+	then
+	    echo -e "No WINEPREFIX provided. Trying for the default for 64 bits."
+
+	    if ! [[ -d "$HOME/.wine64" ]];
+	    then
+            echo -e "Not found. Trying the default for 32 bits."
+
+            if ! [[ -d "$HOME/.wine" ]];
+            then
+                abort "Neither? Aborting then."
+            else
+                WINEPREFIX="$HOME/.wine"
+            fi
+	    else
+            WINEPREFIX="$HOME/.wine64"
+	    fi
+	fi
+
+	if ! [[ -v WINE_PATH ]];
+	then
+        if ! [[ -f "$HOME/.default_wine" ]];
+        then
+            abort "No WINE_PATH provided a no WINE is set as the default one."
+        fi
+
+        WINE_PATH=$(cat "$HOME/.default_wine")
+	fi
+
+	load_prefix "$WINEPREFIX"
+	load_wine "$WINE_PATH"
+}
+
+
 load_prefix()
 {
     if ! [[ "$1" =~ "/" ]];
@@ -1061,6 +1097,10 @@ usage()
     echo -e ": Use with 'source' or '.'."
     echo -e "  Loads the given WINE in the current environment."
     echo -e ""
+    echo -e "wine.sh --load_env"
+    echo -e ": Loads the WINE environment (prefix and WINE)."
+    echo -e "  If WINEPREFIX and/or WINE_PATH are provided, they will be used."
+    echo -e ""
 	echo -e "wine.sh --load_prefix <prefix name>"
 	echo -e ": Use with 'source' or '.'."
 	echo -e "  Loads the given prefix in the current environment."
@@ -1269,6 +1309,11 @@ then
         load_wine "$WINE_PATH"
     fi
 
+    end
+
+elif [[ "$1" == "--load_env" ]];
+then
+    load_env
     end
     
 elif [[ "$1" == "--load_prefix" ]];
