@@ -686,11 +686,10 @@ load_env()
             abort "No WINE_PATH provided a no WINE is set as the default one."
         fi
 
-        WINE_PATH=$(cat "$HOME/.default_wine")
+        export WINE_PATH=$(cat "$HOME/.default_wine")
 	fi
 
 	load_prefix "$WINEPREFIX"
-	load_wine "$WINE_PATH"
 }
 
 
@@ -726,7 +725,12 @@ load_prefix()
                     
         echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
 
-        load_wine
+        if [[ -v WINE_PATH ]];
+        then
+            load_wine "$WINE_PATH"
+        else
+            load_wine
+        fi
     fi
 }
 
