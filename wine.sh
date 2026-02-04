@@ -51,6 +51,36 @@ check_script()
 }
 
 
+disable_virtual_desktop()
+{
+    if [[ -v WINELOADER ]];
+    then
+        if ! [[ -v WINEPREFIX ]];
+        then
+            if ! [[ "$1" == "" ]];
+            then
+                WINEPREFIX="$1"
+            fi
+        fi
+
+        is_wine_prefix "$WINEPREFIX"
+
+        if [[ "$?" == "0" ]];
+        then
+            load_prefix "$WINEPREFIX"
+            
+            echo -e "Disabling WINE Virtual Desktop..."
+            
+            WINE_CMDLINE="reg delete "
+            WINE_CMDLINE+="\"HKCU\Software\Wine\Explorer\" "
+            WINE_CMDLINE+="/v Desktop /f"
+
+            wine $WINE_CMDLINE
+        fi
+    fi
+}
+
+
 download_wine()
 {
     WINE_BRANCH="$1"
@@ -189,6 +219,50 @@ enable_dx12()
 	    echo ""
 	    echo -e "Prefix ready for running DirectX 12 games.\n"
 	fi
+}
+
+
+enable_virtual_desktop()
+{
+    if [[ -v WINELOADER ]];
+    then
+        if ! [[ -v WINE_DESKTOP_RES ]];
+        then
+            if ! [[ "$1" == "" ]];
+            then
+                WINE_DESKTOP_RES="$1"
+            fi
+        fi
+                
+        if ! [[ -v WINEPREFIX ]];
+        then
+            if ! [[ "$2" == "" ]];
+            then
+                WINEPREFIX="$2"
+            fi
+        fi
+
+        is_wine_prefix "$WINEPREFIX"
+
+        if [[ "$?" == "0" ]];
+        then
+            load_prefix "$WINEPREFIX"
+            
+            echo -e "Enabling WINE a $WINE_DESKTOP_RES Virtual Desktop..."
+            
+            WINE_CMDLINE="reg add "
+            WINE_CMDLINE+="\"HKCU\Software\Wine\Explorer\Desktops\" "
+            WINE_CMDLINE+="/v Default /t REG_SZ /d $WINE_DESKTOP_RES /f"
+
+            wine $WINE_CMDLINE
+
+            WINE_CMDLINE="reg add "
+            WINE_CMDLINE+="\"HKCU\Software\Wine\Explorer\" "
+            WINE_CMDLINE+="/v Desktop /t REG_SZ /d Default /f"
+
+            wine $WINE_CMDLINE
+        fi
+    fi
 }
 
 
@@ -1110,6 +1184,9 @@ usage()
 	echo -e "  Loads the given prefix in the current environment."
 	echo -e "  Also, the default WINE is loaded or reloaded."
 	echo -e ""
+	echo -e "wine.sh --disable_virtual_desktop [prefix]"
+    echo -e ": Enables the Virtual Desktop for the given or actual prefix."
+    echo -e ""
 	echo -e "wine.sh --download [branch] [version]"
 	echo -e ": Downloads WINE to /tmp/wine folder."
 	echo -e "  Default branch and version: stable 11.0.0.0"
@@ -1119,6 +1196,9 @@ usage()
 	echo -e ""
 	echo -e "wine.sh --enable_dx12_support <prefix>"
 	echo -e ": Enable DirectX 12 support for the given prefix."
+	echo -e ""
+	echo -e "wine.sh --enable_virtual_desktop <resolution> [prefix]"
+	echo -e ": Enables the Virtual Desktop for the given or actual prefix."
 	echo -e ""
 	echo -e "wine.sh --install --system-wide [branch] [version]"
 	echo -e ": Installs WINE system wide. This is the standard way."
@@ -1325,7 +1405,31 @@ then
     if ! [[ "$2" == "" ]];
     then
         WINEPREFIX="$2"
+        
         load_prefix "$WINEPREFIX"
+    fi
+
+    end
+
+elif [[ "$1" == "--enable_virtual_desktop" ]];
+then
+    if ! [[ "$1" == "" ]];
+    then
+        WINEPREFIX="$1"
+        WINE_DESKTOP_RES="$2"
+
+        enable_virtual_desktop "$WINEPREFIX" "$WINE_DESKTOP_RES"
+    fi
+
+    end
+
+elif [[ "$1" == "--disable_virtual_desktop" ]];
+then
+    if ! [[ "$1" == "" ]];
+    then
+        WINEPREFIX="$1"
+        
+        disable_virtual_desktop "$WINEPREFIX"
     fi
 
     end
