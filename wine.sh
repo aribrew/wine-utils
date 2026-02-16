@@ -987,6 +987,15 @@ load_wine()
 }
 
 
+lowercase()
+{
+    if ! [[ "$1" == "" ]];
+    then
+        echo "$1" | awk '{print tolower($0)}'
+    fi
+}
+
+
 os_name()
 {
     echo "$(cat /etc/os-release | grep '^ID=' | cut -d '=' -f 2)"
@@ -1580,7 +1589,7 @@ then
 elif [[ "$1" == "--update" ]];
 then
     update_script
-    exit $
+    exit $?
 fi
 
 
