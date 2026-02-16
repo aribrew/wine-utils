@@ -742,9 +742,10 @@ load_basic_env()
         export WINE_PATH=$(cat "$HOME/.default_wine")
 	fi
 
-	echo -e "WINE basic environment loaded."
-	echo -e "You can access now to WINE_ENV, WINE_PATH and WINE_PREFIXES.\n"
-	echo -e "WINE_PATH will not be available if no WINE has been installed.\n"
+	echo -e "WINE basic environment loaded:\n"
+	echo -e "- WINE_ENV: WINE environment path"
+	echo -e "- WINE_PATH: Default WINE (if available)"
+	echo -e "- WINE_PREFIXES: Prefixes path\n"
 }
 
 
@@ -1293,7 +1294,7 @@ then
 fi
 
 
-load_basic_env
+export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
 if [[ "$1" == "--config" ]];
@@ -1422,6 +1423,7 @@ then
 
 elif [[ "$1" == "--load_basic_env" ]];
 then
+    load_basic_env
     end
 
 elif [[ "$1" == "--load_env" ]];
