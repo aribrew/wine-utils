@@ -1614,6 +1614,16 @@ then
         load_prefix "$PREFIX"
     fi
 
+    if ! [[ -d "$WINEPREFIX" ]];
+    then
+        if [[ -d "${WINE_PREFIXES}/${WINEPREFIX}" ]];
+        then
+            load_prefix "$WINEPREFIX"
+        else
+            abort "Requested WINE prefix '$WINEPREFIX' does not exist."
+        fi
+    fi
+
     if ! [[ -v WINELOADER ]];
     then
         if [[ "$WINE_PATH" ]];
