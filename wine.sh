@@ -1626,7 +1626,7 @@ then
 
     if [[ -v WINEPREFIX ]] && [[ -v WINELOADER ]];
     then
-        wine "$EXEC" "$ARGS"
+        "$WINELOADER" "$EXEC" "$ARGS"
     fi
 fi
 
