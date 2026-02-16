@@ -732,6 +732,22 @@ is_wine_prefix()
 }
 
 
+load_basic_env()
+{
+    export WINE_ENV="$HOME/.local/bin/wine"
+	export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+
+	if [[ -f "$HOME/.default_wine" ]];
+	then
+        export WINE_PATH=$(cat "$HOME/.default_wine")
+	fi
+
+	echo -e "WINE basic environment loaded."
+	echo -e "You can access now to WINE_ENV, WINE_PATH and WINE_PREFIXES.\n"
+	echo -e "WINE_PATH will not be available if no WINE has been installed.\n"
+}
+
+
 load_env()
 {
 	if ! [[ -v WINEPREFIX ]];
@@ -1029,9 +1045,11 @@ set_default_win32_prefix()
 
     if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
     then
-        echo -e "Not a 32 bit prefix.\n"
+        abort "Not a 32 bit prefix.\n"
     else
-	    ln -sf "$PREFIX" "$HOME/.wine"
+        rm "$HOME/.wine"
+	    ln -s "$PREFIX" "$HOME/.wine"
+	    
 	    echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
 	fi
 }
@@ -1050,10 +1068,12 @@ set_default_win64_prefix()
 
 	if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
 	then
-    	ln -sf "$PREFIX" "$HOME/.wine64"
+	    rm "$HOME/.wine64"
+    	ln -s "$PREFIX" "$HOME/.wine64"
+
     	echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
 	else
-        echo -e "Not a 64 bit prefix.\n"
+        abort "Not a 64 bit prefix.\n"
 	fi
 }
 
@@ -1174,6 +1194,11 @@ usage()
     echo -e "wine.sh --load <WINE path>"
     echo -e ": Use with 'source' or '.'."
     echo -e "  Loads the given WINE in the current environment."
+    echo -e "  You need a WINEPREFIX loaded before loading WINE, unless"
+    echo -e "  you provide the desired WINEARCH (win32|win64)."
+    echo -e ""
+    echo -e "wine.sh --load_basic_env"
+    echo -e ": Only loads the minimal environment."
     echo -e ""
     echo -e "wine.sh --load_env"
     echo -e ": Loads the WINE environment (prefix and WINE)."
@@ -1268,7 +1293,7 @@ then
 fi
 
 
-export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+load_basic_env
 
 
 if [[ "$1" == "--config" ]];
@@ -1393,6 +1418,10 @@ then
         load_wine "$WINE_PATH"
     fi
 
+    end
+
+elif [[ "$1" == "--load_basic_env" ]];
+then
     end
 
 elif [[ "$1" == "--load_env" ]];
