@@ -1623,13 +1623,25 @@ then
         load_prefix "$PREFIX"
     fi
 
+    if [[ -v WIN_VERSION ]];
+    then
+        PREFIX="$WINE_PREFIXES/$WIN_VERSION"
+        
+        if ! [[ -d "$PREFIX" ]];
+        then
+            abort "Requested WINE prefix '$PREFIX' does not exist."
+        else
+            load_prefix "$PREFIX"
+        fi
+    fi
+
     if ! [[ -d "$WINEPREFIX" ]];
     then
-        if [[ -d "${WINE_PREFIXES}/${WINEPREFIX}" ]];
+        if ! [[ -d "$WINE_PREFIXES/$WINEPREFIX" ]];
         then
-            load_prefix "$WINEPREFIX"
-        else
             abort "Requested WINE prefix '$WINEPREFIX' does not exist."
+        else
+            load_prefix "$WINEPREFIX"
         fi
     fi
 
