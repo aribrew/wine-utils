@@ -795,6 +795,39 @@ load_basic_env()
 	echo -e "- WINE_ENV: WINE environment path"
 	echo -e "- WINE_PATH: Default WINE (if available)"
 	echo -e "- WINE_PREFIXES: Prefixes path\n"
+
+	echo -e "Also, the following commands are now available:"
+	echo -e ""
+	echo -e "disable_virtual_desktop, download_wine, enable_dx11, enable_dx12,"
+	echo -e "enable_virtual_desktop, exec_type, extract_wine, install_wine,"
+	echo -e "install_wine_deps, install_wine_repo, install_wine_system_wide,"
+	echo -e "install_winetricks, isolabel, load_prefix, load_wine, mount_iso,"
+	echo -e "set_default_win32_prefix, set_default_win64_prefix,"
+	echo -e "set_default_wine, setup_prefix\n"
+
+    if ! [[ -v ZSH_VERSION ]];
+    then
+        export -f disable_virtual_desktop
+        export -f download_wine
+        export -f enable_dx11
+        export -f enable_dx12
+        export -f enable_virtual_desktop
+        export -f exec_type
+        export -f extract_wine
+        export -f install_wine
+        export -f install_wine_deps
+        export -f install_wine_repo
+        export -f install_wine_system_wide
+        export -f install_winetricks
+	    export -f isolabel
+	    export -f load_prefix
+	    export -f load_wine
+	    export -f mount_iso
+	    export -f set_default_win32_prefix
+	    export -f set_default_win64_prefix
+	    export -f set_default_wine
+	    export -f setup_prefix
+	fi 
 }
 
 
