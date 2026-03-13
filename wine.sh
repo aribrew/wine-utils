@@ -732,6 +732,55 @@ is_wine_prefix()
 }
 
 
+isolabel()
+{
+    ISO=$1
+    EXTENSION=$(filext "$ISO")
+    LC_EXT=$(lowercase "$EXTENSION")
+	
+    if [[ "$LC_EXT" == ".iso" ]] || [[ "$LC_EXT" == ".bin" ]];
+    then
+        if [[ -f "$(which /usr/bin/cd-info)" ]];
+        then
+            LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume id:")
+	
+            if [[ "$LABEL" == "" ]];
+            then
+                LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume")
+            fi
+        fi
+    fi
+
+	if ! [[ "$LABEL" == "" ]];
+    then
+        LABEL=$(echo "$LABEL" | cut -d ':' -f 2 | xargs)
+        echo "$LABEL"
+    else
+        isoname "$ISO"
+    fi
+}
+
+
+isoname()
+{
+    ISO=$1
+    EXTENSION=$(filext "$ISO")
+    LC_EXT=$(lowercase "$EXTENSION")
+	
+    FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
+	
+    if [[ "$FILE_NAME_WEXT" == "" ]];
+    then
+        echo "UNKNOWN"
+    else
+        ISO_LABEL=$(uppercase "$FILE_NAME_WEXT")
+        ISO_LABEL=$(echo "$ISO_LABEL" | sed 's/ /_/g')
+        
+        echo "$ISO_LABEL"
+    fi
+}
+
+
 load_basic_env()
 {
     export WINE_ENV="$HOME/.local/bin/wine"
@@ -992,6 +1041,48 @@ lowercase()
     if ! [[ "$1" == "" ]];
     then
         echo "$1" | awk '{print tolower($0)}'
+    fi
+}
+
+
+mount_iso()
+{
+    ISO=$(realpath "$1")
+    ISO_TYPE=$(lowercase $(filext "$ISO"))
+    LABEL=$(isolabel "$ISO")
+    MOUNT_PATH="/tmp/iso/$LABEL"
+	
+    if [[ -f "/tmp/iso/.${LABEL}_mounted" ]];
+    then
+        echo -e "This ISO is already mounted in '$MOUNT_PATH'.\n" && exit 1
+    fi
+	
+    if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".bin" ]];
+    then
+        mkdir -p "$MOUNT_PATH"
+        cd "$MOUNT_PATH"
+
+	    if [[ -f "$(which bsdtar)" ]];
+        then        
+            bsdtar xf "$ISO"
+	            
+        elif [[ -f "$(which 7z)" ]];
+        then
+            7z x "$ISO"
+        else
+            echo -e "Can't find bsdtar or 7z. Unable to extract ISO.\n"
+            exit 1
+        fi
+
+	    if ! [[ "$?" == "0" ]];
+        then
+            echo -e "Failed extracting '$ISO'.\n" && exit 1
+        fi
+
+        chmod -R 770 "$MOUNT_PATH"
+        touch "/tmp/iso/.${LABEL}_mounted"
+        
+        echo -e "ISO 'mounted' in '$MOUNT_PATH'.\n"
     fi
 }
 
