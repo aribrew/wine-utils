@@ -1244,6 +1244,17 @@ usage()
 	echo -e ""
 	echo -e "wine.sh --install [branch] [version] [install dir]"
 	echo -e ": Downloads and install the specified WINE branch and version."
+	echo -e ""
+	echo -e "wine.sh --install_app <app.exe|.iso|.zip>"
+	echo -e ": Installs the given app. It can be an EXE installer, an ISO"
+	echo -e "  image or a ZIP. By default, it will be installed as a 64 bit"
+	echo -e "  app, but you can tweak various things exporting the folloing"
+	echo -e "  variables: WIN_INSTALL_PREFIX, WIN_INSTALL_WINVER, "
+	echo -e "  WIN_INSTALL_WINARCH, WIN_INSTALL_APPNAME."
+	echo -e ""
+	echo -e "  If an ISO or ZIP is provided, it will be extracted. Also, in"
+	echo -e "  this case, you can provide WIN_INSTALL_SETUP_EXEC, to run that"
+	echo -e "  after extraction. If not, the script will attempt to find it."
     echo -e ""
     echo -e "wine.sh --install_deps"
     echo -e ": Installs WINE dependencies."
@@ -1569,6 +1580,41 @@ then
         fi
     fi
 
+    exit $?
+
+elif [[ "$1" == "--install_app" ]];
+then
+    if ! [[ "$2" == "" ]] && [[ -f "$2" ]];
+    then
+        APP="$2"
+
+        if [[ -v WIN_INSTALL_PREFIX ]];
+        then
+            export WINEPREFIX="$WIN_INSTALL_PREFIX"
+            
+        elif [[ -v WIN_INSTALL_WINARCH ]];
+        then
+            export WINARCH="$WIN_INSTALL_WINARCH"
+
+        elif [[ -v WIN_INSTALL_WINVER ]];
+        then
+            export WINEPREFIX="$WIN_INSTALL_WINVER"
+        fi
+        
+        if [[ "$APP" == *.exe ]];
+        then
+            echo -e "Install app from EXE: TODO\n"
+            
+        elif [[ "$APP" == *.iso ]];
+        then
+            echo -e "Install app from ISO: TODO\n"
+
+        elif [[ "$APP" == *.zip ]];
+        then
+            echo -e "Install app from ZIP: TODO\n"
+        fi
+    fi
+    
     exit $?
 
 elif [[ "$1" == "--install_deps" ]];
