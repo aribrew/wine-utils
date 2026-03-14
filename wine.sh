@@ -45,9 +45,9 @@ ask_yn()
 
 check_script()
 {
-	SCRIPT=$(realpath $0)
+    SCRIPT=$(realpath $0)
 
-	bash -n "$SCRIPT"
+    bash -n "$SCRIPT"
 }
 
 
@@ -102,10 +102,10 @@ download_wine()
         abort "WINE branch must be 'stable' or 'staging'."
     fi
 
-	WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
-	LATEST_DEBIAN="trixie"
+    WINE_URL="https://dl.winehq.org/wine-builds/debian/pool/main/w"
+    LATEST_DEBIAN="trixie"
 
-	WINE_BASE="wine-${WINE_BRANCH}"
+    WINE_BASE="wine-${WINE_BRANCH}"
     WINE_BASE+="_${WINE_VERSION}"
     WINE_BASE+="~${LATEST_DEBIAN}-1_amd64.deb"
 
@@ -159,7 +159,7 @@ download_wine()
         abort "Failed."
     fi
 
-    WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+    WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
 
     if [[ -d "$WINE_TMP_PATH" ]];
     then
@@ -181,19 +181,19 @@ enable_dx11()
         abort "Winetricks not found in '$WINE_ENV'."
     fi
 
-	echo ""
-	echo "Installing DXVK (DirectX -> Vulkan) for DirectX 11 compatibility..."
-	echo "-------------------------------------------------------------------"
-	
-	winetricks dxvk
-	
-	if [[ "$?" == "0" ]];
-	then
-	    touch "$WINEPREFIX/.dx11_enabled"
+    echo ""
+    echo "Installing DXVK (DirectX -> Vulkan) for DirectX 11 compatibility..."
+    echo "-------------------------------------------------------------------"
+    
+    winetricks dxvk
+    
+    if [[ "$?" == "0" ]];
+    then
+        touch "$WINEPREFIX/.dx11_enabled"
 
-	    echo ""
-	    echo -e "Prefix ready for running DirectX 11 games.\n"
-	fi
+        echo ""
+        echo -e "Prefix ready for running DirectX 11 games.\n"
+    fi
 }
 
 
@@ -216,9 +216,9 @@ enable_dx12()
     then
         touch "$WINEPREFIX/.dx12_enabled"
     
-	    echo ""
-	    echo -e "Prefix ready for running DirectX 12 games.\n"
-	fi
+        echo ""
+        echo -e "Prefix ready for running DirectX 12 games.\n"
+    fi
 }
 
 
@@ -268,12 +268,12 @@ enable_virtual_desktop()
 
 end()
 {
-	if [[ "$0" == *bash ]] || [[ "$0" == *zsh ]];
-	then
-	    return 1
-	else
-	    exit 1
-	fi
+    if [[ "$0" == *bash ]] || [[ "$0" == *zsh ]];
+    then
+        return 1
+    else
+        exit 1
+    fi
 }
 
 
@@ -385,29 +385,29 @@ extract_wine()
         
         ar x "$p" --output "$WINE_TMP/ar"
     
-	    if [[ "$?" == "0" ]];
-	    then
-	        tar xf "$WINE_TMP/ar/data.tar.xz" -C "$WINE_TMP/wine"
+        if [[ "$?" == "0" ]];
+        then
+            tar xf "$WINE_TMP/ar/data.tar.xz" -C "$WINE_TMP/wine"
 
-	        if [[ "$?" == "0" ]];
-	        then
-	            if [[ -d "$WINE_TMP/wine/opt" ]];
-	            then
-	                cp -ru "$WINE_TMP/wine/opt" "$INSTALL_PATH/$WINE_FOLDER/"
-	            fi
+            if [[ "$?" == "0" ]];
+            then
+                if [[ -d "$WINE_TMP/wine/opt" ]];
+                then
+                    cp -ru "$WINE_TMP/wine/opt" "$INSTALL_PATH/$WINE_FOLDER/"
+                fi
 
-	            if [[ -d "$WINE_TMP/wine/usr" ]];
-	            then
-	                cp -ru "$WINE_TMP/wine/usr" "$INSTALL_PATH/$WINE_FOLDER/"
-	            fi
-	            
-	            rm -r "$WINE_TMP/ar"
-	        fi
-	    fi
-	done
+                if [[ -d "$WINE_TMP/wine/usr" ]];
+                then
+                    cp -ru "$WINE_TMP/wine/usr" "$INSTALL_PATH/$WINE_FOLDER/"
+                fi
+                
+                rm -r "$WINE_TMP/ar"
+            fi
+        fi
+    done
 
-	is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
-	
+    is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
+    
     if [[ "$?" == "0" ]];
     then
         echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
@@ -435,11 +435,11 @@ filext()
 
 find_wine_installations()
 {
-	SEARCH_PATH="$1"
+    SEARCH_PATH="$1"
 
-	WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
+    WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
 
-	echo "$WINE_SERVERS"
+    echo "$WINE_SERVERS"
 }
 
 
@@ -488,13 +488,13 @@ install_winetricks()
         fi
     fi
     
-    cd /tmp
+    cd "$TMP"
 
     curl -LO $WINETRICKS_URL
 
-    chmod +x /tmp/winetricks
+    chmod +x "$TMP/winetricks"
 
-    cp -u /tmp/winetricks "$WINE_ENV/winetricks"
+    cp -u "$TMP/winetricks" "$WINE_ENV/winetricks"
 }
 
 
@@ -508,14 +508,14 @@ install_wine_deps()
         echo -e "After complete, WINE packages will be removed."
         echo -e "================================================="
 
-	    if [[ -f "/usr/bin/apt" ]];
-	    then
-	        PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
-	        
-	        if [[ -f "/etc/apt/keyrings/winehq-archive.key" ]];
-	        then
-	            sudo apt install --install-recommends -y $PACKAGES
-	            
+        if [[ -f "/usr/bin/apt" ]];
+        then
+            PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
+            
+            if [[ -f "/etc/apt/keyrings/winehq-archive.key" ]];
+            then
+                sudo apt install --install-recommends -y $PACKAGES
+                
                 if ! [[ "$?" == "0" ]];
                 then
                     abort "Failed! Maybe WINE repository is not installed?"
@@ -524,12 +524,12 @@ install_wine_deps()
                 sudo apt remove $PACKAGES -y
                 
                 sudo touch "/usr/local/share/.wine_deps_installed"
-	        else
+            else
                 abort "WINE GPG key is missing. Install WINE repository."
             fi
-	        
-	    elif [[ -f "/usr/bin/dnf" ]];
-	    then
+            
+        elif [[ -f "/usr/bin/dnf" ]];
+        then
             sudo dnf install wine-stable -y
 
             if ! [[ "$?" == "0" ]];
@@ -540,127 +540,127 @@ install_wine_deps()
             sudo dnf remove wine-stable --noautoremove -y
 
             sudo touch "/usr/local/share/.wine_deps_installed"
-	    fi
-	fi
+        fi
+    fi
 }
 
 
 install_wine_repo()
 {
-	OS_NAME=$(os_name)
-	OS_VERSION=$(os_version)
+    OS_NAME=$(os_name)
+    OS_VERSION=$(os_version)
 
-	if [[ -f "/usr/bin/apt" ]];
-	then
+    if [[ -f "/usr/bin/apt" ]];
+    then
         APT_SOURCES_DIR="/etc/apt/sources.list.d"
-		APT_KEYRINGS_DIR="/etc/apt/keyrings"
+        APT_KEYRINGS_DIR="/etc/apt/keyrings"
 
-	    if [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] &&
-	       [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
-   		then
+        if [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] &&
+           [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
+           then
             echo -e "WINE repository already installed."
         else
-		    WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
-		    WINE_APT_URL+="/dists/${OS_VERSION}"
-		    WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
-		
-		    WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
-		
-		    if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
-		    then
-		        sudo mkdir -p "$APT_KEYRINGS_DIR"
-		    fi
+            WINE_APT_URL="https://dl.winehq.org/wine-builds/${OS_NAME}"
+            WINE_APT_URL+="/dists/${OS_VERSION}"
+            WINE_APT_URL+="/winehq-${OS_VERSION}.sources"
+        
+            WINE_GPG_URL="https://dl.winehq.org/wine-builds/winehq.key"
+        
+            if ! [[ -d "$APT_KEYRINGS_DIR" ]]; 
+            then
+                sudo mkdir -p "$APT_KEYRINGS_DIR"
+            fi
 
-		    if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
-		       ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
-		    then
-		        echo ""
-		        echo -e "Enabling i386 repository if not available yet ...\n"
-		
-		        sudo dpkg --add-architecture i386
-		
-		        sudo apt update
-		
-		        if [[ "$(which wget)" == "" ]];
-		        then
-		            echo -e "\nInstalling wget ..."
-		            echo -e "---------------------"
-		        
-		            sudo apt install -y wget
-		
-		            if ! [[ "$?" == "0" ]];
-		            then
-		                abort "Failed!"
-		            fi
-		        fi
-		
-		        SOURCES_LIST="/etc/apt/sources.list"
-		    
-		
-		        echo ""
-		        echo "Downloading WINE GPG key and sources.list for APT..."
-		        echo "----------------------------------------------------"
-		        echo ""
-		
-		        wget -N $WINE_GPG_URL
-		
-		        if ! [[ "$?" == "0" ]]; 
-		        then
-		            abort "Failed downloading GPG key."
-		        fi
-		
-		
-		        wget -N $WINE_APT_URL
-		
-		        if ! [[ "$?" == "0" ]]; 
-		        then
-		            abort "Failed downloading APT sources list."
-		        fi
-		
-		
-		        sudo mv winehq.key "$APT_KEYRINGS_DIR/winehq-archive.key"
-		        sudo mv winehq-${OS_VERSION}.sources "$APT_SOURCES_DIR/"
-		
-		
-		        echo "Refreshing APT database ..."
-		        echo ""
-		
-		        sudo apt update
-		
-		        if ! [[ "$?" == "0" ]]; 
-		        then
-		            abort "Something is wrong :S"
-		        fi
-		    fi
+            if ! [[ -f "$APT_SOURCES_DIR/winehq-${OS_VERSION}.sources" ]] ||
+               ! [[ -f "$APT_KEYRINGS_DIR/winehq-archive.key" ]]; 
+            then
+                echo ""
+                echo -e "Enabling i386 repository if not available yet ...\n"
+        
+                sudo dpkg --add-architecture i386
+        
+                sudo apt update
+        
+                if [[ "$(which wget)" == "" ]];
+                then
+                    echo -e "\nInstalling wget ..."
+                    echo -e "---------------------"
+                
+                    sudo apt install -y wget
+        
+                    if ! [[ "$?" == "0" ]];
+                    then
+                        abort "Failed!"
+                    fi
+                fi
+        
+                SOURCES_LIST="/etc/apt/sources.list"
+            
+        
+                echo ""
+                echo "Downloading WINE GPG key and sources.list for APT..."
+                echo "----------------------------------------------------"
+                echo ""
+        
+                wget -N $WINE_GPG_URL
+        
+                if ! [[ "$?" == "0" ]]; 
+                then
+                    abort "Failed downloading GPG key."
+                fi
+        
+        
+                wget -N $WINE_APT_URL
+        
+                if ! [[ "$?" == "0" ]]; 
+                then
+                    abort "Failed downloading APT sources list."
+                fi
+        
+        
+                sudo mv winehq.key "$APT_KEYRINGS_DIR/winehq-archive.key"
+                sudo mv winehq-${OS_VERSION}.sources "$APT_SOURCES_DIR/"
+        
+        
+                echo "Refreshing APT database ..."
+                echo ""
+        
+                sudo apt update
+        
+                if ! [[ "$?" == "0" ]]; 
+                then
+                    abort "Something is wrong :S"
+                fi
+            fi
         fi
-		
-	elif [[ -f "/usr/bin/dnf" ]];
-	then
+        
+    elif [[ -f "/usr/bin/dnf" ]];
+    then
         sudo dnf repolist | grep -q WineHQ
 
         if [[ "$?" == "0" ]];
         then
             echo -e "WINE repository already installed.\n"
         else
-	        FEDORA_VERSION=$(cat /etc/os_release | grep VERSION_ID)
-	        FEDORA_VERSION=$(echo "$FEDORA_VERSION" | cut -d '=' -f 2)
+            FEDORA_VERSION=$(cat /etc/os_release | grep VERSION_ID)
+            FEDORA_VERSION=$(echo "$FEDORA_VERSION" | cut -d '=' -f 2)
 
-	        if [[ "$FEDORA_VERSION" == "" ]];
-	        then
-	            abort "Unable check Fedora version."
-	        fi
-	        
-	        REPO_URL="https://dl.winehq.org/wine-builds/fedora/$FEDORA_VERSION"
-	        REPO_URL+="/winehq.repo"
-	        
-	        dnf5 config-manager addrepo --from-repofile="$REPO_URL"
+            if [[ "$FEDORA_VERSION" == "" ]];
+            then
+                abort "Unable check Fedora version."
+            fi
+            
+            REPO_URL="https://dl.winehq.org/wine-builds/fedora/$FEDORA_VERSION"
+            REPO_URL+="/winehq.repo"
+            
+            dnf5 config-manager addrepo --from-repofile="$REPO_URL"
 
-	        if ! [[ "$?" == "0" ]];
-	        then
+            if ! [[ "$?" == "0" ]];
+            then
                 abort "Failed installing the WINE repository."
-	        fi
+            fi
         fi
-	fi
+    fi
 }
 
 
@@ -669,50 +669,50 @@ install_wine_system_wide()
     WINE_BRANCH="$3"
     WINE_VERSION="$4"
     
-	if [[ "$WINE_BRANCH" == "" ]];
-	then
+    if [[ "$WINE_BRANCH" == "" ]];
+    then
         WINE_BRANCH="stable"
     fi
-	
+    
     if [[ "$WINE_VERSION" == "" ]];
     then
         WINE_VERSION="11.0.0.0"
     fi
-	
+    
     echo -e "Installing WINE ($WINE_BRANCH) ($WINE_VERSION) system wide"
     echo -e "----------------------------------------------------------\n"
-	
+    
     if [[ -f "/usr/bin/apt" ]];
     then
         PACKAGES="wine-${WINE_BRANCH}=${WINE_VERSION} "
         PACKAGES+="wine-${WINE_BRANCH}-i386=${WINE_VERSION} "
         PACKAGES+="wine-${WINE_BRANCH}-amd64=${WINE_VERSION} "
         PACKAGES+="winehq-${WINE_BRANCH}=${WINE_VERSION}"
-	                
+                    
         sudo apt install $PACKAGES -y
 
-	elif [[ -f "/usr/bin/dnf" ]];
-	then
-	    echo -n "TODO for Fedora.\n"
-	fi
+    elif [[ -f "/usr/bin/dnf" ]];
+    then
+        echo -n "TODO for Fedora.\n"
+    fi
 }
 
 
 is_wine_installation()
 {
-	WINE_PATH="$1"
+    WINE_PATH="$1"
 
-	if [[ -d "$WINE_PATH" ]];
-	then
-	    WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
+    if [[ -d "$WINE_PATH" ]];
+    then
+        WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
 
-	    if ! [[ "$WINE_SERVER" == "" ]];
-	    then
-	        return 0
-	    fi
-	fi
+        if ! [[ "$WINE_SERVER" == "" ]];
+        then
+            return 0
+        fi
+    fi
 
-	return 1
+    return 1
 }
 
 
@@ -720,15 +720,15 @@ is_wine_prefix()
 {
     PREFIX="$1"
 
-	if [[ -d "$PREFIX" ]];
-	then
+    if [[ -d "$PREFIX" ]];
+    then
         if [[ -d "$PREFIX/dosdevices" ]];
         then
             return 0
         fi
-	fi
+    fi
 
-	return 1
+    return 1
 }
 
 
@@ -737,13 +737,13 @@ isolabel()
     ISO=$1
     EXTENSION=$(filext "$ISO")
     LC_EXT=$(lowercase "$EXTENSION")
-	
+    
     if [[ "$LC_EXT" == ".iso" ]] || [[ "$LC_EXT" == ".bin" ]];
     then
         if [[ -f "$(which /usr/bin/cd-info)" ]];
         then
             LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume id:")
-	
+    
             if [[ "$LABEL" == "" ]];
             then
                 LABEL=$(iso-info -d -i "$ISO" | grep -m 1 "Volume")
@@ -751,7 +751,7 @@ isolabel()
         fi
     fi
 
-	if ! [[ "$LABEL" == "" ]];
+    if ! [[ "$LABEL" == "" ]];
     then
         LABEL=$(echo "$LABEL" | cut -d ':' -f 2 | xargs)
         echo "$LABEL"
@@ -766,9 +766,9 @@ isoname()
     ISO=$1
     EXTENSION=$(filext "$ISO")
     LC_EXT=$(lowercase "$EXTENSION")
-	
+    
     FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
-	
+    
     if [[ "$FILE_NAME_WEXT" == "" ]];
     then
         echo "UNKNOWN"
@@ -784,26 +784,26 @@ isoname()
 load_basic_env()
 {
     export WINE_ENV="$HOME/.local/bin/wine"
-	export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+    export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
-	if [[ -f "$HOME/.default_wine" ]];
-	then
+    if [[ -f "$HOME/.default_wine" ]];
+    then
         export WINE_PATH=$(cat "$HOME/.default_wine")
-	fi
+    fi
 
-	echo -e "WINE basic environment loaded:\n"
-	echo -e "- WINE_ENV: WINE environment path"
-	echo -e "- WINE_PATH: Default WINE (if available)"
-	echo -e "- WINE_PREFIXES: Prefixes path\n"
+    echo -e "WINE basic environment loaded:\n"
+    echo -e "- WINE_ENV: WINE environment path"
+    echo -e "- WINE_PATH: Default WINE (if available)"
+    echo -e "- WINE_PREFIXES: Prefixes path\n"
 
-	echo -e "Also, the following commands are now available:"
-	echo -e ""
-	echo -e "disable_virtual_desktop, download_wine, enable_dx11, enable_dx12,"
-	echo -e "enable_virtual_desktop, exec_type, extract_wine, install_wine,"
-	echo -e "install_wine_deps, install_wine_repo, install_wine_system_wide,"
-	echo -e "install_winetricks, isolabel, load_prefix, load_wine, mount_iso,"
-	echo -e "set_default_win32_prefix, set_default_win64_prefix,"
-	echo -e "set_default_wine, setup_prefix\n"
+    echo -e "Also, the following commands are now available:"
+    echo -e ""
+    echo -e "disable_virtual_desktop, download_wine, enable_dx11, enable_dx12,"
+    echo -e "enable_virtual_desktop, exec_type, extract_wine, install_wine,"
+    echo -e "install_wine_deps, install_wine_repo, install_wine_system_wide,"
+    echo -e "install_winetricks, isolabel, load_prefix, load_wine, mount_iso,"
+    echo -e "set_default_win32_prefix, set_default_win64_prefix,"
+    echo -e "set_default_wine, setup_prefix\n"
 
     if ! [[ -v ZSH_VERSION ]];
     then
@@ -819,26 +819,26 @@ load_basic_env()
         export -f install_wine_repo
         export -f install_wine_system_wide
         export -f install_winetricks
-	    export -f isolabel
-	    export -f load_prefix
-	    export -f load_wine
-	    export -f mount_iso
-	    export -f set_default_win32_prefix
-	    export -f set_default_win64_prefix
-	    export -f set_default_wine
-	    export -f setup_prefix
-	fi 
+        export -f isolabel
+        export -f load_prefix
+        export -f load_wine
+        export -f mount_iso
+        export -f set_default_win32_prefix
+        export -f set_default_win64_prefix
+        export -f set_default_wine
+        export -f setup_prefix
+    fi 
 }
 
 
 load_env()
 {
-	if ! [[ -v WINEPREFIX ]];
-	then
-	    echo -e "No WINEPREFIX provided. Trying for the default for 64 bits."
+    if ! [[ -v WINEPREFIX ]];
+    then
+        echo -e "No WINEPREFIX provided. Trying for the default for 64 bits."
 
-	    if ! [[ -d "$HOME/.wine64" ]];
-	    then
+        if ! [[ -d "$HOME/.wine64" ]];
+        then
             echo -e "Not found. Trying the default for 32 bits."
 
             if ! [[ -d "$HOME/.wine" ]];
@@ -847,22 +847,22 @@ load_env()
             else
                 WINEPREFIX="$HOME/.wine"
             fi
-	    else
+        else
             WINEPREFIX="$HOME/.wine64"
-	    fi
-	fi
+        fi
+    fi
 
-	if ! [[ -v WINE_PATH ]];
-	then
+    if ! [[ -v WINE_PATH ]];
+    then
         if ! [[ -f "$HOME/.default_wine" ]];
         then
             abort "No WINE_PATH provided a no WINE is set as the default one."
         fi
 
         export WINE_PATH=$(cat "$HOME/.default_wine")
-	fi
+    fi
 
-	load_prefix "$WINEPREFIX"
+    load_prefix "$WINEPREFIX"
 }
 
 
@@ -924,15 +924,15 @@ load_wine()
 
     is_wine_installation "$WINE_PATH"
     
-   	if ! [[ "$?" == "0" ]];
-   	then
+       if ! [[ "$?" == "0" ]];
+       then
         abort "No WINE installation found at '$WINE_PATH'."
-   	fi
+       fi
 
-	if ! [[ -v WINEARCH ]];
-	then
-	    if [[ -v WINEPREFIX ]];
-	    then
+    if ! [[ -v WINEARCH ]];
+    then
+        if [[ -v WINEPREFIX ]];
+        then
             if [[ -f "$WINEPREFIX/.arch" ]];
             then
                 WINEARCH=$(cat "$WINEPREFIX/.arch")
@@ -944,24 +944,24 @@ load_wine()
                     export WINEARCH="win32"
                 fi
             fi
-	    else
+        else
             abort "No WINE prefix loaded. Load one first."
         fi
-	fi
+    fi
 
-	if [[ -f "$WINE_PATH/.wine_branch" ]];
-	then
+    if [[ -f "$WINE_PATH/.wine_branch" ]];
+    then
         WINE_BRANCH=$(cat "$WINE_PATH/.wine_branch")
-	fi
+    fi
 
-	if [[ -f "$WINE_PATH/.wine_version" ]];
-	then
+    if [[ -f "$WINE_PATH/.wine_version" ]];
+    then
         WINE_VERSION="("
         WINE_VERSION+=$(cat "$WINE_PATH/.wine_version")
         WINE_VERSION+=")"
-	fi
+    fi
 
-	export WINE_BINARIES=$(find "$WINE_PATH"/** -type d -name "bin")
+    export WINE_BINARIES=$(find "$WINE_PATH"/** -type d -name "bin")
     export WINE_ROOT=$(dirname "$WINE_BINARIES")
 
     WINE_MAJOR_VERSION=$(cat "$WINE_PATH/.wine_version")
@@ -1083,22 +1083,22 @@ mount_iso()
     ISO=$(realpath "$1")
     ISO_TYPE=$(lowercase $(filext "$ISO"))
     LABEL=$(isolabel "$ISO")
-    MOUNT_PATH="/tmp/iso/$LABEL"
-	
-    if [[ -f "/tmp/iso/.${LABEL}_mounted" ]];
+    MOUNT_PATH="$TMP/iso/$LABEL"
+    
+    if [[ -f "$TMP/iso/.${LABEL}_mounted" ]];
     then
         echo -e "This ISO is already mounted in '$MOUNT_PATH'.\n" && exit 1
     fi
-	
+    
     if [[ "$ISO_TYPE" == ".iso" ]] || [[ "$ISO_TYPE" == ".bin" ]];
     then
         mkdir -p "$MOUNT_PATH"
         cd "$MOUNT_PATH"
 
-	    if [[ -f "$(which bsdtar)" ]];
+        if [[ -f "$(which bsdtar)" ]];
         then        
             bsdtar xf "$ISO"
-	            
+                
         elif [[ -f "$(which 7z)" ]];
         then
             7z x "$ISO"
@@ -1107,13 +1107,13 @@ mount_iso()
             exit 1
         fi
 
-	    if ! [[ "$?" == "0" ]];
+        if ! [[ "$?" == "0" ]];
         then
             echo -e "Failed extracting '$ISO'.\n" && exit 1
         fi
 
         chmod -R 770 "$MOUNT_PATH"
-        touch "/tmp/iso/.${LABEL}_mounted"
+        touch "$TMP/iso/.${LABEL}_mounted"
         
         echo -e "ISO 'mounted' in '$MOUNT_PATH'.\n"
     fi
@@ -1142,17 +1142,17 @@ os_version()
 
 same_file()
 {
-	FIRST_FILE="$1"
-	SECOND_FILE="$2"
+    FIRST_FILE="$1"
+    SECOND_FILE="$2"
 
-	if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
-	then
+    if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
+    then
         return -1
         
-	elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
-	then
-	    return -1
-	else
+    elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
+    then
+        return -1
+    else
         FIRST_MD5=$(md5sum "$FIRST_FILE" | cut -d ' ' -f 1)
         SECOND_MD5=$(md5sum "$SECOND_FILE" | cut -d ' ' -f 1)
 
@@ -1162,53 +1162,53 @@ same_file()
         else
             return 1;
         fi
-	fi
+    fi
 }
 
 
 set_default_win32_prefix()
 {
-	PREFIX="$1"
+    PREFIX="$1"
 
-	is_wine_prefix "$PREFIX"
+    is_wine_prefix "$PREFIX"
 
-	if ! [[ "$?" == "0" ]];
-	then
-	    abort "Invalid prefix '$PREFIX'."
-	fi
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Invalid prefix '$PREFIX'."
+    fi
 
     if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
     then
         abort "Not a 32 bit prefix.\n"
     else
         rm "$HOME/.wine"
-	    ln -s "$PREFIX" "$HOME/.wine"
-	    
-	    echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
-	fi
+        ln -s "$PREFIX" "$HOME/.wine"
+        
+        echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
+    fi
 }
 
 
 set_default_win64_prefix()
 {
-	PREFIX="$1"
+    PREFIX="$1"
 
-	is_wine_prefix "$PREFIX"
+    is_wine_prefix "$PREFIX"
 
-	if ! [[ "$?" == "0" ]];
-	then
-	    abort "Invalid prefix '$PREFIX'."
-	fi
+    if ! [[ "$?" == "0" ]];
+    then
+        abort "Invalid prefix '$PREFIX'."
+    fi
 
-	if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
-	then
-	    rm "$HOME/.wine64"
-    	ln -s "$PREFIX" "$HOME/.wine64"
+    if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
+    then
+        rm "$HOME/.wine64"
+        ln -s "$PREFIX" "$HOME/.wine64"
 
-    	echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
-	else
+        echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
+    else
         abort "Not a 64 bit prefix.\n"
-	fi
+    fi
 }
 
 
@@ -1216,12 +1216,12 @@ set_default_wine()
 {
     WINE_PATH="$1"
     
-	echo "$WINE_PATH" > "$HOME/.default_wine"
+    echo "$WINE_PATH" > "$HOME/.default_wine"
 
     echo -e ""  
-	echo -e "WINE installation at '$WINE_PATH' made the default one."
-	echo -e "It will be loaded for preparing new prefixes.\n"
-	echo ""
+    echo -e "WINE installation at '$WINE_PATH' made the default one."
+    echo -e "It will be loaded for preparing new prefixes.\n"
+    echo ""
 }
 
 
@@ -1266,7 +1266,7 @@ setup_prefix()
 
 update_script()
 {
-    local SCRIPT="/tmp/wine.sh"
+    local SCRIPT="$TMP/wine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
     local INSTALL_PATH="$HOME/.local/bin"
@@ -1274,46 +1274,46 @@ update_script()
     SCRIPT_URL="https://github.com/aribrew/wine-utils"
     SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
     
-	if ! [[ -d "$INSTALL_PATH" ]];
-	then
+    if ! [[ -d "$INSTALL_PATH" ]];
+    then
         mkdir -p "$INSTALL_PATH"
-	fi
+    fi
 
-	SAVED=$(pwd)
-    cd /tmp
+    SAVED=$(pwd)
+    cd "$TMP"
     curl -sLO $SCRIPT_URL
     cd "$SAVED"
 
-	if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
-	then
-	    same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
-	
-	    if [[ "$?" == "1" ]];
-	    then
-	        cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-	        echo -e "Your wine.sh has been updated.\n"
-	    fi
-	else
-	    cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-	    echo -e "Wine.sh has been installed in ~/.local/bin.\n"
-	fi
+    if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
+    then
+        same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
+    
+        if [[ "$?" == "1" ]];
+        then
+            cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+            echo -e "Your wine.sh has been updated.\n"
+        fi
+    else
+        cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
+        echo -e "Wine.sh has been installed in ~/.local/bin.\n"
+    fi
 }
 
 
 usage()
 {
-	echo -e "wine.sh <executable> [args]"
-	echo -e ": Executes a program with the default prefix."
-	echo -e ""
-	echo -e "  If a file {executable}_winecfg is found, and contains"
-	echo -e "  variables such as WINEPREFIX, this configuration will be"
-	echo -e "  used instead the default one."
-	echo -e ""
-	echo -e "  Same if you export a WINEPREFIX variable manually."
-	echo -e ""
-	echo -e "wine.sh --config <prefix>"
-	echo -e ": Configs the specified prefix."
-	echo -e ""
+    echo -e "wine.sh <executable> [args]"
+    echo -e ": Executes a program with the default prefix."
+    echo -e ""
+    echo -e "  If a file {executable}_winecfg is found, and contains"
+    echo -e "  variables such as WINEPREFIX, this configuration will be"
+    echo -e "  used instead the default one."
+    echo -e ""
+    echo -e "  Same if you export a WINEPREFIX variable manually."
+    echo -e ""
+    echo -e "wine.sh --config <prefix>"
+    echo -e ": Configs the specified prefix."
+    echo -e ""
     echo -e "wine.sh --set_default <WINE path>"
     echo -e ": Set this WINE as the default one."
     echo -e "  This is required by 'setup_prefix' to preload it."
@@ -1321,10 +1321,10 @@ usage()
     echo -e "wine.sh --set_default_win32_prefix <prefix name>"
     echo -e "wine.sh --set_default_win64_prefix <prefix name>"
     echo -e ""
-	echo -e "wine.sh --setup_prefix <prefix name> [win32|win64]"
-	echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
-	echo -e "  The default architecture, if none is specified, is win64."
-	echo -e ""
+    echo -e "wine.sh --setup_prefix <prefix name> [win32|win64]"
+    echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
+    echo -e "  The default architecture, if none is specified, is win64."
+    echo -e ""
     echo -e "wine.sh --load <WINE path>"
     echo -e ": Use with 'source' or '.'."
     echo -e "  Loads the given WINE in the current environment."
@@ -1338,61 +1338,61 @@ usage()
     echo -e ": Loads the WINE environment (prefix and WINE)."
     echo -e "  If WINEPREFIX and/or WINE_PATH are provided, they will be used."
     echo -e ""
-	echo -e "wine.sh --load_prefix <prefix name>"
-	echo -e ": Use with 'source' or '.'."
-	echo -e "  Loads the given prefix in the current environment."
-	echo -e "  Also, the default WINE is loaded or reloaded."
-	echo -e ""
-	echo -e "wine.sh --disable_virtual_desktop [prefix]"
+    echo -e "wine.sh --load_prefix <prefix name>"
+    echo -e ": Use with 'source' or '.'."
+    echo -e "  Loads the given prefix in the current environment."
+    echo -e "  Also, the default WINE is loaded or reloaded."
+    echo -e ""
+    echo -e "wine.sh --disable_virtual_desktop [prefix]"
     echo -e ": Enables the Virtual Desktop for the given or actual prefix."
     echo -e ""
-	echo -e "wine.sh --download [branch] [version]"
-	echo -e ": Downloads WINE to /tmp/wine folder."
-	echo -e "  Default branch and version: stable 11.0.0.0"
-	echo -e ""
-	echo -e "wine.sh --enable_dx11_support <prefix>"
-	echo -e ": Enable DirectX 11 support for the given prefix."
-	echo -e ""
-	echo -e "wine.sh --enable_dx12_support <prefix>"
-	echo -e ": Enable DirectX 12 support for the given prefix."
-	echo -e ""
-	echo -e "wine.sh --enable_virtual_desktop <resolution> [prefix]"
-	echo -e ": Enables the Virtual Desktop for the given or actual prefix."
-	echo -e ""
-	echo -e "wine.sh --install --system-wide [branch] [version]"
-	echo -e ": Installs WINE system wide. This is the standard way."
-	echo -e ""
-	echo -e "wine.sh --install <WINE path> [install dir]"
-	echo -e ": Installs a downloaded WINE version."
-	echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
-	echo -e ""
-	echo -e "wine.sh --install [branch] [version] [install dir]"
-	echo -e ": Downloads and install the specified WINE branch and version."
-	echo -e ""
-	echo -e "wine.sh --install_app <app.exe|.iso|.zip>"
-	echo -e ": Installs the given app. It can be an EXE installer, an ISO"
-	echo -e "  image or a ZIP. By default, it will be installed as a 64 bit"
-	echo -e "  app, but you can tweak various things exporting the folloing"
-	echo -e "  variables: WIN_INSTALL_PREFIX, WIN_INSTALL_WINVER, "
-	echo -e "  WIN_INSTALL_WINARCH, WIN_INSTALL_APPNAME."
-	echo -e ""
-	echo -e "  If an ISO or ZIP is provided, it will be extracted. Also, in"
-	echo -e "  this case, you can provide WIN_INSTALL_SETUP_EXEC, to run that"
-	echo -e "  after extraction. If not, the script will attempt to find it."
+    echo -e "wine.sh --download [branch] [version]"
+    echo -e ": Downloads WINE to $TMP/wine folder."
+    echo -e "  Default branch and version: stable 11.0.0.0"
+    echo -e ""
+    echo -e "wine.sh --enable_dx11_support <prefix>"
+    echo -e ": Enable DirectX 11 support for the given prefix."
+    echo -e ""
+    echo -e "wine.sh --enable_dx12_support <prefix>"
+    echo -e ": Enable DirectX 12 support for the given prefix."
+    echo -e ""
+    echo -e "wine.sh --enable_virtual_desktop <resolution> [prefix]"
+    echo -e ": Enables the Virtual Desktop for the given or actual prefix."
+    echo -e ""
+    echo -e "wine.sh --install --system-wide [branch] [version]"
+    echo -e ": Installs WINE system wide. This is the standard way."
+    echo -e ""
+    echo -e "wine.sh --install <WINE path> [install dir]"
+    echo -e ": Installs a downloaded WINE version."
+    echo -e "  If no install dir is given, ~/.local/bin/wine will be used."
+    echo -e ""
+    echo -e "wine.sh --install [branch] [version] [install dir]"
+    echo -e ": Downloads and install the specified WINE branch and version."
+    echo -e ""
+    echo -e "wine.sh --install_app <app.exe|.iso|.zip>"
+    echo -e ": Installs the given app. It can be an EXE installer, an ISO"
+    echo -e "  image or a ZIP. By default, it will be installed as a 64 bit"
+    echo -e "  app, but you can tweak various things exporting the folloing"
+    echo -e "  variables: WIN_INSTALL_PREFIX, WIN_INSTALL_WINVER, "
+    echo -e "  WIN_INSTALL_WINARCH, WIN_INSTALL_APPNAME."
+    echo -e ""
+    echo -e "  If an ISO or ZIP is provided, it will be extracted. Also, in"
+    echo -e "  this case, you can provide WIN_INSTALL_SETUP_EXEC, to run that"
+    echo -e "  after extraction. If not, the script will attempt to find it."
     echo -e ""
     echo -e "wine.sh --install_deps"
     echo -e ": Installs WINE dependencies."
     echo -e ""
     echo -e "wine.sh --install_repo"
     echo -e ": Installs the WINE repository."
-	echo -e ""
-	echo -e "wine.sh --install_winetricks"
-	echo -e ": Downloads Winetricks into ~/.local/bin/wine."
-	echo -e "  Also install its dependencies."
-	echo -e ""
-	echo -e "wine.sh --update"
-	echo -e ": Updates the wine.sh script."
-	echo -e ""
+    echo -e ""
+    echo -e "wine.sh --install_winetricks"
+    echo -e ": Downloads Winetricks into ~/.local/bin/wine."
+    echo -e "  Also install its dependencies."
+    echo -e ""
+    echo -e "wine.sh --update"
+    echo -e ": Updates the wine.sh script."
+    echo -e ""
 }
 
 
@@ -1400,6 +1400,14 @@ if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
+fi
+
+
+if [[ -v TERMUX_VERSION ]];
+then
+    TMP="$HOME/tmp"
+else
+    TMP="/tmp"
 fi
 
 
@@ -1616,7 +1624,7 @@ then
 
     download_wine $WINE_BRANCH $WINE_VERSION
 
-    WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+    WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
 
     if [[ -d "$WINE_TMP_PATH" ]];
     then
@@ -1696,7 +1704,7 @@ then
             fi
 
             WINE_FOLDER="wine-$WINE_VERSION"
-            WINE_TMP_PATH="/tmp/wine/$WINE_BRANCH/$WINE_VERSION"
+            WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
 
             download_wine $WINE_BRANCH $WINE_VERSION
             extract_wine "$WINE_TMP_PATH" "$WINE_INSTALL_PATH"
