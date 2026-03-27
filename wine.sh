@@ -444,7 +444,7 @@ find_wine_installations()
 
 
 install_wine()
-{
+{   
     WINE_PATH="$1"
     INSTALL_PATH="$2"
 
@@ -504,49 +504,42 @@ install_wine_deps()
     then
         echo -e "\nDependencies for WINE already installed.\n"
     else
-        ARCH=$(uname -m)
-
-        if [[ "$ARCH" == "aarch64" ]];
+        echo -e "Now WINE will be installed for easy dependency installation."
+        echo -e "After complete, WINE packages will be removed."
+        echo -e "================================================="
+        
+        if [[ -f "/usr/bin/apt" ]];
         then
-            echo "TODO: Manually install i386 and amd64 in arm64."
-        else
-            echo -e "Now WINE will be installed for easy dependency installation."
-            echo -e "After complete, WINE packages will be removed."
-            echo -e "================================================="
-
-            if [[ -f "/usr/bin/apt" ]];
-            then
-                PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
+            PACKAGES="wine-stable wine-stable-amd64 wine-stable-i386"
             
-                if [[ -f "/etc/apt/keyrings/winehq-archive.key" ]];
-                then
-                    sudo apt install --install-recommends -y $PACKAGES
-                
-                    if ! [[ "$?" == "0" ]];
-                    then
-                        abort "Failed! Maybe WINE repository is not installed?"
-                    fi
-
-                    sudo apt remove $PACKAGES -y
-                
-                    sudo touch "/usr/local/share/.wine_deps_installed"
-                else
-                    abort "WINE GPG key is missing. Install WINE repository."
-                fi
-            
-            elif [[ -f "/usr/bin/dnf" ]];
+            if [[ -f "/etc/apt/keyrings/winehq-archive.key" ]];
             then
-                sudo dnf install wine-stable -y
-
+                sudo apt install --install-recommends -y $PACKAGES
+                
                 if ! [[ "$?" == "0" ]];
                 then
                     abort "Failed! Maybe WINE repository is not installed?"
                 fi
 
-                sudo dnf remove wine-stable --noautoremove -y
-
+                sudo apt remove $PACKAGES -y
+                
                 sudo touch "/usr/local/share/.wine_deps_installed"
+            else
+                abort "WINE GPG key is missing. Install WINE repository."
             fi
+            
+        elif [[ -f "/usr/bin/dnf" ]];
+        then
+            sudo dnf install wine-stable -y
+
+            if ! [[ "$?" == "0" ]];
+            then
+                abort "Failed! Maybe WINE repository is not installed?"
+            fi
+
+            sudo dnf remove wine-stable --noautoremove -y
+
+            sudo touch "/usr/local/share/.wine_deps_installed"
         fi
     fi
 }
@@ -1410,9 +1403,9 @@ then
 fi
 
 
-if [[ -v TERMUX_VERSION ]];
+if [[ $(uname -a) == "aarch64" ]];
 then
-    TMP="$HOME/tmp"
+    abort "ARM platform detected. Use wine-arm.sh instead."
 else
     TMP="/tmp"
 fi
