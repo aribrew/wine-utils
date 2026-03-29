@@ -1403,9 +1403,9 @@ then
 fi
 
 
-if [[ $(uname -a) == "aarch64" ]];
+if [[ -v TERMUX_VERSION ]];
 then
-    abort "ARM platform detected. Use wine-arm.sh instead."
+    abort "If in Android, run in Termux proot."
 else
     TMP="/tmp"
 fi
