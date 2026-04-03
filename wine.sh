@@ -1166,7 +1166,7 @@ same_file()
 }
 
 
-set_default_win32_prefix()
+set_default_prefix()
 {
     PREFIX="$1"
 
@@ -1177,37 +1177,17 @@ set_default_win32_prefix()
         abort "Invalid prefix '$PREFIX'."
     fi
 
-    if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+    if ! [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
     then
-        abort "Not a 32 bit prefix.\n"
-    else
         rm "$HOME/.wine"
         ln -s "$PREFIX" "$HOME/.wine"
         
         echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
-    fi
-}
-
-
-set_default_win64_prefix()
-{
-    PREFIX="$1"
-
-    is_wine_prefix "$PREFIX"
-
-    if ! [[ "$?" == "0" ]];
-    then
-        abort "Invalid prefix '$PREFIX'."
-    fi
-
-    if [[ "$PREFIX/drive_c/Program Files (x86)" ]];
-    then
+    else
         rm "$HOME/.wine64"
         ln -s "$PREFIX" "$HOME/.wine64"
-
+        
         echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
-    else
-        abort "Not a 64 bit prefix.\n"
     fi
 }
 
@@ -1318,8 +1298,8 @@ usage()
     echo -e ": Set this WINE as the default one."
     echo -e "  This is required by 'setup_prefix' to preload it."
     echo -e ""
-    echo -e "wine.sh --set_default_win32_prefix <prefix name>"
-    echo -e "wine.sh --set_default_win64_prefix <prefix name>"
+    echo -e "wine.sh --set_default_prefix <prefix name>"
+    echo -e ": Set the given prefix the default for the detected arch."
     echo -e ""
     echo -e "wine.sh --setup_prefix <prefix name> [win32|win64]"
     echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
@@ -1500,20 +1480,11 @@ then
 
     exit $?
 
-elif [[ "$1" == "--set_default_win32_prefix" ]];
+elif [[ "$1" == "--set_default_prefix" ]];
 then
     if ! [[ "$2" == "" ]]
     then
-        set_default_win32_prefix "$2"
-    fi
-
-    exit $?
-    
-elif [[ "$1" == "--set_default_win64_prefix" ]];
-then
-    if ! [[ "$2" == "" ]]
-    then
-        set_default_win64_prefix "$2"
+        set_default_prefix "$2"
     fi
 
     exit $?
