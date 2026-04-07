@@ -823,8 +823,7 @@ load_basic_env()
         export -f load_prefix
         export -f load_wine
         export -f mount_iso
-        export -f set_default_win32_prefix
-        export -f set_default_win64_prefix
+        export -f set_default_prefix
         export -f set_default_wine
         export -f setup_prefix
     fi 
