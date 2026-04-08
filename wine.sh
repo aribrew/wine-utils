@@ -413,7 +413,7 @@ extract_wine()
         echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
         echo "$WINE_BRANCH" > "$INSTALL_PATH/$WINE_FOLDER/.wine_branch"
 
-        echo -e "All done.\n"
+        echo -e "\nAll done.\n"
 
         rm -r "$WINE_TMP"
     else
@@ -802,8 +802,7 @@ load_basic_env()
     echo -e "enable_virtual_desktop, exec_type, extract_wine, install_wine,"
     echo -e "install_wine_deps, install_wine_repo, install_wine_system_wide,"
     echo -e "install_winetricks, isolabel, load_prefix, load_wine, mount_iso,"
-    echo -e "set_default_win32_prefix, set_default_win64_prefix,"
-    echo -e "set_default_wine, setup_prefix\n"
+    echo -e "set_default_prefix, set_default_wine, setup_prefix\n"
 
     if ! [[ -v ZSH_VERSION ]];
     then
@@ -1178,12 +1177,20 @@ set_default_prefix()
 
     if ! [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
     then
-        rm "$HOME/.wine"
+        if [[ -d "$HOME/.wine" ]];
+        then
+            rm "$HOME/.wine"
+        fi
+        
         ln -s "$PREFIX" "$HOME/.wine"
         
         echo -e "Prefix '$PREFIX' is now the default for 32 bit.\n"
     else
-        rm "$HOME/.wine64"
+        if [[ -d "$HOME/.wine64" ]];
+        then
+            rm "$HOME/.wine64"
+        fi
+        
         ln -s "$PREFIX" "$HOME/.wine64"
         
         echo -e "Prefix '$PREFIX' is now the default for 64 bit.\n"
@@ -1234,11 +1241,11 @@ setup_prefix()
 
     if [[ "$WINEARCH" == "win32" ]] && ! [[ -d "$HOME/.wine" ]];
     then
-        set_default_win32_prefix "$WINEPREFIX"
+        set_default_prefix "$WINEPREFIX"
         
     elif [[ "$WINEARCH" == "win64" ]] && ! [[ -d "$HOME/.wine64" ]];
     then
-        set_default_win64_prefix "$WINEPREFIX"
+        set_default_prefix "$WINEPREFIX"
     fi
 }
 
