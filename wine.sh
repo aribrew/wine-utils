@@ -1255,6 +1255,8 @@ update_script()
         mkdir -p "$INSTALL_PATH"
     fi
 
+    echo -e "Checking for wine.sh updates..."
+
     SAVED=$(pwd)
     cd "$TMP"
     curl -sLO $SCRIPT_URL
@@ -1268,6 +1270,8 @@ update_script()
         then
             cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
             echo -e "Your wine.sh has been updated.\n"
+        else
+            echo -e "You are using the latest wine.sh\n"
         fi
     else
         cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
