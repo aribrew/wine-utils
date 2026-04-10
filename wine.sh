@@ -1040,27 +1040,17 @@ load_wine()
     echo "- wineboot: Performs a 'reboot' of the loaded prefix."
     echo "- explorer, reg, regedit: Launch these Windows programs."
     echo ""
-    echo "Also, y you want to see debug information, unset WINEDEBUG."
+    echo "Also, if you want to see debug information, unset WINEDEBUG."
 
-    if [[ -v DEBUG ]];
+    if [[ "$WINE_MAJOR_VERSION" == "11" ]] && [[ "$WINEARCH" == "win32" ]];
     then
-        echo ""
-        echo "DEBUG: WINE: $WINE"
-        echo "DEBUG: WINE_PATH: $WINE_PATH"
-        echo "DEBUG: WINE_BRANCH: $WINE_BRANCH"
-        echo "DEBUG: WINE_VERSION: $WINE_VERSION"
-        echo "DEBUG: WINELOADER: $WINELOADER"
-        echo "DEBUG: WINESERVER: $WINESERVER"
-        echo "DEBUG: WINEDLLPATH: $WINEDLLPATH"
-        echo "DEBUG: WINE32_UTILS: $WINE32_UTILS"
-        echo "DEBUG: WINE64_UTILS: $WINE64_UTILS"
-        echo "DEBUG: WINE_UTILS: $WINE_UTILS"
-        echo ""
-
-        if [[ -v DEBUG_EXIT ]];
-        then
-            exit 0
-        fi
+        echo -e "\nYou are using a win32 prefix with WINE 11."
+        echo -e "This mean this prefix will make use of WOW64, and this"
+        echo -e "may not be compatible with some software."
+        echo -e ""
+        echo -e "If you encounter problems with 32 bits apps, you can try"
+        echo -e "installing and loading WINE 10 (10.0.0.0) and you will be"
+        echo -e "able to create pure win32 prefixes."
     fi
 
     echo ""
