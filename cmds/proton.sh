@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source bash_helpers.sh
+source bash_helpers
 
 if ! [[ -v BASH_HELPERS_LOADED ]];
 then
