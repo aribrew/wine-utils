@@ -500,6 +500,17 @@ install_winetricks()
 
 install_wine_deps()
 {
+    if [[ -v IN_ARM ]];
+    then
+        if [[ "$DEBIAN_VERSION" == "trixie" ]];
+        then
+            DEPS+="libcurses6 libgnutls30t64 libjpeg62-turbo "
+            DEPS+="libodbc2 libspng0 libtiff6 "
+        fi
+        
+        return 0
+    fi
+    
     if [[ -f "/usr/local/share/.wine_deps_installed" ]];
     then
         echo -e "\nDependencies for WINE already installed.\n"
