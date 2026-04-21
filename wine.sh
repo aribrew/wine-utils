@@ -51,6 +51,56 @@ check_script()
 }
 
 
+clean_autoremoves()
+{
+    echo -e "Searching for unused packages ..."
+    sudo apt-get autoremove --dry-run > /tmp/to_remove
+	
+    FILE="$TMP/to_remove"
+	
+    cat "$FILE" | grep "Remv " > /tmp/to_remove.clean
+	
+    FILE="$TMP/to_remove.clean"
+	
+	
+    if ! [[ "$FILE" == "" ]] && [[ -f "$FILE" ]];
+    then
+        PACKAGES=""
+        FILE_CONTENTS=$(cat "$FILE")
+	
+        if [[ "$FILE_CONTENTS" == "" ]];
+        then
+            abort "No unused packages were found."
+        fi
+	
+        while IFS= read -r entry;
+        do  
+            PACKAGE=$(echo "$entry" | cut -d ' ' -f 2)
+	
+            if ! [[ "$PACKAGE" == "" ]];
+            then
+                PACKAGES+="$PACKAGE "
+            fi
+        done < "$FILE"
+
+        if ! [[ "$PACKAGES" == "" ]];
+        then
+            echo -e "\nThese packages will be set as manually installed:\n"
+            echo -e "$PACKAGES"
+	        
+            ask_yn "Proceed?"
+	
+            echo ""
+	        
+            if [[ "$?" == "0" ]];
+            then
+                sudo apt-mark manual $PACKAGES
+            fi
+        fi
+    fi
+}
+
+
 disable_virtual_desktop()
 {
     if [[ -v WINELOADER ]];
@@ -549,6 +599,8 @@ install_wine_deps()
             fi
 
             sudo dnf remove wine-stable --noautoremove -y
+
+            clean_autoremoves
 
             sudo touch "/usr/local/share/.wine_deps_installed"
         fi
