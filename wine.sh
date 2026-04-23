@@ -894,41 +894,6 @@ load_basic_env()
 }
 
 
-load_env()
-{
-    if ! [[ -v WINEPREFIX ]];
-    then
-        echo -e "No WINEPREFIX provided. Trying for the default for 64 bits."
-
-        if ! [[ -d "$HOME/.wine64" ]];
-        then
-            echo -e "Not found. Trying the default for 32 bits."
-
-            if ! [[ -d "$HOME/.wine" ]];
-            then
-                abort "Neither? Aborting then."
-            else
-                WINEPREFIX="$HOME/.wine"
-            fi
-        else
-            WINEPREFIX="$HOME/.wine64"
-        fi
-    fi
-
-    if ! [[ -v WINE_PATH ]];
-    then
-        if ! [[ -f "$HOME/.default_wine" ]];
-        then
-            abort "No WINE_PATH provided a no WINE is set as the default one."
-        fi
-
-        export WINE_PATH=$(cat "$HOME/.default_wine")
-    fi
-
-    load_prefix "$WINEPREFIX"
-}
-
-
 load_prefix()
 {
     if ! [[ "$1" =~ "/" ]];
@@ -1347,6 +1312,22 @@ update_script()
 
 usage()
 {
+    echo -e "Wine.sh is a LARGE script created as helper for working with"
+    echo -e "WINE and it's prefixes."
+    echo -e ""
+    echo -e "You can download the latest version, or a custom one. Create"
+    echo -e "prefixes, load and configure them."
+    echo -e ""
+    echo -e "If executed with '.' or 'source', when loading WINE and"
+    echo -e "prefixes, they will be loaded into the current shell session,"
+    echo -e "and you will have available a bunch of commands and environment"
+    echo -e "variables."
+    echo -e ""
+    echo -e " -- Made by aribrew (arithesage@protonmail.com)"
+    echo -e ""
+    echo -e ""
+    echo -e "Usage: "
+    echo -e ""
     echo -e "wine.sh <executable> [args]"
     echo -e ": Executes a program with the default prefix."
     echo -e ""
@@ -1356,8 +1337,10 @@ usage()
     echo -e ""
     echo -e "  Same if you export a WINEPREFIX variable manually."
     echo -e ""
-    echo -e "wine.sh --config <prefix>"
+    echo -e "wine.sh --config [prefix]"
     echo -e ": Configs the specified prefix."
+    echo -e "  If no prefix is provided, and one is already loaded into the"
+    echo -e "  current shell session, it will be the one to configure."
     echo -e ""
     echo -e "wine.sh --set_default <WINE path|prefix name/path>"
     echo -e ": Set the default WINE installation/prefix to use"
@@ -1372,10 +1355,6 @@ usage()
     echo -e ""
     echo -e "wine.sh --load_basic_env"
     echo -e ": Only loads the minimal environment."
-    echo -e ""
-    echo -e "wine.sh --load_env"
-    echo -e ": Loads the WINE environment (prefix and WINE)."
-    echo -e "  If WINEPREFIX and/or WINE_PATH are provided, they will be used."
     echo -e ""
     echo -e "wine.sh --disable_virtual_desktop [prefix]"
     echo -e ": Enables the Virtual Desktop for the given or actual prefix."
@@ -1653,11 +1632,6 @@ then
 elif [[ "$1" == "--load_basic_env" ]];
 then
     load_basic_env
-    end $?
-
-elif [[ "$1" == "--load_env" ]];
-then
-    load_env
     end $?
 
 elif [[ "$1" == "--enable_virtual_desktop" ]];
