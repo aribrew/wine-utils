@@ -318,11 +318,13 @@ enable_virtual_desktop()
 
 end()
 {
+    # $1: A return code, if any was provided
+    
     if [[ "$0" == *bash ]] || [[ "$0" == *zsh ]];
     then
-        return 1
+        return $1
     else
-        exit 1
+        exit $1
     fi
 }
 
@@ -1357,22 +1359,16 @@ usage()
     echo -e "wine.sh --config <prefix>"
     echo -e ": Configs the specified prefix."
     echo -e ""
-    echo -e "wine.sh --set_default <WINE path>"
-    echo -e ": Set this WINE as the default one."
-    echo -e "  This is required by 'setup_prefix' to preload it."
-    echo -e ""
-    echo -e "wine.sh --set_default_prefix <prefix name>"
-    echo -e ": Set the given prefix the default for the detected arch."
+    echo -e "wine.sh --set_default <WINE path|prefix name/path>"
+    echo -e ": Set the default WINE installation/prefix to use"
     echo -e ""
     echo -e "wine.sh --setup_prefix <prefix name> [win32|win64]"
     echo -e ": Create a new prefix in ~/.local/share/wineprefixes."
     echo -e "  The default architecture, if none is specified, is win64."
     echo -e ""
-    echo -e "wine.sh --load <WINE path>"
-    echo -e ": Use with 'source' or '.'."
-    echo -e "  Loads the given WINE in the current environment."
-    echo -e "  You need a WINEPREFIX loaded before loading WINE, unless"
-    echo -e "  you provide the desired WINEARCH (win32|win64)."
+    echo -e "wine.sh --load [WINE path|WINE prefix name/path]"
+    echo -e ": Load the given WINE installation/prefix."
+    echo -e "  If none is provided, loads the default ones."
     echo -e ""
     echo -e "wine.sh --load_basic_env"
     echo -e ": Only loads the minimal environment."
@@ -1380,11 +1376,6 @@ usage()
     echo -e "wine.sh --load_env"
     echo -e ": Loads the WINE environment (prefix and WINE)."
     echo -e "  If WINEPREFIX and/or WINE_PATH are provided, they will be used."
-    echo -e ""
-    echo -e "wine.sh --load_prefix <prefix name>"
-    echo -e ": Use with 'source' or '.'."
-    echo -e "  Loads the given prefix in the current environment."
-    echo -e "  Also, the default WINE is loaded or reloaded."
     echo -e ""
     echo -e "wine.sh --disable_virtual_desktop [prefix]"
     echo -e ": Enables the Virtual Desktop for the given or actual prefix."
@@ -1525,32 +1516,40 @@ then
         fi
     fi
 
-    exit $?
+    end $?
     
 elif [[ "$1" == "--set_default" ]];
 then
     if ! [[ "$2" == "" ]];
     then
-        WINE_PATH="$2"
-
-        is_wine_installation "$WINE_PATH"
-
-        if [[ "$?" == "0" ]];
+        if [[ -d "$2" ]];
         then
-            set_default_wine "$WINE_PATH"
+            is_wine_installation "$2"
+
+            if [[ "$?" == "0" ]];
+            then
+                set_default_wine "$2"
+            else
+                is_wine_prefix "$2"
+
+                if [[ "$?" == "0" ]];
+                then
+                    set_default_prefix "$2"
+                fi
+            fi
+            
+        elif ! [[ -f "$2" ]] && ! [[ -d "$2" ]];
+        then
+            is_wine_prefix "$2"
+
+            if [[ "$?" == "0" ]];
+            then
+                set_default_prefix "$2"
+            fi
         fi
     fi
 
-    exit $?
-
-elif [[ "$1" == "--set_default_prefix" ]];
-then
-    if ! [[ "$2" == "" ]]
-    then
-        set_default_prefix "$2"
-    fi
-
-    exit $?
+    end $?
     
 elif [[ "$1" == "--setup_prefix" ]];
 then
@@ -1582,51 +1581,84 @@ then
         setup_prefix "$WINE_PREFIXES/$WINEPREFIX" $WINEARCH
     fi
 
-    exit $?
+    end $?
 
 elif [[ "$1" == "--load" ]];
 then
-    if [[ "$2" == "" ]];
+    if ! [[ "$2" == "" ]];
     then
+        if [[ -d "$2" ]];
+        then
+            is_wine_installation "$2"
+
+            if [[ "$?" == "0" ]];
+            then
+                load_wine "$2"
+            else
+                is_wine_prefix "$2"
+
+                if [[ "$?" == "0" ]];
+                then
+                    load_prefix "$2"
+                fi
+            fi
+            
+        elif ! [[ -f "$2" ]] && ! [[ -d "$2" ]];
+        then
+            is_wine_prefix "$2"
+
+            if [[ "$?" == "0" ]];
+            then
+                load_prefix "$2"
+            fi
+        fi
+    else
         if [[ -f "$HOME/.default_wine" ]];
         then
             WINE_PATH=$(cat "$HOME/.default_wine")
+
+            is_wine_installation "$WINE_PATH"
+
+            if [[ "$?" == "0" ]];
+            then
+                load_wine "$WINE_PATH"
+            fi
+            
         else
             echo -e "Failed loading default WINE installation. Not set."
         fi
-    else
-        WINE_PATH="$2"
-    fi
-    
-    is_wine_installation "$WINE_PATH"
-            
-    if [[ "$?" == "0" ]];
-    then
-        load_wine "$WINE_PATH"
+
+        if [[ -v WINELOADER ]];
+        then
+            if [[ -v WINE_ARCH ]];
+            then
+                if [[ "$WINE_ARCH" == "win32" ]];
+                then
+                    if [[ "$HOME/.wine" ]];
+                    then
+                        load_prefix "$HOME/.wine"
+                    fi
+                else
+                    if [[ "$HOME/.wine64" ]];
+                    then
+                        load_prefix "$HOME/.wine64"
+                    fi
+                fi
+            fi
+        fi
     fi
 
-    end
+    end $?
 
 elif [[ "$1" == "--load_basic_env" ]];
 then
     load_basic_env
-    end
+    end $?
 
 elif [[ "$1" == "--load_env" ]];
 then
     load_env
-    end
-    
-elif [[ "$1" == "--load_prefix" ]];
-then
-    if ! [[ "$2" == "" ]];
-    then
-        WINEPREFIX="$2"
-        
-        load_prefix "$WINEPREFIX"
-    fi
-
-    end
+    end $?
 
 elif [[ "$1" == "--enable_virtual_desktop" ]];
 then
@@ -1638,7 +1670,7 @@ then
         enable_virtual_desktop "$WINEPREFIX" "$WINE_DESKTOP_RES"
     fi
 
-    end
+    end $?
 
 elif [[ "$1" == "--disable_virtual_desktop" ]];
 then
@@ -1649,7 +1681,7 @@ then
         disable_virtual_desktop "$WINEPREFIX"
     fi
 
-    end
+    end $?
 
 elif [[ "$1" == "--download" ]];
 then
@@ -1665,7 +1697,7 @@ then
         extract_wine "$WINE_TMP_PATH" "$WINE_TMP_PATH"
     fi
 
-    exit $?
+    end $?
 
 elif [[ "$1" == "--enable_dx11_support" ]];
 then
@@ -1682,7 +1714,7 @@ then
         fi
     fi
     
-    exit $?
+    end $?
 
 elif [[ "$1" == "--enable_dx12_support" ]];
 then
@@ -1699,7 +1731,7 @@ then
         fi
     fi
     
-    exit $?
+    end $?
 
 elif [[ "$1" == "--install" ]];
 then
@@ -1746,7 +1778,7 @@ then
         fi
     fi
 
-    exit $?
+    end $?
 
 elif [[ "$1" == "--install_app" ]];
 then
@@ -1781,27 +1813,27 @@ then
         fi
     fi
     
-    exit $?
+    end $?
 
 elif [[ "$1" == "--install_deps" ]];
 then
     install_wine_deps
-    exit $?
+    end $?
 
 elif [[ "$1" == "--install_repo" ]];
 then
     install_wine_repo
-    exit $?
-
+    end $?
+    
 elif [[ "$1" == "--install_winetricks" ]];
 then
     install_winetricks
-    exit $?
+    end $?
 
 elif [[ "$1" == "--update" ]];
 then
     update_script
-    exit $?
+    end $?
 fi
 
 
