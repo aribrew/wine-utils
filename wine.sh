@@ -3,7 +3,7 @@
 
 abort()
 {
-    MESSAGE=$1
+    local MESSAGE=$1
 
     if ! [[ "$MESSAGE" == "" ]];
     then
@@ -22,7 +22,7 @@ abort()
 
 ask_yn()
 {
-    QUESTION=$1
+    local QUESTION=$1
 
     if ! [[ "$QUESTION" == "" ]];
     then
@@ -45,7 +45,7 @@ ask_yn()
 
 check_script()
 {
-    SCRIPT=$(realpath $0)
+    local SCRIPT=$(realpath $0)
 
     bash -n "$SCRIPT"
 }
@@ -133,8 +133,8 @@ disable_virtual_desktop()
 
 download_wine()
 {
-    WINE_BRANCH="$1"
-    WINE_VERSION="$2"
+    local WINE_BRANCH="$1"
+    local WINE_VERSION="$2"
 
     if [[ "$WINE_BRANCH" == "" ]];
     then
@@ -224,7 +224,7 @@ download_wine()
 
 enable_dx11()
 {
-    WINEPREFIX="$1"
+    local WINEPREFIX="$1"
 
     if ! [[ -f "$WINE_ENV/winetricks" ]];
     then
@@ -249,7 +249,7 @@ enable_dx11()
 
 enable_dx12()
 {
-    WINEPREFIX="$1"
+    local WINEPREFIX="$1"
 
     if ! [[ -f "$WINE_ENV/winetricks" ]];
     then
@@ -331,8 +331,8 @@ end()
 
 exec_type()
 {
-    EXEC=$1
-    FILE_TYPE=$(file -L "$EXEC")
+    local EXEC=$1
+    local FILE_TYPE=$(file -L "$EXEC")
 
     echo ${FILE_TYPE} | grep "ELF 32-bit" > /dev/null
 
@@ -370,8 +370,8 @@ exec_type()
 
 extract_wine()
 {
-    PACKAGE="$1"
-    INSTALL_PATH="$2"
+    local PACKAGE="$1"
+    local INSTALL_PATH="$2"
 
     if [[ "$INSTALL_PATH" == "" ]];
     then
@@ -476,10 +476,10 @@ extract_wine()
 
 filext()
 {
-    FULL_PATH=$1
+    local FULL_PATH=$1
 
-    FILE_NAME=$(basename "$FULL_PATH")
-    FILE_EXTENSION=${FILE_NAME##*.}
+    local FILE_NAME=$(basename "$FULL_PATH")
+    local FILE_EXTENSION=${FILE_NAME##*.}
 
     echo .$FILE_EXTENSION
 }
@@ -487,9 +487,9 @@ filext()
 
 find_wine_installations()
 {
-    SEARCH_PATH="$1"
+    local SEARCH_PATH="$1"
 
-    WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
+    local WINE_SERVERS=$(find "$SEARCH_PATH"/** -type f -name "wineserver")
 
     echo "$WINE_SERVERS"
 }
@@ -497,10 +497,10 @@ find_wine_installations()
 
 install_wine()
 {   
-    WINE_PATH="$1"
-    INSTALL_PATH="$2"
+    local WINE_PATH="$1"
+    local INSTALL_PATH="$2"
 
-    WINE_FOLDER=$(basename "$WINE_PATH")
+    local WINE_FOLDER=$(basename "$WINE_PATH")
 
     is_wine_installation "$WINE_PATH"
 
@@ -612,8 +612,8 @@ install_wine_deps()
 
 install_wine_repo()
 {
-    OS_NAME=$(os_name)
-    OS_VERSION=$(os_version)
+    local OS_NAME=$(os_name)
+    local OS_VERSION=$(os_version)
 
     if [[ -f "/usr/bin/apt" ]];
     then
@@ -731,8 +731,8 @@ install_wine_repo()
 
 install_wine_system_wide()
 {
-    WINE_BRANCH="$3"
-    WINE_VERSION="$4"
+    local WINE_BRANCH="$3"
+    local WINE_VERSION="$4"
     
     if [[ "$WINE_BRANCH" == "" ]];
     then
@@ -765,7 +765,9 @@ install_wine_system_wide()
 
 is_wine_installation()
 {
-    WINE_PATH="$1"
+    local WINE_PATH="$1"
+    
+    echo -e "Checking if '$WINE_PATH' is a valid WINE installation..."
 
     if [[ -d "$WINE_PATH" ]];
     then
@@ -773,17 +775,21 @@ is_wine_installation()
 
         if ! [[ "$WINE_SERVER" == "" ]];
         then
+            echo -e "Seems good.\n"
+            
             return 0
         fi
     fi
 
+    echo -e "The wineserver executable was not found. This is bad.\n"
+    
     return 1
 }
 
 
 is_wine_prefix()
 {
-    PREFIX="$1"
+    local PREFIX="$1"
 
     if [[ -d "$PREFIX" ]];
     then
@@ -799,9 +805,9 @@ is_wine_prefix()
 
 isolabel()
 {
-    ISO=$1
-    EXTENSION=$(filext "$ISO")
-    LC_EXT=$(lowercase "$EXTENSION")
+    local ISO=$1
+    local EXTENSION=$(filext "$ISO")
+    local LC_EXT=$(lowercase "$EXTENSION")
     
     if [[ "$LC_EXT" == ".iso" ]] || [[ "$LC_EXT" == ".bin" ]];
     then
@@ -828,11 +834,11 @@ isolabel()
 
 isoname()
 {
-    ISO=$1
-    EXTENSION=$(filext "$ISO")
-    LC_EXT=$(lowercase "$EXTENSION")
+    local ISO=$1
+    local EXTENSION=$(filext "$ISO")
+    local LC_EXT=$(lowercase "$EXTENSION")
     
-    FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
+    local FILE_NAME_WEXT=$(basename "$ISO" $EXTENSION)
     
     if [[ "$FILE_NAME_WEXT" == "" ]];
     then
@@ -898,9 +904,9 @@ load_prefix()
 {
     if ! [[ "$1" =~ "/" ]];
     then
-        PREFIX="$WINE_PREFIXES/$1"
+        local PREFIX="$WINE_PREFIXES/$1"
     else
-        PREFIX="$1"
+        local PREFIX="$1"
     fi
     
     is_wine_prefix "$PREFIX"
@@ -926,11 +932,45 @@ load_prefix()
                     
         echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
 
-        if [[ -v WINE_PATH ]];
+        if [[ -v WINELOADER ]];
         then
-            load_wine "$WINE_PATH"
+            if [[ "$WINE_ARCH" == "win32" ]] &&
+               [[ "$WINEARCH" == "win64" ]];
+            then
+                echo -e "Loading the default WINE for prefix architecture..."
+
+                if [[ -d "$HOME/.wine" ]];
+                then
+                    load_wine "$HOME/.wine64"
+                else
+                    abort "Failed."
+                fi
+                                
+            elif [[ "$WINE_ARCH" == "win64" ]] && 
+                 [[ "$WINEARCH" == "win32" ]];
+            then
+                echo -e "Loading the default WINE for prefix architecture..."
+
+                if [[ -d "$HOME/.wine" ]];
+                then
+                    load_wine "$HOME/.wine"
+                else
+                    abort "Failed."
+                fi
+            fi
         else
-            load_wine
+            echo -e "No WINE environment detected."
+            
+            if [[ -v WINE_PATH ]];
+            then
+                echo -e "A custom WINE_PATH was provided and will be loaded."
+
+                load_wine "$WINE_PATH"
+            else
+                echo -e "Now the default WINE installation will be loaded."
+                
+                load_wine
+            fi
         fi
     fi
 }
@@ -938,10 +978,14 @@ load_prefix()
 
 load_wine()
 {
-    WINE_PATH="$1"
+    local WINE_PATH="$1"
 
-    if [[ "$WINE_PATH" == "" ]];
+    if ! [[ "$WINE_PATH" == "" ]];
     then
+        echo -e "Trying loading WINE installation at '$WINE_PATH'...\n"
+    else
+        echo -e "Trying loading default WINE...\n"
+        
         if [[ -f "$HOME/.default_wine" ]];
         then
             WINE_PATH=$(cat "$HOME/.default_wine")
@@ -951,11 +995,11 @@ load_wine()
     fi
 
     is_wine_installation "$WINE_PATH"
-    
-       if ! [[ "$?" == "0" ]];
-       then
+
+    if ! [[ "$?" == "0" ]];
+    then
         abort "No WINE installation found at '$WINE_PATH'."
-       fi
+    fi
 
     if ! [[ -v WINEARCH ]];
     then
@@ -1004,12 +1048,14 @@ load_wine()
 
             export WINE32_UTILS="$WINE_ROOT/lib/wine/i386-windows"
             export WINE_UTILS="$WINE32_UTILS"
+            export WINE_ARCH="win32"
         else
             export WINELOADER="$WINE_BINARIES/wine64"
             export WINEDLLPATH="$WINE_DLL_PATH/lib64/wine"
 
             export WINE64_UTILS="$WINE_ROOT/lib64/wine/x86_64-windows"
             export WINE_UTILS="$WINE64_UTILS"
+            export WINE_ARCH="win64"
         fi
     else
         export WINELOADER="$WINE_BINARIES/wine"
@@ -1024,6 +1070,8 @@ load_wine()
         else
             export WINE_UTILS="$WINE64_UTILS"
         fi
+
+        export WINE_ARCH="both"
     fi
 
     export WINE="$WINELOADER"
@@ -1098,10 +1146,10 @@ lowercase()
 
 mount_iso()
 {
-    ISO=$(realpath "$1")
-    ISO_TYPE=$(lowercase $(filext "$ISO"))
-    LABEL=$(isolabel "$ISO")
-    MOUNT_PATH="$TMP/iso/$LABEL"
+    local ISO=$(realpath "$1")
+    local ISO_TYPE=$(lowercase $(filext "$ISO"))
+    local LABEL=$(isolabel "$ISO")
+    local MOUNT_PATH="$TMP/iso/$LABEL"
     
     if [[ -f "$TMP/iso/.${LABEL}_mounted" ]];
     then
@@ -1160,8 +1208,8 @@ os_version()
 
 same_file()
 {
-    FIRST_FILE="$1"
-    SECOND_FILE="$2"
+    local FIRST_FILE="$1"
+    local SECOND_FILE="$2"
 
     if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
     then
@@ -1186,7 +1234,7 @@ same_file()
 
 set_default_prefix()
 {
-    PREFIX="$1"
+    local PREFIX="$1"
 
     is_wine_prefix "$PREFIX"
 
@@ -1220,7 +1268,7 @@ set_default_prefix()
 
 set_default_wine()
 {
-    WINE_PATH="$1"
+    local WINE_PATH="$1"
     
     echo "$WINE_PATH" > "$HOME/.default_wine"
 
@@ -1568,17 +1616,25 @@ then
     then
         if [[ -d "$2" ]];
         then
+            echo -e "Checking if loading a WINE environment..."
+            
             is_wine_installation "$2"
 
             if [[ "$?" == "0" ]];
             then
                 load_wine "$2"
             else
+                echo -e "No WINE installation found. Maybe a WINE prefix?"
+                
                 is_wine_prefix "$2"
 
                 if [[ "$?" == "0" ]];
                 then
+                    echo -e "Yeah.\n"
+                    
                     load_prefix "$2"
+                else
+                    echo -e "Neither. I don't know what todo to with this."
                 fi
             fi
             
