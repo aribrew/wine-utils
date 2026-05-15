@@ -497,35 +497,27 @@ find_wine_installations()
 
 install_wine()
 {
-    if [[ -v IN_ANDROID ]];
+    local WINE_PATH="$1"
+    local INSTALL_PATH="$2"
+
+    local WINE_FOLDER=$(basename "$WINE_PATH")
+
+    is_wine_installation "$WINE_PATH"
+
+    if [[ "$?" == "0" ]];
     then
-        PKGS="hangover-wine hangover-wowbox64 hangover-libarm64ecfex"
-        PKGS+=" hangover-libwow64fex"
-        
-        pkg install -y $PKGS
-    else
-        local WINE_PATH="$1"
-        local INSTALL_PATH="$2"
-
-        local WINE_FOLDER=$(basename "$WINE_PATH")
-
-        is_wine_installation "$WINE_PATH"
-
-        if [[ "$?" == "0" ]];
+        if [[ "$INSTALL_PATH" == "" ]] ||
+           [[ "$INSTALL_PATH" == "$WINE_PATH" ]];
         then
-            if [[ "$INSTALL_PATH" == "" ]] ||
-               [[ "$INSTALL_PATH" == "$WINE_PATH" ]];
+            set_default_wine "$WINE_PATH"
+        else
+            if ! [[ -d "$INSTALL_PATH" ]];
             then
-                set_default_wine "$WINE_PATH"
-            else
-                if ! [[ -d "$INSTALL_PATH" ]];
-                then
-                    mkdir -p "$INSTALL_PATH"
-                fi
-
-                cp -ru "$WINE_PATH" "$INSTALL_PATH"/
-                set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
+                mkdir -p "$INSTALL_PATH"
             fi
+
+            cp -ru "$WINE_PATH" "$INSTALL_PATH"/
+            set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
         fi
     fi
 }
@@ -983,15 +975,6 @@ load_prefix()
 
 load_wine()
 {
-    if [[ -v IN_ANDROID ]];
-    then
-        alias wine="hangover-wine"
-        alias winecfg="hangover-wine winecfg"
-        alias wineboot="hangover-wine wineboot"
-        
-        return $?
-    fi
-
     local WINE_PATH="$1"
 
     if ! [[ "$WINE_PATH" == "" ]];
@@ -1480,8 +1463,7 @@ fi
 
 if [[ -v TERMUX_VERSION ]];
 then
-    IN_ANDROID=1
-    TMP="$HOME/tmp"
+    abort "Use twine.sh instead."
 else
     TMP="/tmp"
 fi
@@ -1513,7 +1495,7 @@ then
 fi
 
 
-if ! [[ -v IN_ANDROID ]];
+if ! [[ -v WINE_ENV ]];
 then
     export WINE_ENV="$HOME/.local/bin/wine"
 
