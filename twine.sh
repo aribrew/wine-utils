@@ -84,9 +84,9 @@ enable_dx11()
 {
     local WINEPREFIX="$1"
 
-    if ! [[ -f "$WINE_ENV/winetricks" ]];
+    if ! [[ -f "$PREFIX/opt/bin/winetricks" ]];
     then
-        abort "Winetricks not found in '$WINE_ENV'."
+        abort "Winetricks not found."
     fi
 
     echo ""
@@ -109,9 +109,9 @@ enable_dx12()
 {
     local WINEPREFIX="$1"
 
-    if ! [[ -f "$WINE_ENV/winetricks" ]];
+    if ! [[ -f "$PREFIX/opt/bin/winetricks" ]];
     then
-        abort "Winetricks not found in '$WINE_ENV'."
+        abort "Winetricks not found."
     fi
 
     echo ""
@@ -254,16 +254,9 @@ install_winetricks()
     WINETRICKS_URL="https://raw.githubusercontent.com"
     WINETRICKS_URL+="/Winetricks/winetricks/master/src/winetricks"
 
-    if ! [[ -f "/usr/bin/zenity" ]] || [[ -f "/usr/bin/cabextract" ]];
+    if ! [[ -f "$PREFIX/bin/zenity" ]] || [[ -f "$PREFIX/bin/cabextract" ]];
     then
-        if [[ -f "/usr/bin/apt" ]];
-        then
-            sudo apt install -y zenity cabextract
-            
-        elif [[ -f "/usr/bin/dnf" ]];
-        then
-            sudo dnf install -y zenity cabextract
-        fi
+        pkg install -y zenity cabextract
     fi
     
     cd "$TMP"
@@ -272,7 +265,7 @@ install_winetricks()
 
     chmod +x "$TMP/winetricks"
 
-    cp -u "$TMP/winetricks" "$WINE_ENV/winetricks"
+    cp -u "$TMP/winetricks" "$PREFIX/opt/bin/winetricks"
 }
 
 
@@ -367,14 +360,8 @@ isoname()
 
 load_basic_env()
 {
-    #if [[ -f "$HOME/.default_wine" ]];
-    #then
-    #    export WINE_PATH=$(cat "$HOME/.default_wine")
-    #fi
-
     echo -e "WINE basic environment loaded:\n"
-    #echo -e "- WINE_ENV: WINE environment path"
-    #echo -e "- WINE_PATH: Default WINE (if available)"
+    echo -e "- WINE_PATH: Self explaining"
     echo -e "- WINE_PREFIXES: Prefixes path\n"
 
     echo -e "Also, the following commands are now available:"
@@ -521,8 +508,8 @@ same_file()
     then
         return -1
     else
-        FIRST_MD5=$(md5sum "$FIRST_FILE" | cut -d ' ' -f 1)
-        SECOND_MD5=$(md5sum "$SECOND_FILE" | cut -d ' ' -f 1)
+        FIRST_MD5=$(b3sum "$FIRST_FILE" | cut -d ' ' -f 1)
+        SECOND_MD5=$(b3sum "$SECOND_FILE" | cut -d ' ' -f 1)
 
         if [[ "$FIRST_MD5" == "$SECOND_MD5" ]];
         then
@@ -612,20 +599,20 @@ setup_prefix()
 
 update_script()
 {
-    local SCRIPT="$TMP/wine.sh"
+    local SCRIPT="$TMP/twine.sh"
     local SCRIPT_FILE=$(basename "$SCRIPT")
     
-    local INSTALL_PATH="$HOME/.local/bin"
+    local INSTALL_PATH="$PREFIX/opt/bin"
 
     SCRIPT_URL="https://github.com/aribrew/wine-utils"
-    SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
+    SCRIPT_URL+="/raw/refs/heads/main/twine.sh"
     
     if ! [[ -d "$INSTALL_PATH" ]];
     then
         mkdir -p "$INSTALL_PATH"
     fi
 
-    echo -e "Checking for wine.sh updates..."
+    echo -e "Checking for twine.sh updates..."
 
     SAVED=$(pwd)
     cd "$TMP"
@@ -639,53 +626,13 @@ update_script()
         if [[ "$?" == "1" ]];
         then
             cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-            echo -e "Your wine.sh has been updated.\n"
+            echo -e "Your twine.sh has been updated.\n"
         else
-            echo -e "You are using the latest wine.sh\n"
+            echo -e "You are using the latest twine.sh\n"
         fi
     else
         cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-        echo -e "Wine.sh has been installed in ~/.local/bin.\n"
-    fi
-}
-
-
-update_script()
-{
-    local SCRIPT="$TMP/wine.sh"
-    local SCRIPT_FILE=$(basename "$SCRIPT")
-    
-    local INSTALL_PATH="$HOME/.local/bin"
-
-    SCRIPT_URL="https://github.com/aribrew/wine-utils"
-    SCRIPT_URL+="/raw/refs/heads/main/wine.sh"
-    
-    if ! [[ -d "$INSTALL_PATH" ]];
-    then
-        mkdir -p "$INSTALL_PATH"
-    fi
-
-    echo -e "Checking for wine.sh updates..."
-
-    SAVED=$(pwd)
-    cd "$TMP"
-    curl -sLO $SCRIPT_URL
-    cd "$SAVED"
-
-    if [[ -f "$INSTALL_PATH/$SCRIPT_FILE" ]];
-    then
-        same_file "$INSTALL_PATH/$SCRIPT_FILE" "$SCRIPT"
-    
-        if [[ "$?" == "1" ]];
-        then
-            cp -u "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-            echo -e "Your wine.sh has been updated.\n"
-        else
-            echo -e "You are using the latest wine.sh\n"
-        fi
-    else
-        cp "$SCRIPT" "$INSTALL_PATH/$SCRIPT_FILE"
-        echo -e "Wine.sh has been installed in ~/.local/bin.\n"
+        echo -e "The twine.sh script has been installed in $PREFIX/opt/bin.\n"
     fi
 }
 
@@ -784,6 +731,7 @@ fi
 
 TMP="$HOME/tmp"
 
+export WINE_PATH="$PREFIX/opt/hangover-wine"
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
