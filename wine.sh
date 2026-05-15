@@ -496,28 +496,36 @@ find_wine_installations()
 
 
 install_wine()
-{   
-    local WINE_PATH="$1"
-    local INSTALL_PATH="$2"
-
-    local WINE_FOLDER=$(basename "$WINE_PATH")
-
-    is_wine_installation "$WINE_PATH"
-
-    if [[ "$?" == "0" ]];
+{
+    if [[ -v IN_ANDROID ]];
     then
-        if [[ "$INSTALL_PATH" == "" ]] ||
-           [[ "$INSTALL_PATH" == "$WINE_PATH" ]];
-        then
-            set_default_wine "$WINE_PATH"
-        else
-            if ! [[ -d "$INSTALL_PATH" ]];
-            then
-                mkdir -p "$INSTALL_PATH"
-            fi
+        PKGS="hangover-wine hangover-wowbox64 hangover-libarm64ecfex"
+        PKGS+=" hangover-libwow64fex"
+        
+        pkg install -y $PKGS
+    else
+        local WINE_PATH="$1"
+        local INSTALL_PATH="$2"
 
-            cp -ru "$WINE_PATH" "$INSTALL_PATH"/
-            set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
+        local WINE_FOLDER=$(basename "$WINE_PATH")
+
+        is_wine_installation "$WINE_PATH"
+
+        if [[ "$?" == "0" ]];
+        then
+            if [[ "$INSTALL_PATH" == "" ]] ||
+               [[ "$INSTALL_PATH" == "$WINE_PATH" ]];
+            then
+                set_default_wine "$WINE_PATH"
+            else
+                if ! [[ -d "$INSTALL_PATH" ]];
+                then
+                    mkdir -p "$INSTALL_PATH"
+                fi
+
+                cp -ru "$WINE_PATH" "$INSTALL_PATH"/
+                set_default_wine "$INSTALL_PATH/$WINE_FOLDER"
+            fi
         fi
     fi
 }
@@ -854,9 +862,6 @@ isoname()
 
 load_basic_env()
 {
-    export WINE_ENV="$HOME/.local/bin/wine"
-    export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
-
     if [[ -f "$HOME/.default_wine" ]];
     then
         export WINE_PATH=$(cat "$HOME/.default_wine")
@@ -978,6 +983,15 @@ load_prefix()
 
 load_wine()
 {
+    if [[ -v IN_ANDROID ]];
+    then
+        alias wine="hangover-wine"
+        alias winecfg="hangover-wine winecfg"
+        alias wineboot="hangover-wine wineboot"
+        
+        return $?
+    fi
+
     local WINE_PATH="$1"
 
     if ! [[ "$WINE_PATH" == "" ]];
@@ -1466,9 +1480,24 @@ fi
 
 if [[ -v TERMUX_VERSION ]];
 then
-    abort "If in Android, run in Termux proot."
+    IN_ANDROID=1
+    TMP="$HOME/tmp"
 else
     TMP="/tmp"
+fi
+
+
+export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+
+if ! [[ -d "$TMP" ]];
+then
+    mkdir -p "$TMP"
+fi
+
+
+if ! [[ -d "$WINE_PREFIXES" ]];
+then
+    mkdir -p "$WINE_PREFIXES"
 fi
 
 
@@ -1484,7 +1513,7 @@ then
 fi
 
 
-if ! [[ -v WINE_ENV ]];
+if ! [[ -v IN_ANDROID ]];
 then
     export WINE_ENV="$HOME/.local/bin/wine"
 
@@ -1505,9 +1534,6 @@ then
         fi
     fi
 fi
-
-
-export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
 if [[ "$1" == "--config" ]];
