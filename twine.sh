@@ -413,8 +413,8 @@ load_prefix()
 
 load_wine()
 {
-    export WINE32_UTILS="$WINE_ROOT/lib/wine/i386-windows"
-    export WINE64_UTILS="$WINE_ROOT/lib/aarch64-windows"
+    export WINE32_UTILS="$WINE_PATH/lib/wine/i386-windows"
+    export WINE64_UTILS="$WINE_PATH/lib/aarch64-windows"
 
     export WINE_BINARIES="$WINE_PATH/bin"
     export WINELOADER="$WINE_BINARIES/wine"
