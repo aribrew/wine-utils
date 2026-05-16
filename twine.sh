@@ -557,8 +557,19 @@ set_default_prefix()
 
 setup_prefix()
 {
-    export WINEPREFIX="$1"
-    export WINEARCH="$2"
+    WINEPREFIX="$1"
+    WINEARCH="$2"
+
+    if ! [[ "$WINEARCH" == "win32" ]] && ! [[ "$WINEARCH" == "win64" ]] &&
+       ! [[ "$WINEARCH" == "wow64" ]];
+    then
+        abort "Invalid architecture '$WINEARCH'. Use win32 or win64."
+    fi
+
+    if [[ "$WINEARCH" == "win32" ]];
+    then
+        WINEARCH="wow64"
+    fi
 
     echo -e "Preparing to setup a $WINEARCH prefix in '$WINEPREFIX'...\n"
 
@@ -586,7 +597,7 @@ setup_prefix()
 
     echo "$WINEARCH" > "$WINEPREFIX/.arch"
 
-    if [[ "$WINEARCH" == "win32" ]] && ! [[ -d "$HOME/.wine" ]];
+    if [[ "$WINEARCH" == "wow64" ]] && ! [[ -d "$HOME/.wine" ]];
     then
         set_default_prefix "$WINEPREFIX"
         
