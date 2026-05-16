@@ -788,75 +788,6 @@ export WINE_PATH="$PREFIX/opt/hangover-wine"
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
-if ! [[ "$0" == "SHELL" ]] && ! [[ "$1" == "" ]] && [[ -f "$1" ]];
-then
-    EXEC=$(realpath "$1")
-    EXEC_FILENAME=$(basename "$EXEC")
-    EXEC_FILENAME_WITHOUT_EXT=$(basename $(filext "$EXEC_FILENAME"))
-    EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
-
-    ARGS=${@:2}
-
-    if [[ -f "$EXEC_WINECFG" ]];
-    then
-        source "$EXEC_WINECFG"
-    fi
-
-    if ! [[ -v WINEPREFIX ]];
-    then
-        EXEC_TYPE=$(exec_type "$EXEC")
-
-        if [[ "$EXEC_TYPE" == "windows-i386" ]];
-        then
-            PREFIX="$HOME/.wine"
-           
-        elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
-        then
-            PREFIX="$HOME/.wine64"
-        fi
-
-        load_prefix "$PREFIX"
-    fi
-
-    if [[ -v WIN_VERSION ]];
-    then
-        PREFIX="$WINE_PREFIXES/$WIN_VERSION"
-        
-        if ! [[ -d "$PREFIX" ]];
-        then
-            abort "Requested WINE prefix '$PREFIX' does not exist."
-        else
-            load_prefix "$PREFIX"
-        fi
-    fi
-
-    if ! [[ -d "$WINEPREFIX" ]];
-    then
-        if ! [[ -d "$WINE_PREFIXES/$WINEPREFIX" ]];
-        then
-            abort "Requested WINE prefix '$WINEPREFIX' does not exist."
-        else
-            load_prefix "$WINEPREFIX"
-        fi
-    fi
-
-    if ! [[ -v WINELOADER ]];
-    then
-        if [[ "$WINE_PATH" ]];
-        then
-            load_wine "$WINE_PATH"
-        else
-            load_wine
-        fi
-    fi
-
-    if [[ -v WINEPREFIX ]] && [[ -v WINELOADER ]];
-    then
-        "$WINELOADER" "$EXEC" "$ARGS"
-    fi
-fi
-
-
 if [[ "$1" == "--config" ]];
 then
     if [[ -v WINEPREFIX ]];
@@ -917,19 +848,30 @@ elif [[ "$1" == "--setup_prefix" ]];
 then
     if [[ "$2" == "" ]];
     then
-        echo -e "No prefix specified. Creating the default..."
+        echo -e "No prefix specified."
+        echo -e "Will create the default for 64 bits.\n"
 
         WINEPREFIX="$WINE_PREFIXES/.wine64"
         WINEARCH="win64"
     else
-        WINEPREFIX="$2"
+        if [[ "$3" == "" ]];
+        then
+            echo -e "No architecture specified."
+            echo -e "Will create the prefix for 64 bits.\n"
+            
+            WINEPREFIX="$2"
+            WINEARCH="win64"
+        else
+            WINEPREFIX="$2"
+            WINEARCH="$3"
+        fi
     fi
 
     if [[ "$WINEPREFIX" =~ "/" ]];
     then
-        setup_prefix "$WINEPREFIX"
+        setup_prefix "$WINEPREFIX" $WINEARCH
     else
-        setup_prefix "$WINE_PREFIXES/$WINEPREFIX"
+        setup_prefix "$WINE_PREFIXES/$WINEPREFIX" $WINEARCH
     fi
 
     end $?
@@ -1086,3 +1028,73 @@ then
     update_script
     end $?
 fi
+
+
+if ! [[ "$0" == "SHELL" ]] && ! [[ "$1" == "" ]] && [[ -f "$1" ]];
+then
+    EXEC=$(realpath "$1")
+    EXEC_FILENAME=$(basename "$EXEC")
+    EXEC_FILENAME_WITHOUT_EXT=$(basename $(filext "$EXEC_FILENAME"))
+    EXEC_WINECFG=".$(lowercase "$EXEC_FILENAME_WITHOUT_EXT")_winecfg"
+
+    ARGS=${@:2}
+
+    if [[ -f "$EXEC_WINECFG" ]];
+    then
+        source "$EXEC_WINECFG"
+    fi
+
+    if ! [[ -v WINEPREFIX ]];
+    then
+        EXEC_TYPE=$(exec_type "$EXEC")
+
+        if [[ "$EXEC_TYPE" == "windows-i386" ]];
+        then
+            PREFIX="$HOME/.wine"
+           
+        elif [[ "$EXEC_TYPE" == "windows-amd64" ]];
+        then
+            PREFIX="$HOME/.wine64"
+        fi
+
+        load_prefix "$PREFIX"
+    fi
+
+    if [[ -v WIN_VERSION ]];
+    then
+        PREFIX="$WINE_PREFIXES/$WIN_VERSION"
+        
+        if ! [[ -d "$PREFIX" ]];
+        then
+            abort "Requested WINE prefix '$PREFIX' does not exist."
+        else
+            load_prefix "$PREFIX"
+        fi
+    fi
+
+    if ! [[ -d "$WINEPREFIX" ]];
+    then
+        if ! [[ -d "$WINE_PREFIXES/$WINEPREFIX" ]];
+        then
+            abort "Requested WINE prefix '$WINEPREFIX' does not exist."
+        else
+            load_prefix "$WINEPREFIX"
+        fi
+    fi
+
+    if ! [[ -v WINELOADER ]];
+    then
+        if [[ "$WINE_PATH" ]];
+        then
+            load_wine "$WINE_PATH"
+        else
+            load_wine
+        fi
+    fi
+
+    if [[ -v WINEPREFIX ]] && [[ -v WINELOADER ]];
+    then
+        "$WINELOADER" "$EXEC" "$ARGS"
+    fi
+fi
+
