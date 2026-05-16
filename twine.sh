@@ -449,14 +449,8 @@ load_wine()
     export WINE32_UTILS="$WINE_PATH/lib/wine/i386-windows"
     export WINE64_UTILS="$WINE_PATH/lib/aarch64-windows"
 
-    if [[ "$WINEARCH" == "wow64" ]];
-    then
-        export WINE_UTILS="$WINE32_UTILS"
-    else
-        export WINE_UTILS="$WINE64_UTILS"
-    fi
-
     export WINE_BINARIES="$WINE_PATH/bin"
+    export WINE_UTILS="$WINE64_UTILS"
 
     export WINEDLLPATH="$WINE_PATH/lib/wine"
     export WINELOADER="$WINE_BINARIES/wine"
