@@ -447,7 +447,7 @@ load_wine()
     fi
     
     export WINE32_UTILS="$WINE_PATH/lib/wine/i386-windows"
-    export WINE64_UTILS="$WINE_PATH/lib/aarch64-windows"
+    export WINE64_UTILS="$WINE_PATH/lib/wine/aarch64-windows"
 
     export WINE_BINARIES="$WINE_PATH/bin"
     export WINE_UTILS="$WINE64_UTILS"
