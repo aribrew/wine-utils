@@ -403,6 +403,19 @@ load_prefix()
     if [[ "$?" == "0" ]];
     then
         export WINEPREFIX="$PREFIX"
+
+        if [[ -f "$PREFIX/.arch" ]];
+        then
+            export WINEARCH=$(cat "$PREFIX/.arch")
+        else
+            if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+            then
+                export WINEARCH="win64"
+            else
+                export WINEARCH="win32"
+            fi
+        fi
+        
         export WIN_C="$WINEPREFIX/drive_c"
         export WIN_D="$WINEPREFIX/drive_d"
 
@@ -413,13 +426,42 @@ load_prefix()
 
 load_wine()
 {
+    if ! [[ -v WINEARCH ]];
+    then
+        if [[ -v WINEPREFIX ]];
+        then
+            if [[ -f "$WINEPREFIX/.arch" ]];
+            then
+                WINEARCH=$(cat "$WINEPREFIX/.arch")
+            else
+                if [[ -d "$WINEPREFIX/drive_c/Program Files (x86)" ]];
+                then
+                    export WINEARCH="win64"
+                else
+                    export WINEARCH="wow64"
+                fi
+            fi
+        else
+            abort "No WINE prefix loaded. Load one first."
+        fi
+    fi
+    
     export WINE32_UTILS="$WINE_PATH/lib/wine/i386-windows"
     export WINE64_UTILS="$WINE_PATH/lib/aarch64-windows"
 
+    if [[ "$WINEARCH" == "wow64" ]];
+    then
+        export WINE_UTILS="$WINE32_UTILS"
+    else
+        export WINE_UTILS="$WINE64_UTILS"
+    fi
+
     export WINE_BINARIES="$WINE_PATH/bin"
-    export WINELOADER="$WINE_BINARIES/wine"
+
     export WINEDLLPATH="$WINE_PATH/lib/wine"
+    export WINELOADER="$WINE_BINARIES/wine"
     export WINESERVER="$WINE_BINARIES/wineserver"
+
     export WINEDEBUG="-all"
     
     alias wine="$WINE_BINARIES/wine"
