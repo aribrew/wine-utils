@@ -358,7 +358,7 @@ uppercase()
 }
 
 
-install_helpers()
+install()
 {
 	if ! [[ -f "$HOME/.bashrc" ]] && [[ -v TERMUX_VERSION ]];
     then
@@ -432,7 +432,7 @@ path()
 }
 
 
-update_helpers()
+update()
 {
 	cd /tmp
 	
@@ -542,9 +542,9 @@ then
     
 elif [[ "$1" == "--install" ]];
 then
-    install_helpers
+    install
 
 elif [[ "$1" == "--update" ]];
 then
-    update_helpers
+    update
 fi

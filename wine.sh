@@ -209,6 +209,8 @@ download_wine()
         abort "Failed."
     fi
 
+    echo -e "\nAll the needed packages downloaded.\n"
+
     WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
 
     if [[ -d "$WINE_TMP_PATH" ]];
@@ -457,6 +459,8 @@ extract_wine()
             fi
         fi
     done
+
+    echo -e "\nAll packages extracted. Checking if we have a valid WINE...\n"
 
     is_wine_installation "$INSTALL_PATH/$WINE_FOLDER"
     
@@ -767,7 +771,7 @@ is_wine_installation()
 {
     local WINE_PATH="$1"
     
-    echo -e "Checking if '$WINE_PATH' is a valid WINE installation..."
+    echo -e "Checking for a valid WINE installation at '$WINE_PATH' ..."
 
     if [[ -d "$WINE_PATH" ]];
     then
@@ -781,7 +785,8 @@ is_wine_installation()
         fi
     fi
 
-    echo -e "The wineserver executable was not found. This is bad.\n"
+    echo -e "The wineserver executable was not found.\n"
+    echo -e "If installing WINE in this place, this can be ignored.\n"
     
     return 1
 }
