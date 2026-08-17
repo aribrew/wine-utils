@@ -1792,7 +1792,9 @@ then
         then
             # Installs a previously downloaded WINE
             WINE_PATH="$2"
-            install_wine "$WINE_PATH"
+            WINE_INSTALL_PATH="$3"
+            
+            install_wine "$WINE_PATH" "$WINE_INSTALL_PATH"
         else
             # Downloads WINE and install it
             WINE_BRANCH="$2"
