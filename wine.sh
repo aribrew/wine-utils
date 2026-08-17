@@ -786,7 +786,9 @@ is_wine_installation()
     fi
 
     echo -e "The wineserver executable was not found.\n"
-    echo -e "If installing WINE in this place, this can be ignored.\n"
+    echo -e "If extracting to /tmp/wine, this can be ignored."
+    echo -e "The check is done before extracting in case you are"
+    echo -e "installing WINE in a place other than /tmp.\n"
     
     return 1
 }
