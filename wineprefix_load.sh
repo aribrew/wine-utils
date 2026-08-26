@@ -3,22 +3,7 @@
 SCRIPT_HOME=$(realpath $(dirname $0))
 
 source "bash_helpers"
-
-
-is_wine_prefix()
-{
-    local PREFIX="$1"
-
-    if [[ -d "$PREFIX" ]];
-    then
-        if [[ -d "$PREFIX/dosdevices" ]];
-        then
-            return 0
-        fi
-    fi
-
-    return 1
-}
+source "$SCRIPT_HOME/wine_helpers"
 
 
 load_prefix()

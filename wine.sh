@@ -2,32 +2,8 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
-source "bash_helpers"
-
-
-is_wine_installation()
-{
-    local WINE_PATH="$1"
-
-    echo -e "Checking for a valid WINE installation at '$WINE_PATH' ..."
-
-    if [[ -d "$WINE_PATH" ]];
-    then
-        WINE_SERVER=$(find "$WINE_PATH"/** -type f -name "wineserver")
-
-        if ! [[ "$WINE_SERVER" == "" ]];
-        then
-            echo -e "Seems good.\n"
-
-            return 0
-        fi
-    fi
-
-    echo -e "The wineserver executable was not found."
-    echo -e "If extracting to /tmp/wine, this can be ignored.\n"
-
-    return 1
-}
+source "$SCRIPT_HOME/bash_helpers"
+source "$SCRIPT_HOME/wine_helpers"
 
 
 usage()

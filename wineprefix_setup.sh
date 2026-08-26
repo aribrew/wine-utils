@@ -2,23 +2,8 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
-source "bash_helpers"
-
-
-is_wine_prefix()
-{
-    local PREFIX="$1"
-
-    if [[ -d "$PREFIX" ]];
-    then
-        if [[ -d "$PREFIX/dosdevices" ]];
-        then
-            return 0
-        fi
-    fi
-
-    return 1
-}
+source "$SCRIPT_HOME/bash_helpers"
+source "$SCRIPT_HOME/wine_helpers"
 
 
 setup_prefix()
@@ -27,13 +12,6 @@ setup_prefix()
     export WINEARCH="$2"
 
     echo -e "Preparing to setup a $WINEARCH prefix in '$WINEPREFIX'...\n"
-
-    PREFIX_PATH=$(dirname "$WINEPREFIX")
-
-    if ! [[ -d "$PREFIX_PATH" ]];
-    then
-        mkdir -p "$PREFIX_PATH"
-    fi
 
     source wine_load.sh
 
@@ -76,5 +54,40 @@ then
 fi
 
 
+PREFIX="$1"
+PREFIX_ARCH="$2"
+
 
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+
+
+if ! [[ -d "$WINE_PREFIXES" ]];
+then
+    mkdir -p "$WINE_PREFIXES"
+fi
+
+
+if [[ "$PREFIX_ARCH" == "" ]];
+then
+    WINEARCH="win64"
+fi
+
+
+PREFIX_PATH=$(dirname "$PREFIX")
+
+if [[ "$PREFIX_PATH" == "." ]];
+then
+    WINEPREFIX="$WINE_PREFIXES/$PREFIX"
+else
+    WINEPREFIX="$PREFIX"
+fi
+
+is_wine_prefix "$WINEPREFIX"
+
+if [[ "$?" == "0" ]];
+then
+    abort "This prefix already exists."
+fi
+
+
+setup_prefix "$WINEPREFIX" "$WINEARCH"

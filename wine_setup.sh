@@ -2,7 +2,7 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
-source "bash_helpers"
+source "$SCRIPT_HOME/bash_helpers"
 
 
 usage()
