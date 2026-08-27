@@ -1,8 +1,10 @@
 #!/bin/bash
 
-SCRIPT_HOME=$(realpath $(dirname $0))
+# This script is meant for sourcing only, thus the SCRIPT_HOME
+# need to store $1, not $0
+SCRIPT_HOME=$(realpath $(dirname $1))
 
-source "bash_helpers"
+source "$SCRIPT_HOME/bash_helpers"
 source "$SCRIPT_HOME/wine_helpers"
 
 
@@ -14,6 +16,8 @@ load_prefix()
     else
         local PREFIX="$1"
     fi
+
+    echo -e "Trying loading '$PREFIX' WINE prefix..."
 
     is_wine_prefix "$PREFIX"
 
@@ -47,7 +51,7 @@ load_prefix()
 
                 if [[ -d "$HOME/.wine" ]];
                 then
-                    load_wine "$HOME/.wine64"
+                    wine_load.sh "$HOME/.wine64"
                 else
                     abort "Failed."
                 fi
@@ -59,7 +63,7 @@ load_prefix()
 
                 if [[ -d "$HOME/.wine" ]];
                 then
-                    load_wine "$HOME/.wine"
+                    wine_load.sh "$HOME/.wine"
                 else
                     abort "Failed."
                 fi
@@ -67,15 +71,18 @@ load_prefix()
         else
             echo -e "No WINE environment detected."
 
-            if [[ -v WINE_PATH ]];
+            if ! [[ -v SKIP_WINE_LOADING ]];
             then
-                echo -e "A custom WINE_PATH was provided and will be loaded."
+                if [[ -v WINE_PATH ]];
+                then
+                    echo -e "A custom WINE_PATH was provided and will be loaded."
 
-                load_wine "$WINE_PATH"
-            else
-                echo -e "Now the default WINE installation will be loaded."
+                    wine_load.sh "$WINE_PATH"
+                else
+                    echo -e "Now the default WINE installation will be loaded."
 
-                load_wine
+                    wine_load.sh
+                fi
             fi
         fi
     fi
@@ -88,6 +95,9 @@ usage()
     echo -e "wineprefix_load.sh [WINE prefix name/path]"
     echo -e ": Load the given WINE prefix."
     echo -e "  If none is provided, loads the default one."
+    echo -e ""
+    echo -e "  The default WINE installation will also be loaded"
+    echo -e "  unless SKIP_WINE_LOADING=1 is provided."
 }
 
 
@@ -97,11 +107,6 @@ then
     abort
 fi
 
-
-
-export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
-
-is_wine_prefix "$1"
 
 if [[ "$?" == "0" ]];
 then

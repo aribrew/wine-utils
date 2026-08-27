@@ -1,5 +1,19 @@
 #!/bin/bash
 
+export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
+
+
+if ! [[ -v WINE_UTILS_IN_PATH ]];
+then
+    # This script is meant for sourcing only, thus the SCRIPT_HOME
+    # need to store $1, not $0
+    SCRIPT_HOME=$(realpath $(dirname $1))
+
+    export PATH=$SCRIPT_HOME:$PATH
+    echo -e "'$SCRIPT_HOME' added temporaly to PATH.\n"
+fi
+
+
 is_wine_installation()
 {
     local WINE_PATH="$1"
@@ -29,13 +43,26 @@ is_wine_prefix()
 {
     local PREFIX="$1"
 
+    if [[ $(dirname "$PREFIX") == "." ]];
+    then
+        local PREFIX="$WINE_PREFIXES/$PREFIX"
+    fi
+
+    echo -e "Checking for 'dosdevices' in '$PREFIX'..."
+
     if [[ -d "$PREFIX" ]];
     then
         if [[ -d "$PREFIX/dosdevices" ]];
         then
+            echo -e "Found. It seems a valid WINE prefix."
             return 0
         fi
     fi
 
+    echo -e "Not found. Not a valid WINE prefix."
     return 1
 }
+
+
+export -f is_wine_installation
+export -f is_wine_prefix
