@@ -198,6 +198,12 @@ extract_wine()
         echo "$WINE_VERSION" > "$INSTALL_PATH/$WINE_FOLDER/.wine_version"
         echo "$WINE_BRANCH" > "$INSTALL_PATH/$WINE_FOLDER/.wine_branch"
 
+        cp "$SCRIPT_HOME/wine_installer.sh" "$INSTALL_PATH/$WINE_FOLDER/install.sh"
+        chmod +x "$INSTALL_PATH/$WINE_FOLDER/install.sh"
+
+        cp "$SCRIPT_HOME/make_default_wine.sh" "$INSTALL_PATH/$WINE_FOLDER/make_default.sh"
+        chmod +x "$INSTALL_PATH/$WINE_FOLDER/make_default.sh"
+
         echo -e "\nAll done.\n"
 
         rm -r "$WINE_TMP"

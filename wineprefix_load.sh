@@ -71,7 +71,7 @@ load_prefix()
         else
             echo -e "No WINE environment detected."
 
-            if ! [[ -v SKIP_WINE_LOADING ]];
+            if [[ -v WINE_AUTOLOAD ]];
             then
                 if [[ -v WINE_PATH ]];
                 then
@@ -96,8 +96,8 @@ usage()
     echo -e ": Load the given WINE prefix."
     echo -e "  If none is provided, loads the default one."
     echo -e ""
-    echo -e "  The default WINE installation will also be loaded"
-    echo -e "  unless SKIP_WINE_LOADING=1 is provided."
+    echo -e "  If WINE_AUTOLOAD=1 is provided, the default WINE installation"
+    echo -e "  will also be loaded."
 }
 
 
