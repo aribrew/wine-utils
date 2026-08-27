@@ -1,16 +1,30 @@
 #!/bin/bash
 
+export WINE_DEFAULT_BRANCH="stable"
+export WINE_DEFAULT_VERSION="11.0.0.0"
+
 export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 
 
 if ! [[ -v WINE_UTILS_IN_PATH ]];
 then
-    # This script is meant for sourcing only, thus the SCRIPT_HOME
+    # This script is meant for sourcing only, thus WINE_UTILS
     # need to store $1, not $0
-    SCRIPT_HOME=$(realpath $(dirname $1))
+    WINE_UTILS=$(realpath $(dirname $1))
 
-    export PATH=$SCRIPT_HOME:$PATH
-    echo -e "'$SCRIPT_HOME' added temporaly to PATH.\n"
+    if [[ "$WINE_UTILS" == "" ]];
+    then
+        echo -e "Something wrong happened setting WINE Utils in PATH."
+        echo -e "This is really extrange, thus, lets see something:"
+        echo -e "[DEBUG] \$0: $0, \$1: $1\n"
+
+        exit 1
+    fi
+
+    export PATH=$WINE_UTILS:$PATH
+    echo -e "'$WINE_UTILS' added temporaly to PATH.\n"
+
+    export WINE_UTILS_IN_PATH=1
 fi
 
 

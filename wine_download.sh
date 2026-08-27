@@ -11,16 +11,6 @@ download_wine()
     local WINE_BRANCH="$1"
     local WINE_VERSION="$2"
 
-    if [[ "$WINE_BRANCH" == "" ]];
-    then
-        WINE_BRANCH="stable"
-    fi
-
-    if [[ "$WINE_VERSION" == "" ]];
-    then
-        WINE_VERSION="11.0.0.0"
-    fi
-
     if ! [[ "$WINE_BRANCH" == "stable" ]] &&
        ! [[ "$WINE_BRANCH" == "staging" ]];
     then
@@ -222,7 +212,7 @@ usage()
 }
 
 
-if [[ "$1" == "" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
 then
     usage
     abort
@@ -239,6 +229,18 @@ fi
 
 WINE_BRANCH="$1"
 WINE_VERSION="$2"
+
+
+if [[ "$WINE_BRANCH" == "" ]];
+then
+    WINE_BRANCH="$WINE_DEFAULT_BRANCH"
+fi
+
+if [[ "$WINE_VERSION" == "" ]];
+then
+    WINE_VERSION="$WINE_DEFAULT_VERSION"
+fi
+
 
 download_wine $WINE_BRANCH $WINE_VERSION
 
