@@ -9,8 +9,8 @@ export WINE_PREFIXES="$HOME/.local/share/wineprefixes"
 if ! [[ -v WINE_UTILS_IN_PATH ]];
 then
     # This script is meant for sourcing only, thus WINE_UTILS
-    # need to store $1, not $0
-    WINE_UTILS=$(realpath $(dirname $1))
+    # need to store ${BASH_SOURCE[0]}, not $0
+    WINE_UTILS=$(realpath $(dirname ${BASH_SOURCE[0]}))
 
     if [[ "$WINE_UTILS" == "" ]];
     then

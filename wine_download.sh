@@ -41,6 +41,11 @@ download_wine()
         BASE_URL+="/wine"
     fi
 
+
+    WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
+    cd "$WINE_TMP_PATH"
+
+
     echo ""
     echo "Downloading WINE (Base) ($WINE_BRANCH) ($WINE_VERSION) ..."
     echo "----------------------------------------------------------"
@@ -75,8 +80,6 @@ download_wine()
     fi
 
     echo -e "\nAll the needed packages downloaded.\n"
-
-    WINE_TMP_PATH="$TMP/wine/$WINE_BRANCH/$WINE_VERSION"
 
     if [[ -d "$WINE_TMP_PATH" ]];
     then

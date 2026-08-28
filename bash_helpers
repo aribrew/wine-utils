@@ -54,11 +54,11 @@ ask_yn()
         if [[ "$answer" == "Y" ]] || [[ "$answer" == "S" ]];
         then
             return 0
-            
+
         elif [[ "$answer" == "n" ]];
         then
             return 1
-            
+
         else
             return -1
         fi
@@ -69,9 +69,9 @@ ask_yn()
 check_deps()
 {
     PACKAGES="$1"
-    
+
 	DEPS=$(sudo apt-cache depends "$PACKAGES")
-	
+
 	REQUIRED_DEPS="$DEPS"
 	RECOMMENDED_DEPS="$DEPS"
 
@@ -85,7 +85,7 @@ check_deps()
 	    DEPENDS_STR="Depende:"
 	    RECOMMENDED_STR="Recomienda:"
 	fi
-	
+
 	REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | grep "  ${DEPENDS_STR}")
 	REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed "s/  ${DEPENDS_STR} //g")
 	REQUIRED_DEPS=$(echo "$REQUIRED_DEPS" | sed "s/<//g" | sed "s/>//g")
@@ -110,10 +110,21 @@ check_if_admin()
 }
 
 
+check_if_sourced()
+{
+    if [[ "$0" == "$SHELL" ]];
+    then
+        return 0
+    fi
+
+    return 1
+}
+
+
 check_port()
 {
     PORT=$1
-    
+
     if [[ "$PORT" == "" ]];
     then
         sudo netstat -nlp | grep ${PORT}
@@ -255,7 +266,7 @@ is_running()
     if ! [[ "$EXEC_NAME" == "" ]];
     then
         PROCESS_ID=$(pgrep -x $EXEC_NAME)
-        
+
         if [[ "$?" == "0" ]];
         then
             echo -e "Yes\n"
@@ -289,8 +300,8 @@ os_version()
     else
         OS_INFO=$(cat /etc/os-release)
         OS_VERSION=$(echo "$OS_INFO" | grep '^VERSION_CODENAME=')
-        
-        echo "$OS_VERSION" | cut -d '=' -f 2 
+
+        echo "$OS_VERSION" | cut -d '=' -f 2
     fi
 }
 
@@ -309,7 +320,7 @@ same_file()
 	if [[ "$FIRST_FILE" == "" ]] || [[ "$SECOND_FILE" == "" ]];
 	then
         return -1
-        
+
 	elif ! [[ -f "$FIRST_FILE" ]] || ! [[ -f "$SECOND_FILE" ]];
 	then
 	    return -1
@@ -335,10 +346,10 @@ test_ip()
     then
         abort "IP address cannot be empty."
     fi
-    
+
     echo "Trying conecting to $IP_ADDRESS ..."
     ping -c 1 $IP_ADDRESS >/dev/null
-    
+
     if [[ "$?" == "1" ]];
     then
         echo -e "Cannot reach $IP_ADDRESS.\n"
@@ -369,7 +380,7 @@ install()
     then
         touch "$HOME/.environment"
     fi
-        
+
     SCRIPT=$(realpath $0)
     FILENAME=$(basename "$SCRIPT")
 
@@ -419,12 +430,12 @@ path()
     if ! [[ "$TERMUX_VERSION" == "" ]];
     then
         echo "$PREFIX/opt/bin/bash_helpers"
-        
+
     else
         if [[ "$HOME" == "/root" ]];
         then
             echo "/opt/bin/bash_helpers"
-            
+
         else
             echo "$HOME/.local/bin/bash_helpers"
         fi
@@ -435,21 +446,21 @@ path()
 update()
 {
 	cd /tmp
-	
+
 	URL="https://raw.githubusercontent.com/aribrew/bash_scripting"
 	URL+="/refs/heads/main/bash_helpers"
-	
+
 	echo -e "Downloading latest bash_helpers ..."
 	echo -e "-----------------------------------"
-	    
+
 	curl -LO $URL
-	
+
 	if [[ "$?" == "0" ]];
 	then
 	    INSTALL_PATH=$(path)
-	
+
 	    cp -u bash_helpers "$INSTALL_PATH"
-	
+
 	    if [[ "$?" == "0" ]];
 	    then
 	        echo -e "Done!\n"
@@ -492,6 +503,7 @@ then
     export -f ask_yn
     export -f check_deps
     export -f check_if_admin
+    export -f check_if_sourced
     export -f check_port
     export -f check_script
     export -f check_sudo
@@ -516,7 +528,7 @@ then
 fi
 
 
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]] && ! [[ "$0" == "$SHELL" ]];
 then
     helpers_usage
     abort
@@ -535,11 +547,11 @@ then
     done
 
     echo ""
-    
+
 elif [[ "$1" == "--path" ]];
 then
     path
-    
+
 elif [[ "$1" == "--install" ]];
 then
     install
