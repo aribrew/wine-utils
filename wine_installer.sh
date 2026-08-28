@@ -46,7 +46,7 @@ then
 fi
 
 
-if [[ "$?" == "0" ]];
+if ! [[ "$?" == "0" ]];
 then
     echo -e "Cannot install in '$INSTALL_PATH'. Check your permissions.\n"
     exit 1
@@ -62,5 +62,5 @@ then
     exit 1
 fi
 
-echo -e "Done! Run 'make_default.sh' to make this WINE installation"
+echo -en "Done! Run 'make_default.sh' to make this WINE installation"
 echo -e "the default one.\n"
