@@ -4,7 +4,6 @@
 # need to store ${BASH_SOURCE[0]}, not $0
 SCRIPT_HOME=$(realpath $(dirname ${BASH_SOURCE[0]}))
 
-source "$SCRIPT_HOME/bash_helpers"
 source "$SCRIPT_HOME/wine_helpers"
 
 

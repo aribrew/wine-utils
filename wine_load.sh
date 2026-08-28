@@ -4,7 +4,6 @@
 # need to store $1, not $0
 SCRIPT_HOME=$(realpath $(dirname $1))
 
-source "$SCRIPT_HOME/bash_helpers"
 source "$SCRIPT_HOME/wine_helpers"
 
 

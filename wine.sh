@@ -2,7 +2,6 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
-source "$SCRIPT_HOME/bash_helpers"
 source "$SCRIPT_HOME/wine_helpers"
 
 

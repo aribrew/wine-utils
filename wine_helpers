@@ -28,6 +28,17 @@ then
 fi
 
 
+if ! [[ -v BASH_HELPERS_LOADED ]];
+then
+    if [[ -f "$WINE_UTILS/bash_helpers" ]];
+    then
+        source "$WINE_UTILS/bash_helpers"
+    else
+        source bash_helpers
+    fi
+fi
+
+
 is_wine_installation()
 {
     local WINE_PATH="$1"
