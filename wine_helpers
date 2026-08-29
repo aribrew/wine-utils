@@ -35,6 +35,28 @@ then
         source "$WINE_UTILS/bash_helpers"
     else
         source bash_helpers
+
+        if ! [[ "$?" == "0" ]];
+        then
+            echo -e "Downloading BASH helpers..."
+            echo -e "---------------------------"
+
+            URL="https://github.com/aribrew/bash_scripting"
+            URL+="/raw/refs/heads/main/bash_helpers"
+
+            curl -LO $URL
+
+            if ! [[ "$?" == "0" ]];
+            then
+                echo -e "Ouch! Failed."
+                exit 1
+            fi
+
+            echo -e "Done. Adding to PATH temporaly."
+            
+            chmod +x "$WINE_UTILS/bash_helpers"
+            source "$WINE_UTILS/bash_helpers"
+        fi
     fi
 fi
 
