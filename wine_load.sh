@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # This script is meant for sourcing only, thus the SCRIPT_HOME
-# need to store $1, not $0
-SCRIPT_HOME=$(realpath $(dirname $1))
+# need to store ${BASH_SOURCE[0]}, not $0
+SCRIPT_HOME=$(realpath $(dirname ${BASH_SOURCE[0]}))
 
 source "$SCRIPT_HOME/wine_helpers"
 
@@ -180,3 +180,9 @@ then
     usage
     abort
 fi
+
+
+WINE_PATH="$1"
+
+load_wine "$WINE_PATH"
+
