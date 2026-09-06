@@ -2,7 +2,7 @@
 
 SCRIPT_HOME=$(realpath $(dirname $0))
 
-DOWNLOAD_PATH="$HOME/tmp"
+DEFAULT_DOWNLOAD_PATH="$HOME/tmp"
 PREFERRED_LANGUAGE="es"
 INCLUDE_EXTRAS="false"
 
@@ -45,12 +45,28 @@ then
 fi
 
 
-if ! [[ -d "$DOWNLOAD_PATH" ]];
+if ! [[ -v GAME_LANG ]];
 then
-    mkdir -p "$DOWNLOAD_PATH"
+    GAME_LANG="$PREFERRED_LANGUAGE"
+fi
+
+if ! [[ -v GAME_PATH ]];
+then
+    GAME_PATH="$DEFAULT_DOWNLOAD_PATH"
+fi
+
+if ! [[ -v GAME_EXTRAS ]];
+then
+    GAME_EXTRAS="$INCLUDE_EXTRAS"
 fi
 
 
-gogg download $GAME_ID "$DOWNLOAD_PATH" --extras="$INCLUDE_EXTRAS" \
-                                        --resume="true" \
-                                        --lang="$PREFERRED_LANGUAGE"
+if ! [[ -d "$GAME_PATH" ]];
+then
+    mkdir -p "$GAME_PATH"
+fi
+
+
+gogg download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
+                                    --resume="true" \
+                                    --lang="$GAME_LANG"
