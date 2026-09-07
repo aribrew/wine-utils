@@ -61,6 +61,8 @@ then
 fi
 
 
+GAME_PATH="$GAME_PATH/gog_downloads/$GAME_ID"
+
 if ! [[ -d "$GAME_PATH" ]];
 then
     mkdir -p "$GAME_PATH"
@@ -70,3 +72,29 @@ fi
 gogg download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
                                     --resume="true" \
                                     --lang="$GAME_LANG"
+
+EXECUTABLES_FOUND=$(find "$GAME_PATH/" -type f -name "*.exe")
+
+if [[ "$EXECUTABLES_FOUND" == "" ]] && ! [[ "$GAME_LANG" == "en" ]];
+then
+    echo -e "\nInstaller not found. Maybe not available in '$GAME_LANG'."
+    echo -e "Trying with the 'en' language...\n"
+
+    gogg download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
+                                        --resume="true" \
+                                        --lang="en"
+
+    EXECUTABLES_FOUND=$(find "$GAME_PATH/" -type f -name "*.exe")
+
+    if [[ "$EXECUTABLES_FOUND" == "" ]];
+    then
+        echo -e "Damn... It seems the game isn't available in the 'en'"
+        echo -e "language neither. See in GOG the available ones.\n"
+
+        exit 1
+    fi
+fi
+
+
+echo -e "\nDone.\n"
+
