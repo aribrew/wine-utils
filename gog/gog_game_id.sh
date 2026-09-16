@@ -22,7 +22,7 @@ if [[ $OS == Linux* ]];
 then
     GOGG="lgogg"
 
-elif [[ $OS == Darwin ]];
+elif [[ $OS == Darwin* ]];
 then
     GOGG="mgogg"
 else
@@ -53,11 +53,11 @@ GAME_NAME="$1"
 if [[ $GAME_NAME == https* ]];
 then
     GAME_URL="$GAME_NAME"
-    GAME_ID=$(curl $GAME_URL | grep '"sku":')
+    GAME_ID=$(curl -s $GAME_URL | grep '"sku":')
 
     if ! [[ "$GAME_ID" == "" ]];
     then
-        GAME_ID=$(echo "$GAME_ID" | xargs | sed 's/,/g' | cut -d ' ' -f 2)
+        GAME_ID=$(echo "$GAME_ID" | xargs | sed 's/,//g' | cut -d ' ' -f 2)
     fi
 else
     GAME_ID=$($GOGG catalogue search "$GAME_NAME" 2> /dev/null | grep "$GAME_NAME" | tail -1 | cut -d "|" -f 3 | xargs)
