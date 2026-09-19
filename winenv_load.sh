@@ -40,7 +40,7 @@ then
 fi
 
 
-. wineprefix_load "$HOME/.wine"
+. wineprefix_load.sh "$HOME/.wine"
 
 
 if [[ -v WINEPREFIX ]];
