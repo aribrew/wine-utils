@@ -1,0 +1,9 @@
+INSTALL_PATH="$HOME/.local/bin/wine"
+
+WINE_LOAD=$(which wine_load.sh)
+
+if ! [[ -f "$WINE_LOAD" ]];
+then
+    export PATH=$PATH:$INSTALL_PATH
+    echo -e "Added WINE utils paths to environment.\n"
+fi
