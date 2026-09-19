@@ -14,6 +14,12 @@ setup_prefix()
 
     source wine_load.sh
 
+    if [[ "$WINE_MAJOR_VERSION" == "11" ]];
+    then
+        # Force win64 as WINEARCH when using Wine 11
+        export WINEARCH="win64"
+    fi
+
     "$WINELOADER" "$WINE_UTILS/wineboot.exe"
 
     if ! [[ "$?" == "0" ]];
