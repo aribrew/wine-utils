@@ -50,7 +50,7 @@ load_prefix()
 
                 if [[ -d "$HOME/.wine" ]];
                 then
-                    wine_load.sh "$HOME/.wine64"
+                    . wine_load.sh "$HOME/.wine64"
                 else
                     abort "Failed."
                 fi
@@ -62,7 +62,7 @@ load_prefix()
 
                 if [[ -d "$HOME/.wine" ]];
                 then
-                    wine_load.sh "$HOME/.wine"
+                    . wine_load.sh "$HOME/.wine"
                 else
                     abort "Failed."
                 fi
@@ -76,11 +76,11 @@ load_prefix()
                 then
                     echo -e "A custom WINE_PATH was provided and will be loaded."
 
-                    wine_load.sh "$WINE_PATH"
+                    . wine_load.sh "$WINE_PATH"
                 else
                     echo -e "Now the default WINE installation will be loaded."
 
-                    wine_load.sh
+                    . wine_load.sh
                 fi
             fi
         fi

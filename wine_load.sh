@@ -127,11 +127,18 @@ load_wine()
 
     echo "Activated Wine $WINE_BRANCH $WINE_VERSION: $WINE_PATH"
 
-    if [[ "$WINEARCH" == "win32" ]];
+    if [[ "$WINE_MAJOR_VERSION" == "11" ]];
     then
-        echo "Loaded a 32 bit environment."
+        # Ensure WINEARCH is the proper for Wine 11 that
+        # only supports win64 prefixes
+        export WINEARCH="win64"
     else
-        echo "Loaded a 64 bit environment."
+        if [[ "$WINEARCH" == "win32" ]];
+        then
+            echo "Loaded a 32 bit environment."
+        else
+            echo "Loaded a 64 bit environment."
+        fi
     fi
 
     echo ""
