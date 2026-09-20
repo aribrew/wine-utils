@@ -24,63 +24,78 @@ load_prefix()
     then
         export WINEPREFIX="$PREFIX"
 
-        if [[ -f "$PREFIX/.arch" ]];
-        then
-            export WINEARCH=$(cat "$PREFIX/.arch")
-        else
-            if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
-            then
-                export WINEARCH="win64"
-            else
-                export WINEARCH="win32"
-            fi
-        fi
-
         export WIN_C="$WINEPREFIX/drive_c"
         export WIN_D="$WINEPREFIX/drive_d"
 
-        echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
-
-        if [[ -v WINELOADER ]];
+        if [[ -v WINE_11_LOADED ]];
         then
-            if [[ "$WINE_ARCH" == "win32" ]] &&
-               [[ "$WINEARCH" == "win64" ]];
-            then
-                echo -e "Loading the default WINE for prefix architecture..."
-
-                if [[ -d "$HOME/.wine" ]];
-                then
-                    . wine_load.sh "$HOME/.wine64"
-                else
-                    abort "Failed."
-                fi
-
-            elif [[ "$WINE_ARCH" == "win64" ]] &&
-                 [[ "$WINEARCH" == "win32" ]];
-            then
-                echo -e "Loading the default WINE for prefix architecture..."
-
-                if [[ -d "$HOME/.wine" ]];
-                then
-                    . wine_load.sh "$HOME/.wine"
-                else
-                    abort "Failed."
-                fi
-            fi
+            export WINEARCH="win64"
+            
+            echo -e "WINE prefix '$WINEPREFIX' activated.\n"
         else
-            echo -e "No WINE environment detected."
-
-            if [[ -v WINE_AUTOLOAD ]];
+            if [[ -f "$PREFIX/.arch" ]];
             then
-                if [[ -v WINE_PATH ]];
+                export WINEARCH=$(cat "$PREFIX/.arch")
+            else
+                if ! [[ "$PREFIX/.arch" ]];
                 then
-                    echo -e "A custom WINE_PATH was provided and will be loaded."
+                    if [[ -d "$PREFIX/drive_c/Program Files (x86)" ]];
+                    then
+                        echo "win64" > "$WINEPREFIX/.arch"
+                    else
+                        echo "win32" > "$WINEPREFIX/.arch"
+                    fi
+                fi
 
-                    . wine_load.sh "$WINE_PATH"
-                else
-                    echo -e "Now the default WINE installation will be loaded."
+                export WINEARCH=$(cat "$PREFIX/.arch")
+            fi
 
-                    . wine_load.sh
+            echo -e "WINE prefix '$WINEPREFIX' ($WINEARCH) activated.\n"
+
+            if [[ -v WINELOADER ]];
+            then
+                if ! [[ -v WINE_11_LOADED ]];
+                then
+                    if [[ "$WINE_ARCH" == "win32" ]] &&
+                       [[ "$WINEARCH" == "win64" ]];
+                    then
+                        echo -e "Loading the default WINE for prefix architecture..."
+
+                        if [[ -d "$HOME/.wine" ]];
+                        then
+                            . wine_load.sh "$HOME/.wine64"
+                        else
+                            abort "Failed."
+                        fi
+
+                    elif [[ "$WINE_ARCH" == "win64" ]] &&
+                         [[ "$WINEARCH" == "win32" ]];
+                    then
+                        echo -e "Loading the default WINE for prefix architecture..."
+
+                        if [[ -d "$HOME/.wine" ]];
+                        then
+                            . wine_load.sh "$HOME/.wine"
+                        else
+                            abort "Failed."
+                        fi
+                    fi
+                fi
+            else
+                echo -e "No WINE environment detected."
+
+                if [[ -v WINE_AUTOLOAD ]];
+                then
+                    if [[ -v WINE_PATH ]];
+                    then
+                        echo -e "A custom WINE_PATH was provided and will be loaded."
+
+                        . wine_load.sh "$WINE_PATH"
+                    else
+                        echo -e "Now the default WINE installation will be loaded."
+
+                        . wine_load.sh
+                    fi
                 fi
             fi
         fi
