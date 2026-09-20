@@ -72,6 +72,8 @@ load_wine()
 
     if ! [[ "$WINE_MAJOR_VERSION" == "11" ]];
     then
+        export WINE_11_LOADED=1
+        
         if [[ "$WINEARCH" == "win32" ]];
         then
             export WINELOADER="$WINE_BINARIES/wine"
@@ -111,7 +113,7 @@ load_wine()
 
     alias wine="$WINELOADER"
 
-    if ! [[ "$WINE_MAJOR_VERSION" == "11" ]];
+    if ! [[ -v WINE_11_LOADED ]];
     then
         alias wine32="$WINE_BINARIES/wine"
         alias wine64="$WINE_BINARIES/wine64"
@@ -127,7 +129,7 @@ load_wine()
 
     echo "Activated Wine $WINE_BRANCH $WINE_VERSION: $WINE_PATH"
 
-    if [[ "$WINE_MAJOR_VERSION" == "11" ]];
+    if [[ -v WINE_11_LOADED ]];
     then
         # Ensure WINEARCH is the proper for Wine 11 that
         # only supports win64 prefixes
