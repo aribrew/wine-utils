@@ -23,7 +23,6 @@ cp -u "$SCRIPT_HOME/wine_"* "$INSTALL_PATH"/
 cp -u "$SCRIPT_HOME/wineprefix_"* "$INSTALL_PATH"/
 cp -u "$SCRIPT_HOME/winenv_load.sh" "$INSTALL_PATH"/
 cp -u "$SCRIPT_HOME/make_default_wine.sh" "$INSTALL_PATH"/
-cp -u "$SCRIPT_HOME/install.sh" "$INSTALL_PATH"/
 
 cp -ru "$SCRIPT_HOME/docs" "$INSTALL_PATH"/
 cp -ru "$SCRIPT_HOME/helpers" "$INSTALL_PATH"/
