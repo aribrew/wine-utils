@@ -1,5 +1,20 @@
 #!/bin/bash
 
+usage()
+{
+    echo "Usage: requires_dll <executable> <DLL to find>"
+    echo ""
+}
+
+
+if [[ "$1" == "" ]] || [[ "$2" == "" ]] ||
+   [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]];
+then
+    usage
+    exit 1
+fi
+
+
 if ! [[ -v WINELOADER ]];
 then
     echo -e "Needs a WINE version active first.\n"
@@ -10,8 +25,12 @@ fi
 EXEC=$(realpath "$1")
 DLL="$2"
 
-if [[ -f "$EXEC" ]];
+
+if ! [[ -f "$EXEC" ]];
 then
+    echo -e "File not found.\n"
+    exit 1
+else
     DLL_FOUND=$(winedump "$EXEC" -j import | grep $DLL)
 
     if ! [[ "$DLL_FOUND" == "" ]];

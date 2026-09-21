@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SCRIPT_PATH=$(realpath $(dirname $0))
+
+"$SCRIPT_PATH/requires_dll" "$1" d3d11.dll
+
