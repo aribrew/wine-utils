@@ -191,6 +191,17 @@ then
 fi
 
 
+OS=$(uname -a)
+
+if [[ $OS == Darwin* ]];
+then
+    echo -e "Install wine-stable from Brew, Fink or MacPorts."
+    echo -e "You can use WINE and the wineprefix_load script then.\n"
+    
+    exit 0
+fi
+
+
 WINE_PATH="$1"
 
 load_wine "$WINE_PATH"
