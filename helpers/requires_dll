@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if ! [[ -v WINELOADER ]];
+then
+    echo -e "Needs a WINE version active first.\n"
+    exit 1
+fi
+
+
+EXEC=$(realpath "$1")
+DLL="$2"
+
+if [[ -f "$EXEC" ]];
+then
+    DLL_FOUND=$(winedump "$EXEC" -j import | grep $DLL)
+
+    if ! [[ "$DLL_FOUND" == "" ]];
+    then
+        echo -e "The executable '$EXEC' loads the given DLL.\n"
+    else
+        echo -e "The given DLL isn't loaded by '$EXEC'.\n"
+    fi
+fi

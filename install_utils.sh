@@ -14,7 +14,7 @@ then
 fi
 
 
-echo -e "Updating WINE Utils ...\n"
+echo -e "Updating WINE Utils ..."
 echo -e "-----------------------"
 
 cp -u "$SCRIPT_HOME/twine.sh" "$INSTALL_PATH"/
@@ -26,6 +26,7 @@ cp -u "$SCRIPT_HOME/make_default_wine.sh" "$INSTALL_PATH"/
 cp -u "$SCRIPT_HOME/install.sh" "$INSTALL_PATH"/
 
 cp -ru "$SCRIPT_HOME/docs" "$INSTALL_PATH"/
+cp -ru "$SCRIPT_HOME/helpers" "$INSTALL_PATH"/
 cp -ru "$SCRIPT_HOME/extras" "$INSTALL_PATH"/
 cp -ru "$SCRIPT_HOME/gog" "$INSTALL_PATH"/
 
