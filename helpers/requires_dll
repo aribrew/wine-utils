@@ -31,7 +31,7 @@ then
     echo -e "File not found.\n"
     exit 1
 else
-    DLL_FOUND=$(winedump "$EXEC" -j import | grep $DLL)
+    DLL_FOUND=$("${WINE_UTILS}/winedump" "$EXEC" -j import | grep $DLL)
 
     if ! [[ "$DLL_FOUND" == "" ]];
     then
