@@ -16,9 +16,24 @@ usage()
 }
 
 
-if ! [[ -f "$SCRIPT_HOME/gogg" ]];
+OS=$(uname -a)
+
+if [[ $OS == Linux* ]];
 then
-    echo -e "Cannot find gogg executable. Must be along the script.\n"
+    GOGG="lgogg"
+
+elif [[ $OS == Darwin* ]];
+then
+    GOGG="mgogg"
+else
+    echo -e "No Linux or Mac... what the hell is this?\n"
+    exit -1
+fi
+
+
+if ! [[ -f "$SCRIPT_HOME/$GOGG" ]];
+then
+    echo -e "Cannot find $GOGG executable. Must be along the script.\n"
     exit 1
 fi
 
@@ -69,9 +84,9 @@ then
 fi
 
 
-gogg download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
-                                    --resume="true" \
-                                    --lang="$GAME_LANG"
+$GOGG download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
+                                     --resume="true" \
+                                     --lang="$GAME_LANG"
 
 EXECUTABLES_FOUND=$(find "$GAME_PATH/" -type f -name "*.exe")
 
@@ -80,9 +95,9 @@ then
     echo -e "\nInstaller not found. Maybe not available in '$GAME_LANG'."
     echo -e "Trying with the 'en' language...\n"
 
-    gogg download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
-                                        --resume="true" \
-                                        --lang="en"
+    $GOGG download $GAME_ID "$GAME_PATH" --extras="$GAME_EXTRAS" \
+                                         --resume="true" \
+                                         --lang="en"
 
     EXECUTABLES_FOUND=$(find "$GAME_PATH/" -type f -name "*.exe")
 

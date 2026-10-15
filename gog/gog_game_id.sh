@@ -60,7 +60,9 @@ then
         GAME_ID=$(echo "$GAME_ID" | xargs | sed 's/,//g' | cut -d ' ' -f 2)
     fi
 else
-    GAME_ID=$($GOGG catalogue search "$GAME_NAME" 2> /dev/null | grep "$GAME_NAME" | tail -1 | cut -d "|" -f 3 | xargs)
+    #GAME_ID=$($GOGG catalogue search "$GAME_NAME" 2> /dev/null | grep "$GAME_NAME" | tail -1 | cut -d "|" -f 3 | xargs)
+    GAME_ID=$($GOGG catalogue search "$GAME_NAME" 2> /dev/null | grep "$GAME_NAME")
+    GAME_ID=$(echo "$GAME_ID" | tail -1 | cut -d "|" -f 3 | xargs)
 fi
 
 echo "$GAME_ID"
