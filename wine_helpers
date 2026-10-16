@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export WINE_DEFAULT_BRANCH="stable"
 export WINE_DEFAULT_VERSION="11.0.0.0"
